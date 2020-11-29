@@ -4,6 +4,31 @@
 
 ## 简单
 
+### 数组
+
+#### 三角形的最大周长：Largest Perimeter Triangle
+
+- 题目说明：输入数组，输出面积不为0的三角形最大周长
+- 样例：
+```c
+输入：[2,1,2]
+输出：5
+输入：[1,2,1]
+输出：0
+```
+- 思路：倒序排列数组，顺序遍历贪心寻找最大周长
+- 时间复杂度：O（NlogN）（来自排序）；空间复杂度：O（logN）（来自排序）
+- 代码：
+```python
+class Solution:
+    def largestPerimeter(self, A: List[int]) -> int:
+        A.sort(reverse = True)
+        for i in range(len(A)-2):
+            if A[i] < A[i+1]+A[i+2]:
+                return A[i]+A[i+1]+A[i+2]
+        return 0
+```
+
 ### 字符串
 
 #### 上升下降字符串：Increasing Decreasing String——11/25
