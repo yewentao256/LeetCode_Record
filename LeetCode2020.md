@@ -63,6 +63,39 @@ class Solution:
         return result
 ```
 
+#### 罗马字符转整数：Roman to Integer
+
+- 题目说明：输入罗马字符，转为整数
+- 样例：
+```c
+输入: "MCMXCIV"
+输出: 1994
+解释: M = 1000, CM = 900, XC = 90, IV = 4
+注意：IC 和 IM 这样的例子并不符合题目要求，49 应该写作 XLIX，999 应该写作 CMXCIX 。
+```
+- 思路：建立哈希表，遍历字符串
+- 时间复杂度：O(N), 空间复杂度：O(1)（或者说是建立哈希表的常数）
+- 代码
+```python
+class Solution:
+    def romanToInt(self, s: str) -> int:
+        # 生成字典，注意“IM”这种表达是不规范的
+        dic = {"I":1, "IV":4, "V":5, "IX":9, "X":10, "XL":40, "L":50, "XC":90, "C":100, "CD":400, "D":500, "CM":900, "M":1000}
+        result = 0
+        i = 0
+        while(i<len(s)):
+            if i<len(s)-1 and s[i]+s[i+1] in dic:       # 短路运算，如果i为最后一个不会计入此
+                result += dic[s[i]+s[i+1]]
+                i += 2
+            elif s[i] in dic:
+                result += dic[s[i]]
+                i += 1
+            else:
+                print("error")
+                break
+        return result
+```
+
 ## 中等
 
 ### 链表
