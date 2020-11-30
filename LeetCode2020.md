@@ -6,7 +6,7 @@
 
 ### 数组
 
-#### 三角形的最大周长：Largest Perimeter Triangle
+#### 三角形的最大周长：Largest Perimeter Triangle——11/29
 
 - 题目说明：输入数组，输出面积不为0的三角形最大周长
 - 样例：
@@ -63,7 +63,7 @@ class Solution:
         return result
 ```
 
-#### 罗马字符转整数：Roman to Integer
+#### 罗马字符转整数：Roman to Integer——11/29
 
 - 题目说明：输入罗马字符，转为整数
 - 样例：
@@ -97,6 +97,48 @@ class Solution:
 ```
 
 ## 中等
+
+### 字符串
+
+#### 重构字符串：Reorganize String——11/30
+
+- 题目说明：输入字符串，重新排布字母，使得相邻两字符不同。如果不能排布返回空串
+- 样例：
+```c
+输入: S = "aab"
+输出: "aba"
+```
+- 思路：统计计数并排序 → 从最大的计数字符开始，逐二放入最大计数的字符，剩余字符填充
+- 时间复杂度：O（N），空间复杂度：O（1）
+- 代码：
+```python
+class Solution:
+    def reorganizeString(self, S: str) -> str:
+        if len(S) < 2:
+            return S
+        length = len(S)
+        counts = collections.Counter(S)
+        maxCount = max(counts.items(), key=lambda x: x[1])[1]   # 返回最大value的键值对元组，所以用[1]取到最大值
+        # 如果n偶数，那么达到n/2+1就不可能匹配，如4个中的3个，代码表示为max>(length+1)//2
+        # 如果n奇数，那么达到(n+1)/2+1就不可能匹配，如5个中的4个，代码表示为max>(length+1)//2
+        if maxCount > (length + 1) // 2:
+            return ""
+        lst = [""] * length
+        even_index, old_index = 0, 1
+        halfLength = length // 2
+        # 整体而言，先逐二放最多的，再依次填充
+        for c, count in counts.items():
+            # 只要count<=总长度的一半，那么就可以放在奇数下标，否则必须放在偶数下标
+            while count > 0 and count <= halfLength and old_index < length:
+                lst[old_index] = c
+                count -= 1
+                old_index += 2
+            while count > 0:
+                lst[even_index] = c
+                count -= 1
+                even_index += 2
+        return "".join(lst)
+```
 
 ### 链表
 
@@ -139,7 +181,7 @@ class Solution:
         return head
 ```
 
-#### 链表排序：Sort List
+#### 链表排序：Sort List——11/18
 
 - 题目说明：链表升序排序，要求时间复杂度O(nlogn)，空间复杂度O(1)
 - 样例：
@@ -169,9 +211,9 @@ class Solution:
         return dummy.next
 ```
 
-### 一次遍历
+### 数组
 
-#### 加油站：Gas Station
+#### 加油站：Gas Station——11/24
 
 - 题目说明：
 在一条环路上有 N 个加油站，其中第 i 个加油站有汽油 gas[i] 升。你有一辆油箱容量无限的的汽车，从第 i 个加油站开往第 i+1 个加油站需要消耗汽油 cost[i] 升。你从其中的一个加油站出发，开始时油箱为空。如果你可以绕环路行驶一周，则返回出发时加油站的编号，否则返回 -1。
