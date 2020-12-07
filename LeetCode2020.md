@@ -98,6 +98,29 @@ class Solution:
 
 ## 中等
 
+### bit级别算法
+
+#### 一定范围内与：Bitwise AND of Numbers Range——2020/9
+
+- 题目说明：输入范围[m,n]，0<=m<=n<=2147483647，返回在这个范围中所有数的按位与，inclusive
+- 样例：
+```c
+输入: [5,7]
+输出: 4
+```
+- 思路：暴力与+如果m与n不同阶结果一定为0（如111和1000） → 超时；
+- 思路2：观察，发现最终结果一定为m和n的公共前缀，如1100与1111， 最终结果一定是1100，用移位法解决问题
+- 代码：
+```python
+def rangeBitwiseAnd(self, m: int, n: int) -> int:
+        t = 0
+        while m<n:
+            m = m >> 1
+            n = n >> 1
+            t +=1
+        return n<< t
+```
+
 ### 字符串
 
 #### 重构字符串：Reorganize String——11/30
