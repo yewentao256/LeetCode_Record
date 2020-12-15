@@ -19,6 +19,7 @@
       - [链表排序：Sort List——11/18](#链表排序sort-list1118)
     - [数组](#数组-1)
       - [加油站：Gas Station——11/24](#加油站gas-station1124)
+      - [单调递增的数字：Monotone Increasing Digits——12/15](#单调递增的数字monotone-increasing-digits1215)
   - [困难](#困难)
 
 ## 简单
@@ -348,6 +349,40 @@ class Solution:
         else:
             return -1
 ```
+
+#### 单调递增的数字：Monotone Increasing Digits——12/15
+
+- 题目说明：给定一个非负整数 N，找出小于或等于 N 的最大的整数，同时这个整数需要满足其各个位数上的数字是单调递增。
+- 样例：输入N = 10，输出9；输入N = 332，输出N = 299
+- 思路1：正向遍历字符，如果当前位比后一位大，则当前位减1，后面所有位=9。再反向纠正因为当前位减1可能导致的比前一位小的问题。
+- 空间复杂度：O（logN），时间复杂度：O（logN）——需要遍历logN位数
+- 代码：
+```python
+def monotoneIncreasingDigits(self, N: int) -> int:
+    # 整数展开为列表，元素为整数的每一位
+    lst = list(str(N))
+    # 正向遍历列表
+    for i in range(len(lst)-1):
+        # 如果当前位比后一位大，当前位值-1，之后所有位变为9
+        if lst[i]>lst[i+1]:
+            lst[i] = str(int(lst[i])-1)
+            for j in range(i+1, len(lst)):
+                lst[j] = '9'
+            # 如果当前位减1之后比前一位小，前一位减1，当前位变为9
+            # 反序遍历，处理当前位减1后比前一位小的情况。特殊情况是每一位都减后比之前的小，会反序遍历所有元素
+            for j in range(i-1,-1,-1):
+                if lst[j]>lst[j+1]:
+                    lst[j] = str(int(lst[j])-1)
+                    lst[j+1] = '9'
+                else:
+                    break
+            break
+        # 如果当前位小于等于后一位，不做处理
+        else:
+            pass
+    return int(''.join(lst))
+```
+- 思路2：可以直接反序遍历，如果当前位比前一位小，则当前位=9，前一位减1。需要纠正一些特殊情况如10000 → 9000，实际答案为9999
 
 ## 困难
 
