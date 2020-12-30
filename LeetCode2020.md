@@ -9,6 +9,7 @@
     - [字符串](#字符串)
       - [上升下降字符串：Increasing Decreasing String——11/25](#上升下降字符串increasing-decreasing-string1125)
       - [罗马字符转整数：Roman to Integer——11/29](#罗马字符转整数roman-to-integer1129)
+    - [字符串中的第一个唯一字符：First Unique Character in a String](#字符串中的第一个唯一字符first-unique-character-in-a-string)
   - [中等](#中等)
     - [bit级别算法](#bit级别算法)
       - [一定范围内与：Bitwise AND of Numbers Range——2020/9/6](#一定范围内与bitwise-and-of-numbers-range202096)
@@ -17,6 +18,8 @@
     - [链表](#链表)
       - [奇偶链表：Odd Even Linked List——11/13](#奇偶链表odd-even-linked-list1113)
       - [链表排序：Sort List——11/18](#链表排序sort-list1118)
+    - [树](#树)
+      - [完全二叉树的节点个数：Count Complete Tree Nodes](#完全二叉树的节点个数count-complete-tree-nodes)
     - [数组](#数组-1)
       - [加油站：Gas Station——11/24](#加油站gas-station1124)
       - [单调递增的数字：Monotone Increasing Digits——12/15](#单调递增的数字monotone-increasing-digits1215)
@@ -94,7 +97,6 @@ def generate(self, numRows: int) -> List[List[int]]:
 0 1 2 1 + 1 2 1 0 = 1 3 3 1
 ```
 
-
 ### 字符串
 
 #### 上升下降字符串：Increasing Decreasing String——11/25
@@ -160,6 +162,21 @@ class Solution:
                 print("error")
                 break
         return result
+```
+
+### 字符串中的第一个唯一字符：First Unique Character in a String
+
+- 题目说明：给定一个字符串，找到它的第一个不重复的字符，并返回它的索引。如果不存在，则返回 -1。（仅包含小写字符）
+- 样例：输入s = "leetcode"，返回 0
+- 思路：哈希表存储频数并再次遍历字符串
+- 代码：
+```python
+def firstUniqChar(self, s: str) -> int:
+    frequency = collections.Counter(s)
+    for i, ch in enumerate(s):
+        if frequency[ch] == 1:
+            return i
+    return -1
 ```
 
 ## 中等
@@ -298,6 +315,54 @@ class Solution:
             t.next = ret
             t = t.next
         return dummy.next
+```
+### 树
+
+#### 完全二叉树的节点个数：Count Complete Tree Nodes
+
+- 题目说明：给出一个完全二叉树，求出该树的节点个数。（完全二叉树即除了最底层可能没填满外，所有层均满）
+- 样例：
+```c
+输入: [1,2,3,4,5,6]，即下图结构
+    1
+   / \
+  2   3
+ / \  /
+4  5 6
+输出: 6
+```
+- 思路1：遍历即可，时间复杂度O（N），空间复杂度O（h）——栈深度最多为树的高度，存储的值为传的结点
+- 思路2：二分法 + 二进制表示路径（0向左，1向右），时间复杂度O（logN），空间复杂度O（1）
+- 代码
+```python
+# 二叉树二进制定义判断能否找到路径
+def Path(self, root, num):
+    for s in bin(num)[3:]:  # 十进制转二进制，前两位为0b，第三位为根节点，根节点非空一定为1，所以从第四位开始，下标为3
+        if s == "0": 
+            root = root.left
+        else:
+            root = root.right
+        return root != None
+def countNodes(self, root: TreeNode) -> int:
+    if not root:return 0
+    # 计算树高，求得左右边界
+    depth = 1
+    tmp = root
+    while tmp.left:
+        depth += 1
+        tmp = tmp.left
+    
+    left, right = 2 ** (depth-1), 2 ** depth - 1
+    # left < right 型二分，本题最终结果只需要缩小到left = right，而且一定有解
+    while left < right:
+        mid = (left + right + 1) // 2  # 向上取整
+        # 如果有根出发到mid的路径，左边界记为mid，二分边界缩小
+        if self.Path(root, mid):
+            left = mid
+        # 没有则右边界记为mid-1
+        else:
+            right = mid - 1
+    return left
 ```
 
 ### 数组
