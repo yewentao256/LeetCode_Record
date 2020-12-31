@@ -11,8 +11,10 @@
       - [罗马字符转整数：Roman to Integer——11/29](#罗马字符转整数roman-to-integer1129)
     - [字符串中的第一个唯一字符：First Unique Character in a String](#字符串中的第一个唯一字符first-unique-character-in-a-string)
   - [中等](#中等)
+    - [动态规划](#动态规划)
+      - [不同路径：Unique Paths——12/31](#不同路径unique-paths1231)
     - [bit级别算法](#bit级别算法)
-      - [一定范围内与：Bitwise AND of Numbers Range——2020/9/6](#一定范围内与bitwise-and-of-numbers-range202096)
+      - [一定范围内与：Bitwise AND of Numbers Range——9/6](#一定范围内与bitwise-and-of-numbers-range96)
     - [字符串](#字符串-1)
       - [重构字符串：Reorganize String——11/30](#重构字符串reorganize-string1130)
     - [链表](#链表)
@@ -181,9 +183,39 @@ def firstUniqChar(self, s: str) -> int:
 
 ## 中等
 
+### 动态规划
+
+#### 不同路径：Unique Paths——12/31
+
+- 题目说明：一个机器人位于一个 m x n 网格的左上角 （起始点在下图中标记为 “Start” ），机器人每次只能向下或者向右移动一步。机器人试图达到网格的右下角（在下图中标记为 “Finish” ）。问总共有多少条不同的路径？
+- 样例：
+    输入：m = 3, n = 7(3行7列)
+    输出：28
+- 思路
+    - 建立状态转移方程（i，j格子的值为左边格子的值+上边格子的值）：$f(i,j) = f(i-1,j)+f(i,j-1)$
+    - 初始值与结束条件：初始值$f(0,0) = 0, f(m,n)结束$
+    - 缓存并复用结果：需要用二维数组存储中间结果
+    - 按顺序从小到大计算：两个循环逐行逐列分析
+    - 时间复杂度：O（m*n)，空间复杂度：O（m*n）——也可以通过声明操作降为O（N）
+- 代码：
+```python
+def count_paths(m,n):
+    results = [[1 for _ in range(n)] for _ in range(m)]
+    # results = [[1]*n]*m   # 用这个更省空间，只有O（N），虽然会有同时赋值的问题，但并不影响
+
+    # 第0行第0列都是1，剪枝跳过
+    for i in range(1, m):           # 行计算
+        for j in range(1, n):       # 列计算
+            results[i][j] = results[i-1][j]+results[i][j-1]     # 应用状态转移方程，且复用中间结果
+    
+    return results[-1][-1]
+```
+- 备注：也可以通过组合数学思路计算，从m+n-2中选择m-1次向下移动的方案，时间复杂度降为O(m)，空间复杂度降为O（1）
+`return comb(m + n - 2, n - 1)`
+
 ### bit级别算法
 
-#### 一定范围内与：Bitwise AND of Numbers Range——2020/9/6
+#### 一定范围内与：Bitwise AND of Numbers Range——9/6
 
 - 题目说明：输入范围[m,n]，0<=m<=n<=2147483647，返回在这个范围中所有数的按位与，inclusive
 - 样例：
