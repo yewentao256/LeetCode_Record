@@ -2,6 +2,8 @@
 
 - [2020LeetCode记录](#2020leetcode记录)
   - [简单](#简单)
+    - [动态规划](#动态规划)
+      - [使用最小花费爬楼梯：Min Cost Climbing Stairs——12/31](#使用最小花费爬楼梯min-cost-climbing-stairs1231)
     - [数组](#数组)
       - [三角形的最大周长：Largest Perimeter Triangle——11/29](#三角形的最大周长largest-perimeter-triangle1129)
       - [存在重复元素：Contains Duplicate——12/13](#存在重复元素contains-duplicate1213)
@@ -11,7 +13,7 @@
       - [罗马字符转整数：Roman to Integer——11/29](#罗马字符转整数roman-to-integer1129)
     - [字符串中的第一个唯一字符：First Unique Character in a String](#字符串中的第一个唯一字符first-unique-character-in-a-string)
   - [中等](#中等)
-    - [动态规划](#动态规划)
+    - [动态规划](#动态规划-1)
       - [不同路径：Unique Paths——12/31](#不同路径unique-paths1231)
     - [bit级别算法](#bit级别算法)
       - [一定范围内与：Bitwise AND of Numbers Range——9/6](#一定范围内与bitwise-and-of-numbers-range96)
@@ -28,6 +30,32 @@
   - [困难](#困难)
 
 ## 简单
+
+### 动态规划
+
+#### 使用最小花费爬楼梯：Min Cost Climbing Stairs——12/31
+
+- 题目说明：数组的每个下标作为一个阶梯，第 i 个阶梯对应着一个非负数的体力花费值 cost[i]（下标从 0 开始）。每当你爬上一个阶梯你都要花费对应的体力值，一旦支付了相应的体力值，你就可以选择向上爬一个阶梯或者爬两个阶梯。请你找出达到楼层顶部的最低花费。在开始时，你可以选择从下标为 0 或 1 的元素作为初始阶梯。
+- 样例：
+输入：cost = [10, 15, 20]
+输出：15
+解释：最低花费是从 cost[1] 开始，然后走两步即可到阶梯顶，一共花费 15 。
+输入：cost = [1, 100, 1, 1, 1, 100, 1, 1, 100, 1]
+输出：6
+解释：最低花费方式是从 cost[0] 开始，逐个经过那些 1 ，跳过 cost[3] ，一共花费 6 。
+- 思路：动态规划，时间复杂度O（N），空间复杂度O（N）
+- 代码
+```python
+def minCostClimbingStairs(self, cost: List[int]) -> int:
+    l = len(cost)
+    # 缓存列表，该列表元素的含义为走上第n个台阶，所需要消耗的最少体力
+    # 注：也可以用滚动数组的思想，不用缓存列表，将空间复杂度降为O（1）
+    lst = [0]*(l+1)
+    # 从小到大计算
+    for i in range(2, l+1):
+        lst[i] = min(cost[i-1] + lst[i-1], cost[i-2] + lst[i-2])
+    return lst[-1]
+```
 
 ### 数组
 
