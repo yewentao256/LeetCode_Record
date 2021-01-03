@@ -3,37 +3,36 @@
 - [2020LeetCode记录](#2020leetcode记录)
   - [简单](#简单)
     - [动态规划](#动态规划)
-      - [使用最小花费爬楼梯：Min Cost Climbing Stairs——12/31](#使用最小花费爬楼梯min-cost-climbing-stairs1231)
+      - [使用最小花费爬楼梯：Min Cost Climbing Stairs](#使用最小花费爬楼梯min-cost-climbing-stairs)
     - [数组](#数组)
-      - [三角形的最大周长：Largest Perimeter Triangle——11/29](#三角形的最大周长largest-perimeter-triangle1129)
-      - [存在重复元素：Contains Duplicate——12/13](#存在重复元素contains-duplicate1213)
-      - [杨辉三角：Pascal's Triangle——12/13](#杨辉三角pascals-triangle1213)
+      - [三角形的最大周长：Largest Perimeter Triangle](#三角形的最大周长largest-perimeter-triangle)
+      - [存在重复元素：Contains Duplicate](#存在重复元素contains-duplicate)
+      - [杨辉三角：Pascal's Triangle](#杨辉三角pascals-triangle)
     - [字符串](#字符串)
-      - [上升下降字符串：Increasing Decreasing String——11/25](#上升下降字符串increasing-decreasing-string1125)
-      - [罗马字符转整数：Roman to Integer——11/29](#罗马字符转整数roman-to-integer1129)
+      - [上升下降字符串：Increasing Decreasing String](#上升下降字符串increasing-decreasing-string)
+      - [罗马字符转整数：Roman to Integer](#罗马字符转整数roman-to-integer)
     - [字符串中的第一个唯一字符：First Unique Character in a String](#字符串中的第一个唯一字符first-unique-character-in-a-string)
   - [中等](#中等)
     - [动态规划](#动态规划-1)
-      - [不同路径：Unique Paths——12/31](#不同路径unique-paths1231)
+      - [不同路径：Unique Paths](#不同路径unique-paths)
     - [bit级别算法](#bit级别算法)
-      - [一定范围内与：Bitwise AND of Numbers Range——9/6](#一定范围内与bitwise-and-of-numbers-range96)
+      - [一定范围内与：Bitwise AND of Numbers Range](#一定范围内与bitwise-and-of-numbers-range)
     - [字符串](#字符串-1)
-      - [重构字符串：Reorganize String——11/30](#重构字符串reorganize-string1130)
+      - [重构字符串：Reorganize String](#重构字符串reorganize-string)
     - [链表](#链表)
-      - [奇偶链表：Odd Even Linked List——11/13](#奇偶链表odd-even-linked-list1113)
-      - [链表排序：Sort List——11/18](#链表排序sort-list1118)
+      - [奇偶链表：Odd Even Linked List](#奇偶链表odd-even-linked-list)
+      - [链表排序：Sort List](#链表排序sort-list)
     - [树](#树)
       - [完全二叉树的节点个数：Count Complete Tree Nodes](#完全二叉树的节点个数count-complete-tree-nodes)
     - [数组](#数组-1)
-      - [加油站：Gas Station——11/24](#加油站gas-station1124)
-      - [单调递增的数字：Monotone Increasing Digits——12/15](#单调递增的数字monotone-increasing-digits1215)
-  - [困难](#困难)
+      - [加油站：Gas Station](#加油站gas-station)
+      - [单调递增的数字：Monotone Increasing Digits](#单调递增的数字monotone-increasing-digits)
 
 ## 简单
 
 ### 动态规划
 
-#### 使用最小花费爬楼梯：Min Cost Climbing Stairs——12/31
+#### 使用最小花费爬楼梯：Min Cost Climbing Stairs
 
 - 题目说明：数组的每个下标作为一个阶梯，第 i 个阶梯对应着一个非负数的体力花费值 cost[i]（下标从 0 开始）。每当你爬上一个阶梯你都要花费对应的体力值，一旦支付了相应的体力值，你就可以选择向上爬一个阶梯或者爬两个阶梯。请你找出达到楼层顶部的最低花费。在开始时，你可以选择从下标为 0 或 1 的元素作为初始阶梯。
 - 样例：
@@ -59,7 +58,7 @@ def minCostClimbingStairs(self, cost: List[int]) -> int:
 
 ### 数组
 
-#### 三角形的最大周长：Largest Perimeter Triangle——11/29
+#### 三角形的最大周长：Largest Perimeter Triangle
 
 - 题目说明：输入数组，输出面积不为0的三角形最大周长
 - 样例：
@@ -82,7 +81,7 @@ class Solution:
         return 0
 ```
 
-#### 存在重复元素：Contains Duplicate——12/13
+#### 存在重复元素：Contains Duplicate
 
 - 题目说明：输入一个数组，如果数组存在重复元素输出True，否则输出False
 - 样例
@@ -98,7 +97,7 @@ def containsDuplicate(self, nums: List[int]) -> bool:
     return len(nums) != len(set(nums))
 ```
 
-#### 杨辉三角：Pascal's Triangle——12/13
+#### 杨辉三角：Pascal's Triangle
 
 - 题目说明：给定一个非负整数 numRows，生成杨辉三角的前 numRows 行。
 - 样例：输入3，输出[[1],[1,1],[1,2,1]]
@@ -129,7 +128,7 @@ def generate(self, numRows: int) -> List[List[int]]:
 
 ### 字符串
 
-#### 上升下降字符串：Increasing Decreasing String——11/25
+#### 上升下降字符串：Increasing Decreasing String
 
 - 题目说明：输入一个字串，输出一个上升下降字符串
 - 样例
@@ -161,7 +160,7 @@ class Solution:
         return result
 ```
 
-#### 罗马字符转整数：Roman to Integer——11/29
+#### 罗马字符转整数：Roman to Integer
 
 - 题目说明：输入罗马字符，转为整数
 - 样例：
@@ -213,7 +212,7 @@ def firstUniqChar(self, s: str) -> int:
 
 ### 动态规划
 
-#### 不同路径：Unique Paths——12/31
+#### 不同路径：Unique Paths
 
 - 题目说明：一个机器人位于一个 m x n 网格的左上角 （起始点在下图中标记为 “Start” ），机器人每次只能向下或者向右移动一步。机器人试图达到网格的右下角（在下图中标记为 “Finish” ）。问总共有多少条不同的路径？
 - 样例：
@@ -243,7 +242,7 @@ def count_paths(m,n):
 
 ### bit级别算法
 
-#### 一定范围内与：Bitwise AND of Numbers Range——9/6
+#### 一定范围内与：Bitwise AND of Numbers Range
 
 - 题目说明：输入范围[m,n]，0<=m<=n<=2147483647，返回在这个范围中所有数的按位与，inclusive
 - 样例：
@@ -266,7 +265,7 @@ def rangeBitwiseAnd(self, m: int, n: int) -> int:
 
 ### 字符串
 
-#### 重构字符串：Reorganize String——11/30
+#### 重构字符串：Reorganize String
 
 - 题目说明：输入字符串，重新排布字母，使得相邻两字符不同。如果不能排布返回空串
 - 样例：
@@ -308,7 +307,7 @@ class Solution:
 
 ### 链表
 
-#### 奇偶链表：Odd Even Linked List——11/13
+#### 奇偶链表：Odd Even Linked List
 
 - 题目说明：输入一个链表，奇数位和偶数位分离
 - 样例：
@@ -347,7 +346,7 @@ class Solution:
         return head
 ```
 
-#### 链表排序：Sort List——11/18
+#### 链表排序：Sort List
 
 - 题目说明：链表升序排序，要求时间复杂度O(nlogn)，空间复杂度O(1)
 - 样例：
@@ -376,6 +375,7 @@ class Solution:
             t = t.next
         return dummy.next
 ```
+
 ### 树
 
 #### 完全二叉树的节点个数：Count Complete Tree Nodes
@@ -427,7 +427,7 @@ def countNodes(self, root: TreeNode) -> int:
 
 ### 数组
 
-#### 加油站：Gas Station——11/24
+#### 加油站：Gas Station
 
 - 题目说明：
 在一条环路上有 N 个加油站，其中第 i 个加油站有汽油 gas[i] 升。你有一辆油箱容量无限的的汽车，从第 i 个加油站开往第 i+1 个加油站需要消耗汽油 cost[i] 升。你从其中的一个加油站出发，开始时油箱为空。如果你可以绕环路行驶一周，则返回出发时加油站的编号，否则返回 -1。
@@ -475,7 +475,7 @@ class Solution:
             return -1
 ```
 
-#### 单调递增的数字：Monotone Increasing Digits——12/15
+#### 单调递增的数字：Monotone Increasing Digits
 
 - 题目说明：给定一个非负整数 N，找出小于或等于 N 的最大的整数，同时这个整数需要满足其各个位数上的数字是单调递增。
 - 样例：输入N = 10，输出9；输入N = 332，输出N = 299
@@ -508,7 +508,3 @@ def monotoneIncreasingDigits(self, N: int) -> int:
     return int(''.join(lst))
 ```
 - 思路2：可以直接反序遍历，如果当前位比前一位小，则当前位=9，前一位减1。需要纠正一些特殊情况如10000 → 9000，实际答案为9999
-
-## 困难
-
-
