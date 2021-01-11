@@ -2,6 +2,41 @@
 
 ## 简单
 
+### 数组
+
+#### 汇总区间：Summary Ranges
+
+- 问题描述：给定一个无重复元素的有序整数数组nums。返回 恰好覆盖数组中所有数字 的 最小有序 区间范围列表。也就是说，nums 的每个元素都恰好被某个区间范围所覆盖，并且不存在属于某个范围但不属于 nums 的数字 x 。列表中的每个区间范围 [a,b] 应该按如下格式输出："a->b" ，如果 a != b；"a" ，如果 a == b
+- 示例：
+输入：nums = [0,1,2,4,5,7]
+输出：["0->2","4->5","7"]
+解释：区间范围是：
+[0,2] --> "0->2"
+[4,5] --> "4->5"
+[7,7] --> "7"
+输入：nums = [-1]
+输出：["-1"]
+- 思路：一次遍历，时间复杂度:O（N），空间复杂度：O（1）
+- 代码：
+```python
+def summaryRanges(self, nums: List[int]) -> List[str]:
+    if len(nums) == 1:
+        return [str(nums[0])]
+    nums = nums + [0]           # 哨兵
+    result = []
+    start = 0
+    for i in range(len(nums)-1):
+        if nums[i]+1 == nums[i+1]:
+            continue
+        else:
+            if start == i:
+                result.append(str(nums[i]))
+            else:
+                result.append(str(nums[start]) + "->" + str(nums[i]))
+            start = i + 1 
+    return result
+```
+
 ### 动态规划
 
 #### 斐波那契数列：Fibonacci Number
