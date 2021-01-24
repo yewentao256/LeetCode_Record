@@ -37,6 +37,29 @@ def summaryRanges(self, nums: List[int]) -> List[str]:
     return result
 ```
 
+#### 最长连续递增序列：Longest Continuous Increasing Subsequence
+
+- 题目说明：给定一个未经排序的整数数组，找到最长且 连续递增的子序列，并返回该序列的长度。
+- 示例：
+输入：nums = [1,3,5,4,7]
+输出：3
+- 思路：贪心一次遍历，时间复杂度O(N),空间复杂度O（1）
+- 代码：
+```python
+def findLengthOfLCIS(self, nums: List[int]) -> int:
+    if len(nums)==1:
+        return 1
+    result = 0
+    start = 0
+    # 注：python的for循环并不会每次调用len函数，len只调用1遍生成range对象
+    for i in range(1, len(nums)):
+        if nums[i] <= nums[i - 1]:
+            start = i
+        result = max(result, i - start + 1)
+    
+    return result
+```
+
 ### 动态规划
 
 #### 斐波那契数列：Fibonacci Number
