@@ -60,28 +60,6 @@ def findLengthOfLCIS(self, nums: List[int]) -> int:
     return result
 ```
 
-### 动态规划
-
-#### 斐波那契数列：Fibonacci Number
-
-- 问题描述：输入n，返回对应斐波那契数列值
-- 示例：输入2，返回1；输入3，返回2
-- 思路：动态规划+不缓存减少空间复杂度。时间复杂度：O（N），空间复杂度：O（1）
-- 代码：
-```python
-def fib(self, n: int) -> int:
-    if n <2:
-        return n
-    p, q, r = 0,0,1
-    for i in range(2,n+1):
-        p,q = q,r
-        r = p+q
-    return r 
-```
-- 注：如果用通项公式可以O（1）的时间复杂度
-
-### 贪心
-
 #### 种花问题：Can Place Flowers
 
 - 问题描述：长花坛的花不能种植在相邻的地块上。一个整数数组flowerbed 表示花坛，由若干 0 和 1 组成，其中 0 表示没种花，1 表示种植了花。另有一个数 n ，能否在不打破种植规则的情况下种入 n 朵花？能则返回 true ，不能则返回 false。
@@ -109,6 +87,40 @@ def canPlaceFlowers(self, flowerbed: List[int], n: int) -> bool:
             i += 2
     return n<=0
 ```
+
+#### 数组形式的整数加法：Add to Array-Form of Integer
+
+- 题目描述：对于非负整数 X 而言，X 的数组形式是每位数字按从左到右的顺序形成的数组。例如，如果 X = 1231，那么其数组形式为 [1,2,3,1]。给定非负整数 X 的数组形式 A，返回整数 X+K 的数组形式。
+- 示例：
+输入：A = [1,2,0,0], K = 34
+输出：[1,2,3,4]
+解释：1200 + 34 = 1234
+- 思路：转为整数再转为数组，时间复杂度：O（N），空间复杂度：O（1）
+- 代码：
+```python
+def addToArrayForm(self, A: List[int], K: int) -> List[int]:
+    return map(int, str(int(''.join(map(str,A)))+K))
+```
+
+### 动态规划
+
+#### 斐波那契数列：Fibonacci Number
+
+- 问题描述：输入n，返回对应斐波那契数列值
+- 示例：输入2，返回1；输入3，返回2
+- 思路：动态规划+不缓存减少空间复杂度。时间复杂度：O（N），空间复杂度：O（1）
+- 代码：
+```python
+def fib(self, n: int) -> int:
+    if n <2:
+        return n
+    p, q, r = 0,0,1
+    for i in range(2,n+1):
+        p,q = q,r
+        r = p+q
+    return r 
+```
+- 注：如果用通项公式可以O（1）的时间复杂度
 
 ## 中等
 
