@@ -184,3 +184,28 @@ def minimumOperations(self, leaves: str) -> int:
             r, ry, ryr = r + 1, min(r, ry), min(ry, ryr)+1
     return ryr
 ```
+
+### 滑动窗口
+
+#### 最大连续1的个数 III：Max Consecutive Ones III
+
+- 题目描述：给定一个由若干 0 和 1 组成的数组 A，我们最多可以将 K 个值从 0 变成 1 。返回仅包含 1 的最长（连续）子数组的长度。
+- 示例：
+输入：A = [1,1,1,0,0,0,1,1,1,1,0], K = 2
+输出：6
+解释： [1,1,1,0,0,1,1,1,1,1,1]，如此翻转，最长的子数组长度为 6。
+- 思路：转换为求一个最长连续子数组，该子数组最多有K个0。滑动窗口解决
+- 时间复杂度：O（N），空间复杂度：O（1）
+- 代码：
+```python
+    def longestOnes(self, A: List[int], K: int) -> int:
+        left, right = 0, 0 # 双指针，右指针主动移动，左指针不满足条件时被动移动
+        zeros, max_l = 0, 0
+        for right in range(len(A)):
+            zeros += 1-A[right]
+            while zeros>K:    # 子数组超过K个0，不满足题意
+                zeros -= 1-A[left]
+                left += 1   # 左指针右移
+            max_l = max(max_l, right - left + 1) # 当前子数组和旧max_l取大者
+        return max_l
+```
