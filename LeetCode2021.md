@@ -209,3 +209,38 @@ def minimumOperations(self, leaves: str) -> int:
             max_l = max(max_l, right - left + 1) # 当前子数组和旧max_l取大者
         return max_l
 ```
+
+### 链表
+
+#### 反转链表 II：Reverse Linked List II
+
+- 题目描述：给出单链表的头指针 head 和两个整数 left 和 right ，其中 left <= right 。请反转从位置 left 到位置 right 的链表节点，返回反转后的链表。
+- 样例：
+    输入：head = [1,2,3,4,5], left = 2, right = 4
+    输出：[1,4,3,2,5]
+    输入：head = [5], left = 1, right = 1
+    输出：[5]
+- 思路：一次遍历实现翻转left~right中间部分的链表。通过从left位置的结点开始头插法，不断将后面的结点头插到前面来，自动实现了中间部分链表翻转
+- 代码：
+```python
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+
+def reverseBetween(self, head: ListNode, left: int, right: int) -> ListNode:
+    dummy_node = ListNode(-1)   # 首结点
+    dummy_node.next = head
+    pre = dummy_node
+    for _ in range(left - 1):   # 让pre指针停在需要头插的地方
+        pre = pre.next
+    cur = pre.next
+    for _ in range(right - left):   # 开始头插
+        aft = cur.next
+        cur.next = aft.next
+        aft.next = pre.next
+        pre.next = aft
+    
+    return dummy_node.next
+```
