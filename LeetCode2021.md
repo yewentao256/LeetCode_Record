@@ -36,6 +36,7 @@
 输出：[5,4]
 - 思路：计算A、B的差，此偏差一定为偶数，如偏差为2，则B给出的需要比A给出的大1。此外以set存储可以加快查找。时间复杂度：O（N），空间复杂度：O（N）
 - 代码：
+
 ```python
 def fairCandySwap(self, A: List[int], B: List[int]) -> List[int]:
     # A和B的偏差，即需要交换的多少，如偏差为2，则A给出的需比B给出的多1个，注意偏差一定为偶数
@@ -62,6 +63,7 @@ def fairCandySwap(self, A: List[int], B: List[int]) -> List[int]:
 输出：["-1"]
 - 思路：一次遍历，时间复杂度:O（N），空间复杂度：O（1）
 - 代码：
+
 ```python
 def summaryRanges(self, nums: List[int]) -> List[str]:
     if len(nums) == 1:
@@ -112,6 +114,7 @@ def findLengthOfLCIS(self, nums: List[int]) -> int:
 输出：true
 - 思路：贪心遍历即可，注意边界值检查，为此我们引入哨兵。时间复杂度：O（N），空间复杂度：O（1）
 - 代码：
+
 ```python
 def canPlaceFlowers(self, flowerbed: List[int], n: int) -> bool:
     # 尾部添加哨兵值
@@ -154,6 +157,7 @@ def addToArrayForm(self, A: List[int], K: int) -> List[int]:
 - 示例：输入2，返回1；输入3，返回2
 - 思路：动态规划+不缓存减少空间复杂度。时间复杂度：O（N），空间复杂度：O（1）
 - 代码：
+
 ```python
 def fib(self, n: int) -> int:
     if n <2:
@@ -164,6 +168,7 @@ def fib(self, n: int) -> int:
         r = p+q
     return r 
 ```
+
 - 注：如果用通项公式可以O（1）的时间复杂度
 
 ## 中等
@@ -178,18 +183,19 @@ def fib(self, n: int) -> int:
 输出：2
 解释：调整两次，将中间的两片红叶替换成黄叶，得到 "rrryyyyyyyyrr"
 - 思路：动态规划
-    - 划分三种模式：r（全红），ry（红+黄），ryr（红+黄+红）
-    - 如果第i片为r：
-        - $f(i).r = f(i-1).r$
-        - $f(i).ry = min(f(i-1).r, f(i-1).ry) + 1$（翻转），
-        - $f(i).ryr = min(f(i-1).ry, f(i-1).ryr)$
-    - 如果第i片为y：
-        - $f(i).r = f(i-1).r + 1$ （翻转）
-        - $f(i).ry = min(f(i-1).r, f(i-1).ry)$
-        - $f(i).ryr = min(f(i-1).ry, f(i-1).ryr) + 1$（翻转）
-    - 无需数组缓存，从小到大遍历处理即可，初始化r=1/0，ry和ryr都为1
+  - 划分三种模式：r（全红），ry（红+黄），ryr（红+黄+红）
+  - 如果第i片为r：
+    - $f(i).r = f(i-1).r$
+    - $f(i).ry = min(f(i-1).r, f(i-1).ry) + 1$（翻转），
+    - $f(i).ryr = min(f(i-1).ry, f(i-1).ryr)$
+  - 如果第i片为y：
+    - $f(i).r = f(i-1).r + 1$ （翻转）
+    - $f(i).ry = min(f(i-1).r, f(i-1).ry)$
+    - $f(i).ryr = min(f(i-1).ry, f(i-1).ryr) + 1$（翻转）
+  - 无需数组缓存，从小到大遍历处理即可，初始化r=1/0，ry和ryr都为1
 - 时间复杂度：O（N），空间复杂度：O（1）
 - 代码：
+
 ```python
 def minimumOperations(self, leaves: str) -> int:
     #设计三种模式进行：r模式全红，ry模式红+黄，ryr模式红+黄+红
@@ -221,6 +227,7 @@ def minimumOperations(self, leaves: str) -> int:
 - 思路：转换为求一个最长连续子数组，该子数组最多有K个0。滑动窗口解决
 - 时间复杂度：O（N），空间复杂度：O（1）
 - 代码：
+
 ```python
     def longestOnes(self, A: List[int], K: int) -> int:
         left, right = 0, 0 # 双指针，右指针主动移动，左指针不满足条件时被动移动
@@ -246,6 +253,7 @@ def minimumOperations(self, leaves: str) -> int:
     输出：[5]
 - 思路：一次遍历实现翻转left~right中间部分的链表。通过从left位置的结点开始头插法，不断将后面的结点头插到前面来，自动实现了中间部分链表翻转
 - 代码：
+
 ```python
 # Definition for singly-linked list.
 # class ListNode:
@@ -268,3 +276,38 @@ def reverseBetween(self, head: ListNode, left: int, right: int) -> ListNode:
     
     return dummy_node.next
 ```
+
+### 深度/广度优先搜索
+
+#### 所有可能的路径
+
+- 题目描述：给你一个有 n 个节点的 有向无环图（DAG），请你找出所有从节点 0 到节点 n-1 的路径并输出（不要求按特定顺序）
+
+- 示例：
+输入：graph = [[1,2],[3],[3],[]]
+输出：[[0,1,3],[0,2,3]]
+解释：有两条路径 0 -> 1 -> 3 和 0 -> 2 -> 3
+
+- 代码：带回溯的深度优先搜索
+
+```py
+def allPathsSourceTarget(self, graph: List[List[int]]) -> List[List[int]]:
+
+    n, result = len(graph)-1, []
+
+    def dfs(i:int, path: list):
+        if not graph[i]:
+            return
+
+        for index in graph[i]:
+            if index == n:
+                result.append(path+[n])
+            else:
+                dfs(index, path+[index])
+    
+    dfs(0, [0])
+    return result
+```
+
+- 时间复杂度：考虑最坏时间复杂度，[[1,2,3,4],[2,3,4],[3,4],[4],[]]这种，路径数2^(n-1)（注：DAG拓扑排序数量），平均每条路径长度n/2，O（N*2^N）
+- 空间复杂度：返回值是不计入空间复杂度的，所以空间复杂度为栈深O（N）
