@@ -215,6 +215,39 @@ def minimumOperations(self, leaves: str) -> int:
     return ryr
 ```
 
+#### 最长公共子序列：Longest Common Subsequence
+
+- 题目说明：给定两个字符串 text1 和 text2，返回这两个字符串的最长 公共子序列 的长度。如果不存在 公共子序列 ，返回 0 。
+注意：一个字符串的 子序列 是指这样一个新的字符串：它是由原字符串在不改变字符的相对顺序的情况下删除某些字符（也可以不删除任何字符）后组成的新字符串。
+
+- 示例：
+输入：text1 = "abcde", text2 = "ace"
+输出：3  
+解释：最长公共子序列是 "ace" ，它的长度为 3 。
+
+- 思路：动态规划
+
+    1. 假设`dp[i][j]`为text1[0:i-1]和text2[0:j-1]的最长公共子序列长度，
+    2. 初始值：`dp[0][0] = 0`, `dp[0][1] = 0`, `dp[1][0] = 0`（i或j为0，则空字串）
+    3. 状态转移方程：
+       1. 如果text1[i] == text[j], `dp[i][j] = dp[i-1][j-1]+1`（最长公共子序列+1）
+       2. 如果不等，那么`dp[i][j]=max(dp[i][j-1], dp[i-1][j])`（找之前的最长公共子序列）
+
+- 代码：
+
+```py
+def longestCommonSubsequence(self, text1, text2):
+    M, N = len(text1), len(text2)
+    dp = [[0] * (N + 1) for _ in range(M + 1)]
+    for i in range(1, M + 1):
+        for j in range(1, N + 1):
+            if text1[i - 1] == text2[j - 1]:
+                dp[i][j] = dp[i - 1][j - 1] + 1
+            else:
+                dp[i][j] = max(dp[i - 1][j], dp[i][j - 1])
+    return dp[M][N]
+```
+
 ### 滑动窗口
 
 #### 最大连续1的个数 III：Max Consecutive Ones III

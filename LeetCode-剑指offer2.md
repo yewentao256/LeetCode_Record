@@ -102,7 +102,7 @@ def numWays(self, n: int) -> int:
 - 时间复杂度：O（N），空间复杂度：O（N）
 - 注：也可以使用循环变量法，`a, b = b, a + b`，使得空间复杂度降至O（1）
 
-### 旋转数组的最小数字（再）
+### 旋转数组的最小数字
 
 - 题目说明：把一个数组最开始的若干个元素搬到数组的末尾，我们称之为数组的旋转。输入一个递增排序的数组的一个旋转，输出旋转数组的最小元素。例如，数组 [3,4,5,1,2] 为 [1,2,3,4,5] 的一个旋转，该数组的最小值为1。  
 
@@ -195,7 +195,7 @@ def mergeTwoLists(self, l1: ListNode, l2: ListNode) -> ListNode:
 
 - 时间复杂度：O（N）或者说O（N1+N2），空间复杂度：O（1）
 
-###  二叉树的镜像
+### 二叉树的镜像
 
 - 题目说明：请完成一个函数，输入一个二叉树，该函数输出它的镜像。
 
@@ -252,7 +252,7 @@ def isSymmetric(self, root: TreeNode) -> bool:
 
 - 示例：
 输入：nums = [1,2,3,4]
-输出：[1,3,2,4] 
+输出：[1,3,2,4]
 注：[3,1,2,4] 也是正确的答案之一。
 
 - 代码
@@ -275,6 +275,139 @@ def exchange(self, nums: List[int]) -> List[int]:
 ```
 
 - 时间复杂度：O（N），空间复杂度：O（1）
+
+### 二进制中1的个数
+
+- 题目说明：编写一个函数，输入是一个无符号整数（以二进制串的形式），返回其二进制表达式中数字位数为 '1' 的个数（也被称为 汉明重量).）。
+
+- 示例：
+输入：n = 11 (控制台输入 00000000000000000000000000001011)
+输出：3
+
+- 代码：
+
+```py
+def hammingWeight(self, n: int) -> int:
+    res = 0
+    while n:
+        res += n & 1
+        n >>= 1
+    return res
+```
+
+- 时间复杂度：O（$log_2{n}$），空间复杂度：O（1）
+
+### 顺时针打印矩阵
+
+- 题目描述：输入一个矩阵，按照从外向里以顺时针的顺序依次打印出每一个数字。
+
+- 示例：
+输入：matrix = [[1,2,3],[4,5,6],[7,8,9]]
+输出：[1,2,3,6,9,8,7,4,5]
+
+- 代码：
+
+```py
+def spiralOrder(self, matrix: List[List[int]]) -> List[int]:
+    if not matrix or not matrix[0]:
+        return []
+
+    # 可以访问的边界，左、上、右、下
+    left, up, right, down = 0, 0, len(matrix[0])-1, len(matrix)-1
+    result = []
+    while True:
+        # 左到右
+        for i in range(left, right+1):
+            result.append(matrix[up][i])
+        up += 1
+        if up>down:
+            break
+
+        # 上到下
+        for j in range(up, down+1):
+            result.append(matrix[j][right])
+        right -= 1
+        if left>right:
+            break
+
+        # 右到左
+        for i in range(right, left-1, -1):
+            result.append(matrix[down][i])
+        down -= 1
+        if up>down:
+            break
+
+
+        # 下到上
+        for j in range(down, up-1, -1):
+            result.append(matrix[j][left])
+        left += 1
+        if left>right:
+            break
+    return result
+```
+
+- 时间复杂度：O（MN），空间复杂度：O（1）
+
+### 链表中倒数第k个节点
+
+- 题目描述：输入一个链表，输出该链表中倒数第k个节点。
+- 示例：
+给定一个链表: 1->2->3->4->5, 和 k = 2.
+返回链表 4->5.
+- 代码：
+
+```py
+def getKthFromEnd(self, head: ListNode, k: int) -> ListNode:
+    right = left = head
+    
+    for i in range(k):
+        right = right.next
+    
+    while right:
+        left = left.next
+        right = right.next
+    
+    return left
+```
+
+- 时间复杂度：O（N），空间复杂度：O（1）
+
+### 打印从1到最大的n位数
+
+- 题目描述：输入数字 n，按顺序打印出从 1 到最大的 n 位十进制数。比如输入 3，则打印出 1、2、3 一直到最大的 3 位数 999。（用返回一个整数列表来代替打印，n为正整数）
+
+- 示例：
+输入: n = 1
+输出: [1,2,3,4,5,6,7,8,9]
+
+- 代码1： `return list(range(1, 10 ** n))`
+- 时间复杂度：O（10**n）， 空间复杂度：O（1）
+
+- 代码2：考虑到大数问题，int无法很好地保存数值，应该使用字符串保存（本题不要求）
+
+```py
+def printnumsbers(self, n: int) -> List[int]:
+    def dfs(index: int, nums: list, digit: int):
+        # index: 当前index
+        # nums: 缓存的数组
+        # digit：总位数
+        if index == digit:
+            res.append(int(''.join(nums)))
+            return
+        for i in range(10):
+            nums.append(str(i))
+            dfs(index + 1, nums, digit)
+            nums.pop()      # 回溯，弹出刚append的str(i)
+
+    res = []
+    for digit in range(1, n + 1):
+        for first in range(1, 10):
+            nums = [str(first)]      # 将首位直接加入，可以避免dfs到001这种情况，还要去除。
+            dfs(1, nums, digit)
+    
+    return res
+```
 
 ## 中等
 
@@ -512,3 +645,248 @@ def isSubStructure(self, A: TreeNode, B: TreeNode) -> bool:
 
 - 时间复杂度：O（MN）（注：MN为A、B结点数量，先遍历A占用O（M），recur占用O（N）
 - 空间复杂度：O（M）（最大递归深度）
+
+### 表示数值的字符串（再）
+
+- 题目描述：请实现一个函数用来判断字符串是否表示数值（包括整数和小数）。
+
+数值（按顺序）可以分成以下几个部分：
+
+1. 若干空格
+2. 一个 小数 或者 整数
+3. （可选）一个 'e' 或 'E' ，后面跟着一个 整数
+4. 若干空格
+
+小数（按顺序）可以分成以下几个部分：
+
+1. （可选）一个符号字符（'+' 或 '-'）
+2. 下述格式之一：
+    至少一位数字，后面跟着一个点 '.'
+    至少一位数字，后面跟着一个点 '.' ，后面再跟着至少一位数字
+    一个点 '.' ，后面跟着至少一位数字
+
+整数（按顺序）可以分成以下几个部分：
+
+1. （可选）一个符号字符（'+' 或 '-'）
+2. 至少一位数字
+
+部分数值列举如下：
+["+100", "5e2", "-123", "3.1416", "-1E-16", "0123"]
+部分非数值列举如下：
+["12e", "1a3.14", "1.2.3", "+-5", "12e+5.4"]
+
+- 示例：
+输入：s = "0"
+输出：true
+输入：s = "    .1  "
+输出：true
+
+- 思路：输入一个字符串，判断是不是xx的题目，我们可以统一用编译原理中的**有限状态自动机**来做。python中直接`try float() expect`是可以的，直接利用了python解释器中的有限状态自动机。
+
+- 代码：
+
+官方代码，使用enum便于开发，时间复杂度:O(N)，空间复杂度：O（1），因为enum所以速度较慢
+![图片](resources/有限状态自动机1.png)
+
+```py
+from enum import Enum
+
+class Solution:
+    def isNumber(self, s: str) -> bool:
+        State = Enum("State", [
+            "STATE_INITIAL",
+            "STATE_INT_SIGN",
+            "STATE_INTEGER",
+            "STATE_POINT",
+            "STATE_POINT_WITHOUT_INT",
+            "STATE_FRACTION",
+            "STATE_EXP",
+            "STATE_EXP_SIGN",
+            "STATE_EXP_NUMBER",
+            "STATE_END"
+        ])
+        Chartype = Enum("Chartype", [
+            "CHAR_NUMBER",
+            "CHAR_EXP",
+            "CHAR_POINT",
+            "CHAR_SIGN",
+            "CHAR_SPACE",
+            "CHAR_ILLEGAL"
+        ])
+
+        def toChartype(ch: str) -> Chartype:
+            if ch.isdigit():
+                return Chartype.CHAR_NUMBER
+            elif ch.lower() == "e":
+                return Chartype.CHAR_EXP
+            elif ch == ".":
+                return Chartype.CHAR_POINT
+            elif ch == "+" or ch == "-":
+                return Chartype.CHAR_SIGN
+            elif ch == " ":
+                return Chartype.CHAR_SPACE
+            else:
+                return Chartype.CHAR_ILLEGAL
+        
+        transfer = {
+            State.STATE_INITIAL: {
+                Chartype.CHAR_SPACE: State.STATE_INITIAL,
+                Chartype.CHAR_NUMBER: State.STATE_INTEGER,
+                Chartype.CHAR_POINT: State.STATE_POINT_WITHOUT_INT,
+                Chartype.CHAR_SIGN: State.STATE_INT_SIGN
+            },
+            State.STATE_INT_SIGN: {
+                Chartype.CHAR_NUMBER: State.STATE_INTEGER,
+                Chartype.CHAR_POINT: State.STATE_POINT_WITHOUT_INT
+            },
+            State.STATE_INTEGER: {
+                Chartype.CHAR_NUMBER: State.STATE_INTEGER,
+                Chartype.CHAR_EXP: State.STATE_EXP,
+                Chartype.CHAR_POINT: State.STATE_POINT,
+                Chartype.CHAR_SPACE: State.STATE_END
+            },
+            State.STATE_POINT: {
+                Chartype.CHAR_NUMBER: State.STATE_FRACTION,
+                Chartype.CHAR_EXP: State.STATE_EXP,
+                Chartype.CHAR_SPACE: State.STATE_END
+            },
+            State.STATE_POINT_WITHOUT_INT: {
+                Chartype.CHAR_NUMBER: State.STATE_FRACTION
+            },
+            State.STATE_FRACTION: {
+                Chartype.CHAR_NUMBER: State.STATE_FRACTION,
+                Chartype.CHAR_EXP: State.STATE_EXP,
+                Chartype.CHAR_SPACE: State.STATE_END
+            },
+            State.STATE_EXP: {
+                Chartype.CHAR_NUMBER: State.STATE_EXP_NUMBER,
+                Chartype.CHAR_SIGN: State.STATE_EXP_SIGN
+            },
+            State.STATE_EXP_SIGN: {
+                Chartype.CHAR_NUMBER: State.STATE_EXP_NUMBER
+            },
+            State.STATE_EXP_NUMBER: {
+                Chartype.CHAR_NUMBER: State.STATE_EXP_NUMBER,
+                Chartype.CHAR_SPACE: State.STATE_END
+            },
+            State.STATE_END: {
+                Chartype.CHAR_SPACE: State.STATE_END
+            },
+        }
+
+        st = State.STATE_INITIAL
+        for ch in s:
+            typ = toChartype(ch)
+            if typ not in transfer[st]:
+                return False
+            st = transfer[st][typ]
+        
+        return st in [State.STATE_INTEGER, State.STATE_POINT, State.STATE_FRACTION, State.STATE_EXP_NUMBER, State.STATE_END]
+```
+
+某大佬代码，直接使用dic，较快
+
+![图片](resources/有限状态自动机2.png)
+
+```py
+class Solution:
+    def isNumber(self, s: str) -> bool:
+        states = [
+            { ' ': 0, 's': 1, 'd': 2, '.': 4 }, # 0. start with 'blank'
+            { 'd': 2, '.': 4 } ,                # 1. 'sign' before 'e'
+            { 'd': 2, '.': 3, 'e': 5, ' ': 8 }, # 2. 'digit' before 'dot'
+            { 'd': 3, 'e': 5, ' ': 8 },         # 3. 'digit' after 'dot'
+            { 'd': 3 },                         # 4. 'digit' after 'dot' (‘blank’ before 'dot')
+            { 's': 6, 'd': 7 },                 # 5. 'e'
+            { 'd': 7 },                         # 6. 'sign' after 'e'
+            { 'd': 7, ' ': 8 },                 # 7. 'digit' after 'e'
+            { ' ': 8 }                          # 8. end with 'blank'
+        ]
+        p = 0                           # start with state 0
+        for c in s:
+            if '0' <= c <= '9': t = 'd' # digit
+            elif c in "+-": t = 's'     # sign
+            elif c in "eE": t = 'e'     # e or E
+            elif c in ". ": t = c       # dot, blank
+            else: t = '?'               # unknown
+            if t not in states[p]: return False
+            p = states[p][t]
+        return p in (2, 3, 7, 8)
+```
+
+### 数值的整数次方（再）
+
+- 题目说明：实现 pow(x, n) ，即计算 x 的 n 次幂函数（即，xn）。不得使用库函数，同时不需要考虑大数问题。
+
+- 示例：
+输入：x = 2.00000, n = -2
+输出：0.25000
+输入：x = 0, n = 0
+输出：1
+
+- 代码：（快速幂法）
+
+```py
+def myPow(self, x: float, n: int) -> float:
+    # 注意n为整形，不会出现浮点
+    if n == 0:
+        return 1
+    if x == 0:
+        return 0
+    res = 1
+    if n < 0:
+        x, n = 1 / x, -n
+
+    # x为奇数时，x ^ n = x * (x^2)^(n/2)
+    # x为偶数时，x ^ n = (x^2) ^ (n/2)
+    # 最后不断展开，n化为0的时候退出循环。
+    while n:
+        if n & 1:   # n为奇数的时候
+            res *= x
+        x *= x
+        n >>= 1
+    return res
+```
+
+- 时间复杂度：O（logn），空间复杂度：O（1）
+
+## 困难
+
+### 正则表达式匹配（再，可选）
+
+- 题目描述：给你一个字符串 s 和一个字符规律 p，请你来实现一个支持 '.' 和 '*' 的正则表达式匹配。
+- 示例：
+输入：s = "aab" p = "c*a*b"
+输出：true
+解释：因为 '*' 表示零个或多个，这里 'c' 为 0 个, 'a' 被重复一次。因此可以匹配字符串 "aab"。
+
+- 代码（递归）：利用lru_cache，本质是动态规划，但实现起来更简单。
+
+```py
+def isMatch(self, s: str, p: str) -> bool:
+
+    len_s, len_p = len(s), len(p)
+
+    # 装饰符实现记忆化搜索，等价于Top-Down动态规划
+    @lru_cache(None)
+    def recur(i: int, j: int) -> bool:
+        # 结束条件
+        if j == len_p:
+            return i == len_s
+
+        # 当前字母匹配
+        first_match = (len_s > i) and (p[j] == s[i] or p[j] == '.')
+
+        # 如果有`*`，那么两种情况
+        # a、接受当前字母不匹配，相当于*取0
+        # b、当前字母匹配，由于*可以取多个，那么直接走下一个recur  
+        if len_p >= j+2 and p[j+1] == '*':
+            return recur(i, j+2) or (first_match and recur(i+1, j))
+
+        # 一般情况，当前字母和pattern index均+1
+        return first_match and recur(i+1, j+1)
+
+    return recur(0, 0)
+```
+
+- 时间复杂度：O（MN）（最坏情况），空间复杂度：O(MN)（最坏情况）
