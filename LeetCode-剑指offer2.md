@@ -2,6 +2,52 @@
 
 ## 简单
 
+### 删除链表的节点
+
+- 题目描述：给定单向链表的头指针和一个要删除的节点的值，定义一个函数删除该节点。返回头结点
+- 示例：
+
+输入: head = [4,5,1,9], val = 5
+输出: [4,1,9]
+
+- 代码：
+
+```py
+def deleteNode(self, head: ListNode, val: int) -> ListNode:
+    pre, cur = ListNode(-1), head
+    pre.next = head
+    dummy = pre
+    while cur:
+        if cur.val == val:
+            pre.next = cur.next
+            break
+        pre, cur = cur, cur.next
+
+    return dummy.next
+```
+
+- 时间复杂度：O（N），空间复杂度：O（1）
+
+### 反转链表（再）
+
+- 题目描述：定义一个函数，输入一个链表的头节点，反转该链表并输出反转后链表的头节点。
+
+- 示例：
+输入: 1->2->3->4->5->NULL
+输出: 5->4->3->2->1->NULL
+
+- 代码：
+
+```py
+def reverseList(self, head: ListNode) -> ListNode:
+
+    cur, pre = head, None
+    while cur:
+        cur.next, pre, cur = pre, cur, cur.next
+
+    return pre
+```
+
 ### 两个栈实现队列
 
 - 题目说明：用两个栈实现一个队列。队列的声明如下，请实现它的两个函数 appendTail 和 deleteHead ，分别完成在队列尾部插入整数和在队列头部删除整数的功能。(若队列中没有元素，deleteHead 操作返回 -1 )
@@ -410,6 +456,80 @@ def printnumsbers(self, n: int) -> List[int]:
 ```
 
 ## 中等
+
+### 复杂链表的复制（再）
+
+- 题目说明：请实现 copyRandomList 函数，复制一个复杂链表。在复杂链表中，每个节点除了有一个 next 指针指向下一个节点，还有一个 random 指针指向链表中的任意节点或者 null。
+
+- 示例：
+输入：head = [[7,null],[13,0],[11,4],[10,2],[1,0]]
+输出：[[7,null],[13,0],[11,4],[10,2],[1,0]]
+注：显然不能指向同一片内存空间，而应该是新创建的
+
+- 切入：难点在于random指向任意结点，那么显然双指针就行不通了。
+- 代码1（哈希表，“原节点 -> 新节点” 的映射）：
+
+时间复杂度：O（N），空间复杂度：O（N）
+
+```py
+def copyRandomList(self, head: 'Node') -> 'Node':
+    if not head:
+        return
+    dic = {}
+
+    # 1. 复制各节点，并建立 “原节点 -> 新节点” 的 Map 映射
+    cur = head
+    while cur:
+        dic[cur] = Node(cur.val)
+        cur = cur.next
+
+    cur = head
+    # 2. 构建新节点的 next 和 random 指向
+    while cur:
+        dic[cur].next = dic.get(cur.next)
+        dic[cur].random = dic.get(cur.random)
+        cur = cur.next
+
+    # 3. 返回新链表的头节点
+    return dic[head]
+
+```
+
+- 代码2（构建新链表，原节点 1 -> 新节点 1 -> 原节点 2 -> 新节点 2 -> … ，加上random后再拆分）：
+
+时间复杂度：O（N），空间复杂度：O（1）（构建答案不算空间复杂）
+
+```py
+def copyRandomList(self, head: 'Node') -> 'Node':
+    if not head:
+        return
+    
+    # 1. 复制各节点，并构建拼接链表
+    cur = head
+    while cur:
+        tmp = Node(cur.val)
+        tmp.next = cur.next
+        cur.next = tmp
+        cur = tmp.next
+
+    # 2. 构建各新节点的 random 指向
+    cur = head
+    while cur:
+        if cur.random:
+            cur.next.random = cur.random.next
+        cur = cur.next.next
+
+    # 3. 拆分两链表
+    cur = res = head.next
+    pre = head
+    while cur.next:
+        pre.next = pre.next.next
+        cur.next = cur.next.next
+        pre = pre.next
+        cur = cur.next
+    pre.next = None # 单独处理原链表尾节点(这样对原链表没有影响。你的函数不应该影响原链表)
+    return res      # 返回新链表头节点
+```
 
 ### 二维数组的查找（再）
 
