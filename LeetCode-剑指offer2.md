@@ -2,6 +2,86 @@
 
 ## 简单
 
+### 包含min函数的栈
+
+- 题目描述：定义栈的数据结构，请在该类型中实现一个能够得到栈的最小元素的 min 函数在该栈中，调用 min、push 及 pop 的时间复杂度都是 O(1)。
+
+- 示例：MinStack minStack = new MinStack();
+minStack.push(-2);
+minStack.push(0);
+minStack.push(-3);
+minStack.min();   --> 返回 -3.
+minStack.pop();
+minStack.top();      --> 返回 0.
+minStack.min();   --> 返回 -2.
+
+- 代码：辅助栈，保证辅助栈的栈顶是最小值即可
+
+```py
+class MinStack:
+    def __init__(self):
+        self.A, self.B = [], []
+
+    def push(self, x: int) -> None:
+        self.A.append(x)
+        if not self.B or self.B[-1] >= x:
+            self.B.append(x)
+
+    def pop(self) -> None:
+        if self.A.pop() == self.B[-1]:
+            self.B.pop()
+
+    def top(self) -> int:
+        return self.A[-1]
+
+    def min(self) -> int:
+        return self.B[-1]
+```
+
+### 最小的k个数
+
+- 题目描述：输入整数数组 arr ，找出其中最小的 k 个数。例如，输入4、5、1、6、2、7、3、8这8个数字，则最小的4个数字是1、2、3、4。
+- 示例：
+输入：arr = [3,2,1], k = 2
+输出：[1,2] 或者 [2,1]
+
+- 代码1：排序后切片 `return sorted(arr)[:k]`，时间复杂度：O（NlogN），空间复杂度O（N）
+
+- 代码2：利用快排不完全排序，仅仅找到k个最小值。时间复杂度:O（N），空间复杂度：O（logN）
+时间复杂度解析：
+首先快排是因为每次递归操作N次，递归logN次，所以N*logN
+这里是假定都取平均递归子数组为N/2，那么总操作次数 = N + N/2 + N/4 + ... < 2N
+等比数列: `a1 * (1 - q^n)/(1-q)`
+
+```py
+    def getLeastNumbers(self, arr: List[int], k: int) -> List[int]:
+        if k >= len(arr):
+            return arr
+
+        def quick_sort(low, high):
+            left, right = low, high
+            key = arr[low]
+            while left < right:
+                while left < right and arr[right] >= key:
+                    right -= 1
+                arr[left] = arr[right]
+                while left < right and arr[left] <= key:
+                    left += 1
+                arr[right] = arr[left]
+            
+            # 出循环，left = right
+            arr[left] = key
+
+            # 优化：我们不需要完全排好序，我们只需要找对应k个最小值即可
+            if k < left:
+                return quick_sort(low, left - 1) 
+            if k > left:
+                return quick_sort(left + 1, high)
+            return arr[:k]
+            
+        return quick_sort(0, len(arr) - 1)
+```
+
 ### 删除链表的节点
 
 - 题目描述：给定单向链表的头指针和一个要删除的节点的值，定义一个函数删除该节点。返回头结点
