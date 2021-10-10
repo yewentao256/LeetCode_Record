@@ -2,6 +2,71 @@
 
 ## 简单
 
+### 数组中出现次数超过一半的数字
+
+- 题目描述：数组中有一个数字出现的次数超过数组长度的一半，请找出这个数字。你可以假设数组是非空的，并且给定的数组总是存在多数元素。
+
+- 代码1（哈希表）：
+时间复杂度和空间复杂度均为O（N），但比投票法更快因为2/3部分差不多就能return
+
+```py
+def majorityElement(self, nums: List[int]) -> int:
+    dic = defaultdict(int)
+    target = len(nums) / 2
+
+    for num in nums:
+        dic[num] += 1
+        if dic[num] >= target:      # 用大于等于，数字出现刚好为一半的也能取到
+            return num
+```
+
+- 代码2（投票法）
+空间复杂度降低至O（1），但需要遍历完整个数组，不推荐
+
+```py
+def majorityElement(self, nums: List[int]) -> int:
+    votes = 0
+    for num in nums:
+        if votes == 0:
+            x = num
+        if num == x:
+            votes += 1 
+        else:
+            votes -= 1
+    return x
+```
+
+### 连续子数组的最大和（再）
+
+- 题目描述：输入一个整型数组，数组中的一个或连续多个整数组成一个子数组。求所有子数组的和的最大值。
+
+- 示例
+输入: nums = [-2,1,-3,4,-1,2,1,-5,4]
+输出: 6
+解释: 连续子数组 [4,-1,2,1] 的和最大，为 6。
+
+- 代码：动态规划
+
+```py
+def maxSubArray(self, nums: List[int]) -> int:
+    # dp[i]：以第i个数为结尾的最大子数组和, dp[0] = nums[0]
+    dp = [nums[0]] * len(nums)
+
+    # 状态转移：
+    # 如果dp[i-1]<0，说明dp[i-1]负贡献，不要更好：dp[i] = nums[i]
+    # 如果dp[i-1]>0： dp[i] = nums[i] + dp[i-1]
+    # 为什么不是判断nums[i]的正负？这样就无法保证子数组以第i个数结尾
+    for i in range(1, len(nums)):
+        if dp[i-1] > 0:
+            dp[i] = dp[i-1] + nums[i]
+        else:
+            dp[i] = nums[i]
+    
+    # 注：此题可以优化空间复杂度，把dp直接存到nums里，因为nums之前的数无关了
+    return max(dp)
+
+```
+
 ### 包含min函数的栈
 
 - 题目描述：定义栈的数据结构，请在该类型中实现一个能够得到栈的最小元素的 min 函数在该栈中，调用 min、push 及 pop 的时间复杂度都是 O(1)。
@@ -108,7 +173,7 @@ def deleteNode(self, head: ListNode, val: int) -> ListNode:
 
 - 时间复杂度：O（N），空间复杂度：O（1）
 
-### 反转链表（再）
+### 反转链表
 
 - 题目描述：定义一个函数，输入一个链表的头节点，反转该链表并输出反转后链表的头节点。
 
@@ -116,7 +181,8 @@ def deleteNode(self, head: ListNode, val: int) -> ListNode:
 输入: 1->2->3->4->5->NULL
 输出: 5->4->3->2->1->NULL
 
-- 代码：
+- 代码：**双指针**
+时间复杂度：O（N)，空间复杂度：O（1）
 
 ```py
 def reverseList(self, head: ListNode) -> ListNode:
@@ -345,7 +411,7 @@ def mirrorTree(self, root: TreeNode) -> TreeNode:
 
 - 时间复杂度：O（N），空间复杂度：O（N）（栈深。最坏情况下，二叉树退化为链表）
 
-### 对称的二叉树（再）
+### 对称的二叉树
 
 - 题目说明：请实现一个函数，用来判断一棵二叉树是不是对称的。如果一棵二叉树和它的镜像一样，那么它是对称的。
 
@@ -537,17 +603,316 @@ def printnumsbers(self, n: int) -> List[int]:
 
 ## 中等
 
-### 复杂链表的复制（再）
+### 二叉搜索树的后序遍历序列
+
+- 题目描述：输入一个整数数组，判断该数组是不是某二叉搜索树的后序遍历结果。如果是则返回 true，否则返回 false。假设输入的数组的任意两个数字都互不相同。
+- 示例：参考以下这颗二叉搜索树：
+
+     5
+    / \
+   2   6
+  / \
+ 1   3
+
+输入: [1,6,3,2,5]
+输出: false
+
+- 代码：递归分治
+时间复杂度：O（N），空间复杂度：O（N）
+
+```py
+def verifyPostorder(self, postorder: List[int]) -> bool:
+    # 二叉搜索树定义：
+    # 左子树中所有节点的值 < 根节点的值；右子树中所有节点的值 > 根节点的值；左右子树也为二叉搜索树
+    def recur(low, high):
+        if low >= high:      # 单结点，无需判断，直接true 
+            return True
+        pointer = low 
+        # 找到第一个大于根节点的值，因为没有重复值不需要考虑等于的情况
+        while postorder[pointer] < postorder[high]:       
+            pointer += 1
+        # 中间值
+        mid = pointer
+
+        # 找到小于根节点的值（不应该存在的情况，正常应该直接走到high）
+        while postorder[pointer] > postorder[high]:
+            pointer += 1
+        return pointer == high and recur(low, mid - 1) and recur(mid, high - 1)
+
+    return recur(0, len(postorder) - 1)
+```
+### 最长不含重复字符的子字符串
+
+- 题目描述：请从字符串中找出一个最长的不包含重复字符的子字符串，计算该最长子字符串的长度。注意是子串，子串是相连的。
+
+- 示例：
+输入: "abcabcbb"
+输出: 3
+解释: 因为无重复字符的最长子串是 "abc"，所以其长度为 3。
+
+- 代码：
+
+```py
+def lengthOfLongestSubstring(self, s: str) -> int:
+
+    left, right = 0, 0
+    dic = defaultdict(int)
+    l = len(s)
+    max_l, count = 0, 0
+
+    while right < l:
+
+        while dic[s[right]] == 1:     # 遇到重复字符，左指针右移，直到排除这个字符
+            dic[s[left]] -= 1
+            left += 1
+            count -= 1
+
+        dic[s[right]] += 1
+        count += 1
+        right += 1
+        if count > max_l:
+            max_l = count
+    
+    return max_l
+```
+
+### 数字序列中某一位的数字(再)
+
+- 题目描述：数字以0123456789101112131415…的格式序列化到一个字符序列中。在这个序列中，第5位（从下标0开始计数）是5，第13位是1，第19位是4，等等。请写一个函数，求任意第n位对应的数字。
+
+- 思路：找规律，统计各个阶段数位、数字、数量
+
+```py
+def findNthDigit(self, n: int) -> int:
+    # 分别表示当前阶段（每个数字有多少位），该阶段起始点，该阶段数位量
+    digit, start, count = 1, 1, 9
+
+    while n > count: # 找到对应阶段，如16，位于第二阶段
+        n -= count
+        start *= 10     # 第二阶段开始值为10
+        digit += 1      # 第二阶段数位为2
+        count = 9 * start * digit       # 第二阶段总数量为9 * start * digit（180）
+    num = start + (n - 1) // digit      # 找到对应数字，如16，对应数字为10+ (16-9) // 2 =13
+    return int(str(num)[(n - 1) % digit])       # 13对应数位为为第一位
+```
+
+### 从上到下打印二叉树
+
+- 题目描述：从上到下打印出二叉树的每个节点，同一层的节点按照从左到右的顺序打印。
+
+- 代码（层序遍历）
+时间复杂度：O（N），空间复杂度：O（N）
+
+```py
+def levelOrder(self, root: TreeNode) -> List[int]:
+    queue = deque()
+    queue.append(root)
+    result = []
+
+    while queue:
+        node = queue.popleft()
+        if node:
+            result.append(node.val)
+            queue.append(node.left)
+            queue.append(node.right)
+    
+    return result
+```
+
+### 从上到下打印二叉树 II
+
+- 题目描述：从上到下按层打印二叉树，同一层的节点按从左到右的顺序打印，每一层打印到一行。
+
+- 示例：
+
+```c
+[
+  [3],
+  [9,20],
+  [15,7]
+]
+```
+
+- 代码：
+时间空间复杂度都为O（N），和上一题区别在于加了个分层
+
+```py
+def levelOrder(self, root: TreeNode) -> List[List[int]]:
+    queue = deque()
+    queue.append(root)
+    result = []
+
+    while queue:
+        # 如何分层？把现有队列里所有node都pop出去自然就是一层
+        tmp = []
+        for _ in range(len(queue)):
+            node = queue.popleft()
+            if node:
+                tmp.append(node.val)
+                queue.append(node.left)
+                queue.append(node.right)
+        if len(tmp) > 0:
+            result.append(tmp)
+        
+    return result
+```
+
+### 从上到下打印二叉树 III
+
+- 题目描述：请实现一个函数按照之字形顺序打印二叉树，即第一行按照从左到右的顺序打印，第二层按照从右到左的顺序打印，第三行再按照从左到右的顺序打印，其他行以此类推。
+
+- 示例（上题同样，输出不同）
+
+```c
+[
+  [3],
+  [20,9],
+  [15,7]
+]
+```
+
+- 代码：
+
+```py
+def levelOrder(self, root: TreeNode) -> List[List[int]]:
+    queue = deque()
+    queue.append(root)
+
+    result = []
+    level = 0
+    while queue:
+        one_layer = []
+        for _ in range(len(queue)):
+            node = queue.popleft()
+            if node:
+                one_layer.append(node.val)
+                queue.append(node.left)
+                queue.append(node.right)
+        
+        if len(one_layer) > 0:
+            result.append(one_layer[::-1] if level & 1 else one_layer)
+        level += 1
+    
+    return result
+```
+
+### 字符串的排列
+
+- 题目描述：输入一个字符串，打印出该字符串中字符的所有排列。
+- 示例：
+输入：s = "abc"
+输出：["abc","acb","bac","bca","cab","cba"]
+
+- 代码：
+
+```py
+def permutation(self, s: str) -> List[str]:
+    # 统计字符数
+    dic = defaultdict(int)
+    for c in s:
+        dic[c] += 1
+    
+    result = []
+    l = len(s)
+    # dfs遍历所有排列组合，此时不需要剪枝因为每一次迭代都是有效组合
+    def dfs(s, level):
+        for next_key in dic.keys():
+            tmp = s     # 这里需要使用tmp而不是s，避免s被其他干扰
+            if dic[next_key] > 0:
+                tmp += next_key
+                dic[next_key] -= 1
+                if level == l:
+                    result.append(tmp)
+                dfs(tmp, level+1)
+                dic[next_key] += 1          # 回溯
+
+    dfs('', 1)
+
+    return result
+```
+
+### 栈的压入、弹出序列
+
+- 题目描述：输入两个整数序列，第一个序列表示栈的压入顺序，请判断第二个序列是否为该栈的弹出顺序。假设压入栈的所有数字均不相等。例如，序列 {1,2,3,4,5} 是某栈的压栈序列，序列 {4,5,3,2,1} 是该压栈序列对应的一个弹出序列，但 {4,3,5,1,2} 就不可能是该压栈序列的弹出序列。
+
+- 代码：
+
+```py
+def validateStackSequences(self, pushed: List[int], popped: List[int]) -> bool:
+    # 思路：辅助栈贪心，每次取要么是新放入栈的取，要么是刚好栈顶就是
+    push_index = 0
+    stack = []
+    for num in popped:
+        # 栈顶不是对应元素，新放入栈
+        while len(stack) == 0 or stack[-1] != num:
+            # 所有元素入栈，但还没能走完poped，说明无法匹配
+            if push_index == len(pushed):
+                return False
+            stack.append(pushed[push_index])
+            push_index += 1
+        
+        # 找到栈顶是该元素
+        stack.pop()
+    
+    return True
+```
+
+- 时间复杂度：O（N），空间复杂度：O（N）
+
+### 二叉搜索树与双向链表
+
+- 题目描述：输入一棵二叉搜索树，将该二叉搜索树转换成一个排序的循环双向链表。要求不能创建任何新的节点，只能调整树中节点指针的指向。
+
+- 示例：见[leetcode](https://leetcode-cn.com/problems/er-cha-sou-suo-shu-yu-shuang-xiang-lian-biao-lcof/)
+
+- 代码：前序遍历，准备一个pre指针指向前一个访问过的结点。
+
+```py
+class Solution:
+
+    def __init__(self):
+        # 使用self可以直接存变量，比递归中用参数存变量方便
+        self.pre = self.head = None
+
+    def treeToDoublyList(self, root: 'Node') -> 'Node':
+        if not root:
+            return root
+
+        def recur(cur) -> None:
+            if not cur:
+                return
+
+            recur(cur.left)
+            if self.pre:        # 正常情况
+                cur.left, self.pre.right = self.pre, cur
+            else:               # 首次情况
+                self.head = cur
+            self.pre = cur
+            recur(cur.right)
+
+        recur(root)
+
+        # 出循环后，pre恰好指到尾结点
+        self.pre.right, self.head.left = self.head, self.pre    # 最终头尾相连
+
+        return self.head
+```
+
+### 复杂链表的复制
 
 - 题目说明：请实现 copyRandomList 函数，复制一个复杂链表。在复杂链表中，每个节点除了有一个 next 指针指向下一个节点，还有一个 random 指针指向链表中的任意节点或者 null。
 
 - 示例：
+
+```c
 输入：head = [[7,null],[13,0],[11,4],[10,2],[1,0]]
 输出：[[7,null],[13,0],[11,4],[10,2],[1,0]]
+```
+
 注：显然不能指向同一片内存空间，而应该是新创建的
 
 - 切入：难点在于random指向任意结点，那么显然双指针就行不通了。
-- 代码1（哈希表，“原节点 -> 新节点” 的映射）：
+- 代码1——**哈希表，“原节点 -> 新节点” 的映射**：
 
 时间复杂度：O（N），空间复杂度：O（N）
 
@@ -557,7 +922,7 @@ def copyRandomList(self, head: 'Node') -> 'Node':
         return
     dic = {}
 
-    # 1. 复制各节点，并建立 “原节点 -> 新节点” 的 Map 映射
+    # 1. 复制创建新节点，并建立 “原节点 -> 新节点” 的 Map 映射
     cur = head
     while cur:
         dic[cur] = Node(cur.val)
@@ -575,9 +940,9 @@ def copyRandomList(self, head: 'Node') -> 'Node':
 
 ```
 
-- 代码2（构建新链表，原节点 1 -> 新节点 1 -> 原节点 2 -> 新节点 2 -> … ，加上random后再拆分）：
+- 代码2——**构建新链表，原节点 1 -> 新节点 1 -> 原节点 2 -> 新节点 2 -> … ，加上random后再拆分**：
 
-时间复杂度：O（N），空间复杂度：O（1）（构建答案不算空间复杂）
+时间复杂度：O（N），空间复杂度：O（1）（构建答案不算空间复杂度）
 
 ```py
 def copyRandomList(self, head: 'Node') -> 'Node':
@@ -611,7 +976,7 @@ def copyRandomList(self, head: 'Node') -> 'Node':
     return res      # 返回新链表头节点
 ```
 
-### 二维数组的查找（再）
+### 二维数组的查找
 
 - 题目说明：在一个 n * m 的二维数组中，每一行都按照从左到右递增的顺序排序，每一列都按照从上到下递增的顺序排序。请完成一个高效的函数，输入这样的一个二维数组和一个整数，判断数组中是否含有该整数。
 
@@ -622,6 +987,7 @@ def copyRandomList(self, head: 'Node') -> 'Node':
 
 现有矩阵 matrix 如下：
 
+```c
 [
   [1,   4,  7, 11, 15],
   [2,   5,  8, 12, 19],
@@ -629,10 +995,12 @@ def copyRandomList(self, head: 'Node') -> 'Node':
   [10, 13, 14, 17, 24],
   [18, 21, 23, 26, 30]
 ]
+```
+
 给定 target = 5，返回 true。
 给定 target = 20，返回 false。
 
-- 代码：
+- 代码——**往左往下走**：
 
 ```py
 def findNumberIn2DArray(self, matrix: List[List[int]], target: int) -> bool:
@@ -651,7 +1019,8 @@ def findNumberIn2DArray(self, matrix: List[List[int]], target: int) -> bool:
 ```
 
 - 时间复杂度：O（N+M），空间复杂度：O（1）
-- 注：如果从左上角开始就有可能漏数，比如点位在下方却往右走了。而左下或右上开始，可以很容易证明路径唯一。（如果当前元素大于目标值，说明当前元素的下边的所有元素都一定大于目标值，因此往下查找不可能找到目标值，往左查找可能找到目标值（左下也在左）。如果当前元素小于目标值，说明当前元素的左边的所有元素都一定小于目标值，因此往左查找不可能找到目标值，往下查找可能找到目标值。）
+- 注：如果从左上角开始就有可能漏数，比如点位在下方却往右走了。而左下或右上开始，可以很容易证明路径唯一。
+- 证明：如果当前元素大于目标值，说明当前元素的下边的所有元素都一定大于目标值，因此往下查找不可能找到目标值，往左查找可能找到目标值（左下也在左）。如果当前元素小于目标值，说明当前元素的左边的所有元素都一定小于目标值，因此往左查找不可能找到目标值，往下查找可能找到目标值。
 
 ### 矩阵中的路径（再）
 
@@ -1052,6 +1421,89 @@ def myPow(self, x: float, n: int) -> float:
 
 ## 困难
 
+### 1～n 整数中 1 出现的次数
+
+- 题目描述：输入一个整数 n ，求1～n这n个整数的十进制表示中1出现的次数。例如，输入12，1～12这些整数中包含1 的数字有1、10、11和12，1一共出现了5次。
+
+- 代码：计算每一位上1出现次数的和
+
+时间复杂度：O（log10 N），空间复杂度：O（1）
+
+```py
+def countDigitOne(self, n: int) -> int:
+    # 核心思路：计算每一位上1出现次数的和
+
+    digit, res = 1, 0                       # 当前数位，结果
+    high, cur, low = n // 10, n % 10, 0     # 高位数，当前数，当前数后数。eg 2302，比如cur指向0，高位23
+    while high != 0 or cur != 0:
+        if cur == 0:
+            # 当前位为0，公式：digit * high，如209，十位上出现2*10个1 = 20个1
+            res += high * digit             
+        elif cur == 1:
+            # 当前位为1，公式：digit * high + low + 1，如216，十位上出现2*10 + 6 + 1个1 = 27个1
+            res += high * digit + low + 1   
+        else:
+            # 当前位大于1，公式：digit * (high + 1)，如220，十位上出现(2+1)*10 = 30个1
+            res += (high + 1) * digit
+        low += cur * digit
+        cur = high % 10
+        high //= 10
+        digit *= 10
+    return res
+```
+
+### 序列化二叉树
+
+- 题目描述：请实现两个函数，分别用来序列化和反序列化二叉树。
+- 示例：
+输入：root = [1,2,3,null,null,4,5]
+输出：[1,2,3,null,null,4,5]
+- 代码：
+时间复杂度：O（N），空间复杂度：O（N）
+
+```py
+class Codec:
+
+    def serialize(self, root):
+        # 层次遍历
+        queue = deque()
+        queue.append(root)
+        result = []
+        while queue:
+            node = queue.popleft()
+            if node:
+                result.append(str(node.val))
+                queue.append(node.left)
+                queue.append(node.right)
+            else:
+                result.append('null')
+        
+        # 删掉末尾的None
+        while len(result) > 0 and result[-1] is 'null':
+            result.pop()
+
+        return '[' + ','.join(result) + ']'
+
+    def _consturct(self, node, index):
+        left, right = 2 * index + 1, 2 * index + 2
+        if left < len(self.data):
+            node.left = TreeNode(self.data[left])
+            self._consturct(node.left, left)
+        if right < len(self.data):
+            node.right = TreeNode(self.data[right])
+            self._consturct(node.right, right)
+        
+    def deserialize(self, data):
+        # 注意：这里同样可以用层序遍历，append root，弹出root加上左右子结点
+        if data == '[]':
+            return None
+        data = data[1:-1].split(',')
+        self.data = data
+        root = TreeNode(data[0])
+        self._consturct(root, 0)
+        return root
+```
+
 ### 正则表达式匹配（再，可选）
 
 - 题目描述：给你一个字符串 s 和一个字符规律 p，请你来实现一个支持 '.' 和 '*' 的正则表达式匹配。
@@ -1090,3 +1542,39 @@ def isMatch(self, s: str, p: str) -> bool:
 ```
 
 - 时间复杂度：O（MN）（最坏情况），空间复杂度：O(MN)（最坏情况）
+
+### 数据流中的中位数（再）
+
+- 题目描述：如何得到一个数据流中的中位数？如果从数据流中读出奇数个数值，那么中位数就是所有数值排序之后位于中间的数值。如果从数据流中读出偶数个数值，那么中位数就是所有数值排序之后中间两个数的平均值。
+设计一个支持以下两种操作的数据结构：
+
+void addNum(int num) - 从数据流中添加一个整数到数据结构中。
+double findMedian() - 返回目前所有元素的中位数。
+
+- 示例
+输入：
+["MedianFinder","addNum","addNum","findMedian","addNum","findMedian"]
+[[],[1],[2],[],[3],[]]
+输出：[null,null,null,1.50000,null,2.00000]
+
+- 代码1：单一列表，查中位数时排序后返回中位数。时间复杂度O（NlogN），空间复杂度O（N）
+- 代码2：两个堆，一个大根堆，一个小根堆。时间复杂度：O（logN-维持堆的不变性），空间复杂度：O（N）
+
+```py
+from heapq import *
+
+class MedianFinder:
+    def __init__(self):
+        self.A = [] # 小顶堆，保存较大的一半
+        self.B = [] # 大顶堆，保存较小的一半
+
+    def addNum(self, num: int) -> None:
+        if len(self.A) != len(self.B):
+            heappush(self.B, -heappushpop(self.A, num))
+        else:
+            heappush(self.A, -heappushpop(self.B, -num))
+
+    def findMedian(self) -> float:
+        return self.A[0] if len(self.A) != len(self.B) else (self.A[0] - self.B[0]) / 2.0
+
+```
