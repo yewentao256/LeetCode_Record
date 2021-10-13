@@ -2,6 +2,30 @@
 
 ## 简单
 
+### 第一个只出现一次的字符
+
+- 题目描述：在字符串 s 中找出第一个只出现一次的字符。如果没有，返回一个单空格。 s 只包含小写字母。
+
+- 示例：
+
+输入：s = "abaccdeff"
+输出：'b'
+
+- 代码（哈希表）：
+
+时间复杂度：O（N），空间复杂度：O（1）（常数个key）
+
+```py
+def firstUniqChar(self, s: str) -> str:
+    dic = defaultdict(int)
+    for c in s:
+        dic[c] += 1
+    for c, count in dic.items():
+        if count == 1:
+            return c
+    return ' '
+```
+
 ### 数组中出现次数超过一半的数字
 
 - 题目描述：数组中有一个数字出现的次数超过数组长度的一半，请找出这个数字。你可以假设数组是非空的，并且给定的数组总是存在多数元素。
@@ -602,6 +626,41 @@ def printnumsbers(self, n: int) -> List[int]:
 ```
 
 ## 中等
+
+### 二叉树中和为某一值的路径
+
+- 题目描述：给你二叉树的根节点 root 和一个整数目标和 targetSum ，找出所有 从根节点到叶子节点 路径总和等于给定目标和的路径。
+
+- 示例：
+输入：root = [1,2,3], targetSum = 5
+输出：[]
+输入：root = [1,2,3], targetSum = 4
+输出：[1,3]
+
+- 代码：dfs
+
+时间复杂度：O（N），空间复杂度：O（K）（result不算空间复杂度，path算，所以树高度为占用空间）
+
+```py
+def pathSum(root: TreeNode, target: int) -> List[List[int]]:
+
+    result, path = [], []
+
+    def dfs(node: TreeNode, target: int):
+        if not node:
+            return
+        
+        path.append(node.val)
+        target -= node.val
+        if target == 0 and not node.right and not node.left:  # 叶子节点且和为目标
+            result.append(path.copy())      # 注意需要copy，因为path指向为同一片内存空间
+        dfs(node.left, target)
+        dfs(node.right, target)
+        path.pop()                          # 标准回溯
+
+    dfs(root, target)
+    return result
+```
 
 ### 二叉搜索树的后序遍历序列
 
