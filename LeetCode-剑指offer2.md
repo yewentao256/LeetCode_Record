@@ -2,6 +2,32 @@
 
 ## 简单
 
+### 二叉树的深度
+
+- 题目描述：输入一棵二叉树的根节点，求该树的深度。从根节点到叶节点依次经过的节点（含根、叶节点）形成树的一条路径，最长路径的长度为树的深度。
+
+- 代码：层序遍历
+
+时间复杂读：O（N），空间复杂度：O（k），最差情况下（平衡二叉树），存储N/2个结点，O（N）
+
+```py
+class Solution:
+    def maxDepth(self, root: TreeNode) -> int:
+        queue = deque()     # 也可以不用queue，而是用列表，每次重新刷新列表即可
+        queue.append(root)
+        
+        count = 0
+        while queue:
+            for _ in range(len(queue)):
+                node = queue.popleft()
+                if node:
+                    queue.append(node.left)
+                    queue.append(node.right)
+            count += 1     
+        
+        return count-1         # 这样统计，最下一层的None会加入队列，因此多一层
+```
+
 ### 第一个只出现一次的字符
 
 - 题目描述：在字符串 s 中找出第一个只出现一次的字符。如果没有，返回一个单空格。 s 只包含小写字母。
@@ -626,6 +652,39 @@ def printnumsbers(self, n: int) -> List[int]:
 ```
 
 ## 中等
+
+### 数组中数字出现的次数
+
+- 题目描述：一个整型数组 nums 里除两个数字之外，其他数字都出现了两次。请写程序找出这两个只出现一次的数字。要求时间复杂度是O(n)，空间复杂度是O(1)。
+
+- 示例：
+
+输入：nums = [4,1,4,6]
+输出：[1,6] 或 [6,1]
+
+- 代码：异或
+
+```py
+def singleNumbers(self, nums: List[int]) -> List[int]:
+
+    # 核心思路：找出数组中唯一一个只出现一次的数字，其他都出现两次
+    # [4,1,4] 4^1^4 = 1
+    result_1, result_2 = 0, 0
+    n, m = 0, 1         # n 存储 x^y， m 存储 x^y 的首位为1的值
+
+    for num in nums:         # 1. 遍历异或，得到 n = x^y
+        n ^= num
+
+    while n & m == 0:        # 2. 循环左移，得到 x^y 首位为1 的值，如0010
+        m <<= 1
+
+    for num in nums:            # 分组，让x、y不在同一组里
+        if num & m:             # a组，num & m == 1
+            result_1 ^= num
+        else:                   # b组，num & m == 0
+            result_2 ^= num
+    return result_1, result_2
+```
 
 ### 二叉树中和为某一值的路径
 
@@ -1480,7 +1539,57 @@ def myPow(self, x: float, n: int) -> float:
 
 ## 困难
 
-### 1～n 整数中 1 出现的次数
+### 数组中的逆序对（再）
+
+- 题目描述：在数组中的两个数字，如果前面一个数字大于后面的数字，则这两个数字组成一个逆序对。输入一个数组，求出这个数组中的逆序对的总数。
+- 示例：
+输入: [7,5,6,4]
+输出: 5
+
+- 思路：归并排序，归并的时候进行统计，很自然就得到了逆序对数
+- 代码：
+时间复杂度：O（nlogn），空间复杂度：O（N）（注：递归分治，同时只有一侧函数在执行，栈最多占用n/2 + n/4 + n/8 ……这部分空间）
+
+```py
+class Solution:
+    def __init__(self):
+        self.count = 0
+
+    def reversePairs(self, nums: List[int]) -> int:
+        def merge(lst_left: list, lst_right: list) -> list:
+            left, right = 0, 0
+            left_l, right_l = len(lst_left), len(lst_right)
+
+            # 逆序merge，这样大的值在前面，方便统计逆序对
+            new_list = []
+            while left < left_l and right < right_l:
+                if lst_left[left] > lst_right[right]:
+                    new_list.append(lst_left[left])
+                    left += 1
+                    self.count += right_l - right       # 因为逆序，所以直接加上之后所有的逆序对
+                else:
+                    new_list.append(lst_right[right])
+                    right += 1
+            # 剩余列表直接extend至列表尾
+            new_list += lst_left[left:]
+            new_list += lst_right[right:]
+            return new_list
+
+
+        def merge_sort(lst: list) -> list:
+            if len(lst) <= 1:
+                return lst
+
+            mid = len(lst) // 2
+            lst_left = merge_sort(lst[:mid])
+            lst_right = merge_sort(lst[mid:])
+            return merge(lst_left, lst_right)
+
+        merge_sort(nums)
+
+        return self.count
+```
+### 1～n 整数中 1 出现的次数（可选，再）
 
 - 题目描述：输入一个整数 n ，求1～n这n个整数的十进制表示中1出现的次数。例如，输入12，1～12这些整数中包含1 的数字有1、10、11和12，1一共出现了5次。
 
