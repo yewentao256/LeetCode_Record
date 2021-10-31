@@ -2,6 +2,275 @@
 
 ## 简单
 
+### 二叉搜索树的第k大节点
+
+- 题目描述：给定一棵二叉搜索树，请找出其中第k大的节点。
+
+- 代码：倒中序遍历
+
+时间复杂度：O（N），空间复杂度：O（N）——最差的链表情况，全部入栈
+
+```py
+class Solution:
+    def kthLargest(self, root: TreeNode, k: int) -> int:
+
+        self.k, self.k_node_val = k, None
+
+        def recur(node: TreeNode):
+            if node is None:
+                return
+            
+            recur(node.right)
+            if self.k == 1:
+                self.k_node_val = node.val
+                self.k -= 1
+                return
+            self.k -= 1
+            recur(node.left)
+
+        recur(root)
+        return self.k_node_val
+```
+
+### 0～n-1中缺失的数字
+
+- 题目描述：一个长度为n-1的递增排序数组中的所有数字都是唯一的，并且每个数字都在范围0～n-1之内。在范围0～n-1内的n个数字中有且只有一个数字不在该数组中，请找出这个数字。
+
+- 示例：
+输入: [0,1,3]
+输出: 2
+
+- 代码：二分法
+
+时间复杂度：O（logn），空间复杂度：O（1）
+
+```py
+class Solution:
+    def missingNumber(self, nums: List[int]) -> int:
+        left, right = 0, len(nums) - 1
+
+        # 标准二分，出循环时，right = left - 1，此时left指向答案
+        while left <= right:
+            mid = (left + right) // 2
+            if nums[mid] == mid:
+                left = mid + 1
+            else:
+                right = mid - 1
+        return left
+```
+
+### 左旋转字符串
+
+- 题目描述：字符串的左旋转操作是把字符串前面的若干个字符转移到字符串的尾部。请定义一个函数实现字符串左旋转操作的功能。比如，输入字符串"abcdefg"和数字2，该函数将返回左旋转两位得到的结果"cdefgab"。
+
+- 代码：切片
+
+时间复杂度：O（N），空间复杂度：O（N）
+
+```py
+class Solution:
+    def reverseLeftWords(self, s: str, n: int) -> str:
+        # 切片效率最高。列表后join次之。新建字符串逐一拼接效率最低（python中字符串不可变）
+        return s[n:] + s[:n]
+```
+
+### 在排序数组中查找数字 I
+
+- 题目描述：统计一个数字在排序数组中出现的次数。
+
+- 示例：
+输入: nums = [5,7,7,8,8,10], target = 8
+输出: 2
+
+- 代码：二分查找，找到上下边界，直接计算
+
+时间复杂度：O（logn），空间复杂度：O（1）
+
+```py
+class Solution:
+    def search(self, nums: [int], target: int) -> int:
+        # 搜索右边界 high
+        left, right = 0, len(nums) - 1
+        while left <= right:
+            mid = (left + right) // 2
+            if nums[mid] <= target:
+                left = mid + 1
+            else:
+                right = mid - 1
+        # 注意：出循环时，right = left - 1，一定是target的指向
+        high = left
+        # 若数组中无 target ，则提前返回
+        if right >= 0 and nums[right] != target:
+            return 0
+        # 搜索左边界 low
+        left = 0
+        while left <= right:
+            mid = (left + right) // 2
+            if nums[mid] >= target:
+                right = mid - 1
+            else:
+                left = mid + 1
+        low = right         # right会走到刚好出边界之地
+
+        # 如[5,7,7,8,8,10], low = 2, high = 5
+        return high - low - 1
+```
+
+- 注：两次二分逻辑差不多，可以简化代码
+
+```py
+class Solution:
+    def search(self, nums: [int], target: int) -> int:
+        def search_boundary(target: int) -> int:
+            # 找到目标值+1的第一个元素
+            # 如[2, 7, 7, 8]找7，返回8的位置
+            left, right = 0, len(nums) - 1
+            while left <= right:
+                mid = (left + right) // 2
+                if nums[mid] <= target:
+                    left = mid + 1
+                else:
+                    right = mid - 1
+            return left
+        return search_boundary(target) - search_boundary(target - 1)
+
+```
+
+### 翻转单词顺序
+
+- 题目描述：
+输入一个英文句子，翻转句子中单词的顺序，但单词内字符的顺序不变。为简单起见，标点符号和普通字母一样处理。例如输入字符串"I am a student. "，则输出"student. a am I"。
+
+- 示例：
+输入: "a good   example"
+输出: "example good a"
+解释: 如果两个单词间有多余的空格，将反转后单词间的空格减少到只含一个。
+
+- 代码：遍历
+
+时间空间复杂度：O（N）
+
+```py
+class Solution:
+    def reverseWords(self, s: str) -> str:
+        # 注意：如果可以用内置函数，python用split()最佳
+        result = []
+        word = ''
+        for c in s:
+            if c == ' ' and len(word) > 0:
+                result.append(word)
+                word = ''
+            
+            if c != ' ':
+                word += c
+        
+        if word:
+            result.append(word)
+        
+        return ' '.join(result[::-1])
+```
+
+### 两个链表的第一个公共节点
+
+- 题目描述：输入两个链表，找出它们的第一个公共节点。
+
+- 示例：
+输入：intersectVal = 8, listA = [4,1,8,4,5], listB = [5,0,1,8,4,5], skipA = 2, skipB = 3
+输出：Reference of the node with value = 8
+注意：你不能使用输入：intersectVal、skipA和skipB
+
+- 代码1：哈希表，遍历A存入哈希表，再遍历B，有的话就相交
+
+- 代码2：双指针，浪漫相遇~
+
+如果没有公共结点，会一起到None。如果有公共结点，那就会一起到公共结点。
+
+```py
+class Solution:
+    def getIntersectionNode(self, headA: ListNode, headB: ListNode) -> ListNode:
+        
+        nodeA, nodeB = headA, headB
+        
+        while nodeA != nodeB:
+            nodeA = nodeA.next if nodeA else headB
+            nodeB = nodeB.next if nodeB else headA
+
+        return nodeA
+```
+
+### 和为s的连续正数序列
+
+- 题目描述：输入一个正整数 target ，输出所有和为 target 的连续正整数序列（至少含有两个数）。
+
+- 示例：
+输入：target = 9
+输出：`[[2,3,4],[4,5]]`
+
+- 代码：滑动窗口
+
+```py
+class Solution:
+    def findContinuousSequence(self, target: int) -> List[List[int]]:
+        # 法一：暴力枚举，注意只需要前一半就可以了
+        # 法二：滑动窗口
+        if target <=2:
+            return []
+
+        left, right, total = 1, 2, 3
+        mid = target // 2 + 1
+        result = []
+        while right <= mid:
+            
+            # 比target大，左指针右移
+            if total > target:
+                total -= left
+                left += 1
+            
+            # 找到目标
+            elif total == target:
+                result.append(list(range(left, right+1)))
+                total -= left
+                left += 1
+                right += 1
+                total += right
+            
+            # 比target小，右指针右移
+            else:
+                right += 1
+                total += right
+                
+        return result
+```
+
+### 和为s的两个数字
+
+- 题目描述：输入一个递增排序的数组和一个数字s，在数组中查找两个数，使得它们的和正好是s。如果有多对数字的和等于s，则输出任意一对即可。
+
+- 示例：
+输入：nums = [2,7,11,15], target = 9
+输出：[2,7] 或者 [7,2]
+
+- 代码：双指针
+
+时间复杂度：O（N），空间复杂度：O（1）
+
+```py
+class Solution:
+    def twoSum(self, nums: List[int], target: int) -> List[int]:
+        left, right = 0, len(nums) - 1
+        while left < right:
+            s = nums[left] + nums[right]
+            if s > target:
+                right -= 1
+            elif s == target:
+                return [nums[left], nums[right]]
+            else:
+                left += 1
+
+```
+
+- 注：可以考虑加入二分查找，降低时间复杂度。具体指先尝试找到中间值target//2，然后从中间值开始双指针向两边延伸。
+
 ### 二叉树的深度
 
 - 题目描述：输入一棵二叉树的根节点，求该树的深度。从根节点到叶节点依次经过的节点（含根、叶节点）形成树的一条路径，最长路径的长度为树的深度。
@@ -86,7 +355,7 @@ def majorityElement(self, nums: List[int]) -> int:
     return x
 ```
 
-### 连续子数组的最大和（再）
+### 连续子数组的最大和
 
 - 题目描述：输入一个整型数组，数组中的一个或连续多个整数组成一个子数组。求所有子数组的和的最大值。
 
@@ -96,6 +365,7 @@ def majorityElement(self, nums: List[int]) -> int:
 解释: 连续子数组 [4,-1,2,1] 的和最大，为 6。
 
 - 代码：动态规划
+时间复杂度：O（N），空间复杂度：O（N）
 
 ```py
 def maxSubArray(self, nums: List[int]) -> int:
@@ -105,7 +375,6 @@ def maxSubArray(self, nums: List[int]) -> int:
     # 状态转移：
     # 如果dp[i-1]<0，说明dp[i-1]负贡献，不要更好：dp[i] = nums[i]
     # 如果dp[i-1]>0： dp[i] = nums[i] + dp[i-1]
-    # 为什么不是判断nums[i]的正负？这样就无法保证子数组以第i个数结尾
     for i in range(1, len(nums)):
         if dp[i-1] > 0:
             dp[i] = dp[i-1] + nums[i]
@@ -169,32 +438,32 @@ class MinStack:
 等比数列: `a1 * (1 - q^n)/(1-q)`
 
 ```py
-    def getLeastNumbers(self, arr: List[int], k: int) -> List[int]:
-        if k >= len(arr):
-            return arr
+def getLeastNumbers(arr: List[int], k: int) -> List[int]:
+    if k >= len(arr):
+        return arr
 
-        def quick_sort(low, high):
-            left, right = low, high
-            key = arr[low]
-            while left < right:
-                while left < right and arr[right] >= key:
-                    right -= 1
-                arr[left] = arr[right]
-                while left < right and arr[left] <= key:
-                    left += 1
-                arr[right] = arr[left]
-            
-            # 出循环，left = right
-            arr[left] = key
+    def quick_sort(low, high):
+        left, right = low, high
+        key = arr[low]
+        while left < right:
+            while left < right and arr[right] >= key:
+                right -= 1
+            arr[left] = arr[right]
+            while left < right and arr[left] <= key:
+                left += 1
+            arr[right] = arr[left]
+        
+        # 出循环，left = right
+        arr[left] = key
 
-            # 优化：我们不需要完全排好序，我们只需要找对应k个最小值即可
-            if k < left:
-                return quick_sort(low, left - 1) 
-            if k > left:
-                return quick_sort(left + 1, high)
-            return arr[:k]
-            
-        return quick_sort(0, len(arr) - 1)
+        # 优化：我们不需要完全排好序，我们只需要找对应k个最小值即可
+        if k < left:
+            return quick_sort(low, left - 1) 
+        if k > left:
+            return quick_sort(left + 1, high)
+        return arr[:k]
+        
+    return quick_sort(0, len(arr) - 1)
 ```
 
 ### 删除链表的节点
@@ -653,7 +922,177 @@ def printnumsbers(self, n: int) -> List[int]:
 
 ## 中等
 
-### 数组中数字出现的次数
+### 丑数
+
+- 题目描述：我们把只包含质因子 2、3 和 5 的数称作丑数（Ugly Number）。求按从小到大的顺序的第 n 个丑数。
+
+- 示例：
+输入: n = 10
+输出: 12
+解释: 1, 2, 3, 4, 5, 6, 8, 9, 10, 12 是前 10 个丑数。
+
+- 代码：动态规划
+
+时间复杂度：O（N），空间复杂度：O（N）
+
+```py
+class Solution:
+    def nthUglyNumber(self, n: int) -> int:
+        # dp[i]表示第i个丑数，dp[1] = 1
+        # p2表示*2指针，p3表示*3指针，p5表示*5指针。每使用一次，指针索引加一。
+        # 例如p2=6时，dp[p2]*2 = 12，那么对于p2指向之处，*2就用掉了，之后就上p2=7，看下一个*2机会
+        # dp[i] = min(dp[p2]*2, dp[p3]*3, dp[p5]*5)
+        dp = [0] * (n + 1)
+        dp[1] = 1
+        p2 = p3 = p5 = 1
+
+        for i in range(2, n + 1):
+            num2, num3, num5 = dp[p2] * 2, dp[p3] * 3, dp[p5] * 5
+            dp[i] = min(num2, num3, num5)
+            if dp[i] == num2:
+                p2 += 1
+            if dp[i] == num3:
+                p3 += 1
+            if dp[i] == num5:
+                p5 += 1
+        
+        return dp[n]
+```
+
+### 礼物的最大价值
+
+- 题目描述：在一个 m*n 的棋盘的每一格都放有一个礼物，每个礼物都有一定的价值（价值大于 0）。你可以从棋盘的左上角开始拿格子里的礼物，并每次向右或者向下移动一格、直到到达棋盘的右下角。给定一个棋盘及其上面的礼物的价值，请计算你最多能拿到多少价值的礼物？
+
+- 示例：
+
+输入:
+[
+  [1,3,1],
+  [1,5,1],
+  [4,2,1]
+]
+输出: 12
+解释: 路径 1→3→5→2→1 可以拿到最多价值的礼物
+
+- 代码：动态规划
+
+时间复杂度：O（M*N）
+空间复杂度：O（M*N）
+
+```py
+class Solution:
+    def maxValue(self, grid: List[List[int]]) -> int:
+        if len(grid) == 0 or len(grid[0]) == 0:
+            return 0
+
+        # dp[i][j] 表示到i、j格的最大价值
+        # dp[i][j] = max(dp[i-1][j], dp[i][j-1]) + grid[i][j]
+        # dp[0][0] = grid[0][0] 首行首列初始化依次累加
+
+        h, w = len(grid), len(grid[0])
+        dp = [[0] * (w) for _ in range(h)]
+        dp[0][0] = grid[0][0]
+        for i in range(1, h):
+            dp[i][0] = dp[i-1][0] + grid[i][0]
+        for j in range(1, w):
+            dp[0][j] = dp[0][j-1] + grid[0][j]
+
+
+        for i in range(1, h):
+            for j in range(1, w):
+                dp[i][j] = max(dp[i-1][j], dp[i][j-1]) + grid[i][j]
+        
+        return dp[-1][-1]
+
+```
+
+- 注：可以在grid上直接操作，使得空间复杂度降到O（1）
+
+### 把数字翻译成字符串
+
+- 题目描述：给定一个数字，我们按照如下规则把它翻译为字符串：0 翻译成 “a” ，1 翻译成 “b”，……，11 翻译成 “l”，……，25 翻译成 “z”。一个数字可能有多个翻译。请编程实现一个函数，用来计算一个数字有多少种不同的翻译方法。
+
+- 示例：
+
+输入: 12258
+输出: 5
+解释: 12258有5种不同的翻译，分别是"bccfi", "bwfi", "bczi", "mcfi"和"mzi"
+
+- 代码：动态规划
+
+```py
+class Solution:
+    def translateNum(self, num: int) -> int:
+        # dp长度为len(s), dp[i]为到s的i位置时，数字的翻译方法。
+        # dp[0] = 1, dp[1] = 1/2
+        # dp[i] = dp[i-1] if 新值不能与之前的值组成一个翻译方法
+        # dp[i] = dp[i-1] + dp[i-2] if 新值可以与之前一位的值组成一个翻译方法
+        # 解释：如果新值与前面一个值组成方法，那么方法数为dp[i-2]，如果不组成方法，方法数为dp[i-1]，求和
+        # 最终返回dp[len(s)-1] (dp[-1])
+
+        if num < 10:
+            return 1
+
+        s = str(num)
+        dp = [0] * len(s)
+        dp[0] = 1
+        dp[1] = 2 if '10' <= s[0:2] <= '25' else 1
+
+        for i in range(2, len(s)):
+            dp[i] = dp[i-1] + dp[i-2] if '10' <= s[i-1:i+1] <= '25' else dp[i-1]
+
+        return dp[-1]
+```
+
+- 注：dp的空间复杂度可以省略，用a b变量可替换。字符串的空间复杂度很难省略，要从右到左反向动态规划，用数字取余的思路逐一处理。
+
+### 把数组排成最小的数（再）
+
+- 题目描述：输入一个非负整数数组，把数组里所有数字拼接起来排成一个数，打印能拼接出的所有数字中最小的一个。
+
+- 示例：
+输入: [5,2,3,10]
+输出: "10235"
+
+- 代码：更改排序规则进行排序——自定义快排
+时间复杂度：O（NlogN），空间复杂度：O（N）
+
+```py
+class Solution:
+    def minNumber(self, nums: List[int]) -> str:
+
+        # 思路：将nums用一种新的方式排序，最后拼接
+        # 新的方式是：如果 a + b > b + a， 那么b的值更小，放前面。例如3 + 30 > 30 + 3，30放前面
+        def quick_sort(nums, low , high):
+            if low >= high:
+                return
+            left, right = low, high
+            key = nums[left]                  # 需要比较的基准值
+            while left < right:
+                # 右游标左移，直到找到小于key的值（循环是始终大于）
+                while left < right and key + nums[right] <= nums[right] + key:
+                    right -= 1
+                nums[left] = nums[right]
+                # 左游标右移，直到找到大于key的值（循环是始终小于）
+                while left < right and key + nums[left] >= nums[left] + key:
+                    left += 1
+                nums[right] = nums[left]
+            # 出循环，left = right
+            nums[left] = key
+
+            quick_sort(nums, low, left - 1)
+            quick_sort(nums, left + 1, high)
+        
+        str_nums = [str(num) for num in nums]
+        quick_sort(str_nums, 0, len(str_nums) - 1)
+        return ''.join(str_nums)
+
+```
+
+- 注：此题要更严谨一些的话，可以证明一下传递性，a < b，b < c， 那么a < c
+- 注2：我们可以用self存nums而不必压栈，减缓空间复杂度。
+
+### 数组中数字出现的次数（再）
 
 - 题目描述：一个整型数组 nums 里除两个数字之外，其他数字都出现了两次。请写程序找出这两个只出现一次的数字。要求时间复杂度是O(n)，空间复杂度是O(1)。
 
@@ -685,6 +1124,32 @@ def singleNumbers(self, nums: List[int]) -> List[int]:
             result_2 ^= num
     return result_1, result_2
 ```
+
+### 数组中数字出现的次数 II
+
+- 题目描述：在一个数组 nums 中除一个数字只出现一次之外，其他数字都出现了三次。请找出那个只出现一次的数字。
+
+- 示例：
+输入：nums = [3,4,3,3]
+输出：4
+
+- 代码：哈希表遍历
+
+时空复杂度：O（N）
+
+```py
+class Solution:
+    def singleNumber(self, nums: List[int]) -> int:
+        dic = defaultdict(int)
+        for num in nums:
+            dic[num] += 1
+        
+        for key, value in dic.items():
+            if value == 1:
+                return key
+```
+
+- 注：如果希望简化空间复杂度，那么考虑二进制：假设二进制不进位，那么所有num二进制的每一位和，对3取余，剩下便是最终结果。
 
 ### 二叉树中和为某一值的路径
 
@@ -759,6 +1224,7 @@ def verifyPostorder(self, postorder: List[int]) -> bool:
 
     return recur(0, len(postorder) - 1)
 ```
+
 ### 最长不含重复字符的子字符串
 
 - 题目描述：请从字符串中找出一个最长的不包含重复字符的子字符串，计算该最长子字符串的长度。注意是子串，子串是相连的。
@@ -1539,6 +2005,81 @@ def myPow(self, x: float, n: int) -> float:
 
 ## 困难
 
+### 滑动窗口的最大值
+
+- 题目描述：给定一个数组 nums 和滑动窗口的大小 k，请找出所有滑动窗口里的最大值。
+
+- 示例：
+输入: nums = [1,3,-1,-3,5,3,6,7], 和 k = 3
+输出: [3,3,5,5,6,7]
+解释:
+
+滑动窗口的位置                最大值
+[1  3  -1] -3  5  3  6  7       3
+ 1 [3  -1  -3] 5  3  6  7       3
+ 1  3 [-1  -3  5] 3  6  7       5
+ 1  3  -1 [-3  5  3] 6  7       5
+ 1  3  -1  -3 [5  3  6] 7       6
+ 1  3  -1  -3  5 [3  6  7]      7
+
+- 代码——如果暴力法时间复杂度为O（NK），我们使用队列存储数值，让获取最大值的行为变为O（1）。备注：在滑动窗口踢出现有最大值的时候，能立刻获得下一个最大值。
+时间复杂度：O（N），空间复杂度：O（N）
+
+```py
+class Solution:
+    def maxSlidingWindow(self, nums: List[int], k: int) -> List[int]:
+        if not nums or k == 0:
+            return []
+
+        # deque队首存放当前窗口最大值
+        deque = collections.deque()
+        # 未形成窗口前
+        for i in range(k):
+            # 新元素进来，如果比之前元素都大，那么清零之前元素，并保证队首存放最大值
+            while deque and deque[-1] < nums[i]:
+                deque.pop()
+            deque.append(nums[i])
+        res = [deque[0]]
+
+        # 形成窗口后
+        for i in range(k, len(nums)):
+            # 如果最大元素被踢出窗口，popleft
+            if deque[0] == nums[i - k]:
+                deque.popleft()
+            # 保证最大元素在队首
+            while deque and deque[-1] < nums[i]:
+                deque.pop()
+            deque.append(nums[i])
+            res.append(deque[0])
+        return res
+```
+
+### 不用加减乘除做加法（可选，再）
+
+- 题目描述：写一个函数，求两个整数之和，要求在函数体内不得使用 “+”、“-”、“*”、“/” 四则运算符号。
+
+- 代码：二进制运算
+时间复杂度：O（1），空间复杂度：O（1）
+
+```py
+class Solution:
+    def add(self, a: int, b: int) -> int:
+        x = 0xffffffff
+        a, b = a & x, b & x     # 将数字a、b截断，只保留三十二位
+        while b != 0:
+            a, b = a ^ b, ((a & b) << 1) & x
+            '''addition = ((a & b) << 1) & x      # a和b产生的进位，注意截断高位
+            a = a ^ b                  # 二进制加，如果不考虑进位，那么就相当于异或，把结果赋给a
+            b = addition               # 进位赋给b'''
+            # 接下来要处理的就是，上一轮运算的结果，和产生的进位再进行“加”运算
+        
+        # 进位为0时出循环
+        # 如果a为正数，那么直接返回a
+        # 如果a为负数，先和x异或让三十二位按位取反，再对整个数字取反（包括三十二位之前的）转成python存储负数的格式。
+        # 注意：对于python而言，负数三十二位之前，无限补1
+        return a if a <= 0x7fffffff else ~(a ^ x)
+```
+
 ### 数组中的逆序对（再）
 
 - 题目描述：在数组中的两个数字，如果前面一个数字大于后面的数字，则这两个数字组成一个逆序对。输入一个数组，求出这个数组中的逆序对的总数。
@@ -1589,6 +2130,7 @@ class Solution:
 
         return self.count
 ```
+
 ### 1～n 整数中 1 出现的次数（可选，再）
 
 - 题目描述：输入一个整数 n ，求1～n这n个整数的十进制表示中1出现的次数。例如，输入12，1～12这些整数中包含1 的数字有1、10、11和12，1一共出现了5次。
