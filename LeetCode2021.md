@@ -230,7 +230,7 @@ def minimumOperations(self, leaves: str) -> int:
     1. 假设`dp[i][j]`为text1[0:i-1]和text2[0:j-1]的最长公共子序列长度，
     2. 初始值：`dp[0][0] = 0`, `dp[0][1] = 0`, `dp[1][0] = 0`（i或j为0，则空字串）
     3. 状态转移方程：
-       1. 如果text1[i] == text[j], `dp[i][j] = dp[i-1][j-1]+1`（最长公共子序列+1）
+       1. 如果text1[i] == text2[j], `dp[i][j] = dp[i-1][j-1]+1`（最长公共子序列+1）
        2. 如果不等，那么`dp[i][j]=max(dp[i][j-1], dp[i-1][j])`（找之前的最长公共子序列）
 
 - 代码：
