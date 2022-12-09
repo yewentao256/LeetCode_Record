@@ -2,6 +2,70 @@
 
 写在前面：仅记录medium和hard的题目和有意思的easy。
 
+## easy
+
+### Longest Common Prefix：最长公共前缀
+
+- 题目描述：编写一个函数来查找字符串数组中的最长公共前缀。如果不存在公共前缀，返回空字符串 ""。
+- 示例：
+输入：strs = ["flower","flow","flight"]
+输出："fl"
+- 思路：横向扫描，每次更新最长前缀。时间复杂度O(MN)，M是平均字符串长度，最坏情况下都要比较一次，空间复杂度O（1）
+- 代码
+
+```py
+def longestCommonPrefix(self, strs: List[str]) -> str:
+    prefix = strs[0]
+
+    for i in range(1, len(strs)):
+        compare_str = strs[i]
+        j, l = 0, min(len(prefix), len(compare_str))
+        while j < l:
+            if prefix[j] != compare_str[j]:
+                break
+            j += 1
+        prefix = prefix[:j]
+    
+    return prefix
+    
+```
+
+### Valid Parentheses：有效的括号
+
+- 题目描述：给定一个只包括 '('，')'，'{'，'}'，'['，']' 的字符串 s ，判断字符串是否有效。
+
+有效字符串需满足：
+
+左括号必须用相同类型的右括号闭合。
+左括号必须以正确的顺序闭合。
+每个右括号都有一个对应的相同类型的左括号。
+
+- 示例：
+输入：s = ""([)]""
+输出：false
+输入：s = "()[]{}"
+输出：true
+
+- 思路：一般这种匹配都是用栈，先进后出一一对应，注意边界条件如栈空的情况
+
+- 代码：
+
+```py
+class Solution:
+    def isValid(self, s: str) -> bool:
+        stack = ['bottom']
+        dic = {'{': '}', '[': ']', '(': ')', 'bottom': 'bottom'}
+
+        for c in s:
+            if dic.get(c):
+                stack.append(c)
+            else:
+                if dic[stack.pop()] != c:
+                    return False
+        return len(stack) == 1
+
+```
+
 ## medium
 
 ### 动态规划
