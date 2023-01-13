@@ -4,6 +4,43 @@
 
 ## easy
 
+### Rearrange Characters to Make Target String：重排字符形成目标字符串
+
+- 题目描述：给你两个下标从 0 开始的字符串 s 和 target 。你可以从 s 取出一些字符并将其重排，得到若干新的字符串。从 s 中取出字符并重新排列，返回可以形成 target 的 最大 副本数。
+
+- 示例：
+
+输入：s = "ilovecodingonleetcode", target = "code"
+输出：2
+解释：
+对于 "code" 的第 1 个副本，选取下标为 4 、5 、6 和 7 的字符。
+对于 "code" 的第 2 个副本，选取下标为 17 、18 、19 和 20 的字符。
+形成的字符串分别是 "ecod" 和 "code" ，都可以重排为 "code" 。
+可以形成最多 2 个 "code" 的副本，所以返回 2 。
+
+- 思路：哈希表计数，可以用整除的方式一次遍历
+- 代码：
+
+```py
+from collections import defaultdict
+class Solution:
+    def rearrangeCharacters(self, s: str, target: str) -> int:
+        dic = defaultdict(int)
+        dic_target = defaultdict(int)
+        for c in s:
+            dic[c] += 1
+        for c in target:
+            dic_target[c] += 1
+        
+        result = inf
+        for key, count in dic_target.items():
+            # 不需要检测是否key是否存在，defaultdict(int)取不存在的key时返回0
+            result = min(result, dic[key] // count)
+            if result == 0:
+                return 0
+        return result
+```
+
 ### Longest Common Prefix：最长公共前缀
 
 - 题目描述：编写一个函数来查找字符串数组中的最长公共前缀。如果不存在公共前缀，返回空字符串 ""。
