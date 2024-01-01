@@ -5,6 +5,8 @@
     - [Double Pointer](#double-pointer)
       - [Merge Sorted Array](#merge-sorted-array)
       - [Remove Element](#remove-element)
+    - [Array](#array)
+      - [Majority Element](#majority-element)
 
 link: [https://leetcode.cn/studyplan/top-interview-150/]
 
@@ -22,7 +24,7 @@ Note: In-place operation
 
 Eg:
 
-```py
+```bash
 Input: nums1 = [1,2,3,0,0,0], m = 3, nums2 = [2,5,6], n = 3
 Output: [1,2,2,3,5,6]
 Input: nums1 = [1], m = 1, nums2 = [], n = 0
@@ -76,4 +78,33 @@ def removeElement(nums: List[int], val: int) -> int:
         else:
             i += 1
     return i
+```
+
+### Array
+
+#### Majority Element
+
+Q: Given an array `nums` of size `n`, return the majority element. You may assume that the majority element always exists in the array.
+
+Eg:
+
+```bash
+Input: nums = [3,2,3]
+Output: 3
+Input: nums = [2,2,1,1,1,2,2]
+Output: 2
+1 <= n <= 5 * 104
+```
+
+Solution: **Vote** (Boyer-Moore)
+
+```py
+def majorityElement(nums: List[int]) -> int:
+    count = 0
+    for num in nums:
+        if count == 0:
+            # Note: count is always >= 0
+            candidate = num
+        count += (1 if num == candidate else -1)
+    return candidate
 ```
