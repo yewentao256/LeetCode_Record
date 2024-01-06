@@ -7,6 +7,9 @@
       - [Remove Element](#remove-element)
     - [Array](#array)
       - [Majority Element](#majority-element)
+  - [Medium](#medium)
+    - [Double Pointer](#double-pointer-1)
+      - [Remove Duplicates from Sorted Array II](#remove-duplicates-from-sorted-array-ii)
 
 link: [https://leetcode.cn/studyplan/top-interview-150/]
 
@@ -107,4 +110,44 @@ def majorityElement(nums: List[int]) -> int:
             candidate = num
         count += (1 if num == candidate else -1)
     return candidate
+```
+
+## Medium
+
+### Double Pointer
+
+#### Remove Duplicates from Sorted Array II
+
+Q: Given an integer array `nums` sorted in **non-decreasing** order, remove some duplicates **in-place** such that each unique element appears at most twice. The **relative order** of the elements should be kept the same.
+
+Eg:
+
+```bash
+Input: nums = [1,1,1,2,2,3]
+Output: 5, nums = [1,1,2,2,3,_]
+Input: nums = [0,0,1,1,1,1,2,3,3]
+Output: 7, nums = [0,0,1,1,2,3,3,_,_]
+# Do not allocate extra space for another array. You must do this by modifying the input array in-place with O(1) extra memory.
+```
+
+Solution: slow and fast pointer
+
+```python
+def removeDuplicates(nums: List[int]) -> int:
+    # key: judge by key-2, if nums[i-2] == nums[j], nums[i] must == nums[j]
+    # key2: nums[i] shoud be covered each time when i moves
+    if len(nums) <= 2:
+        return len(nums)
+    i, j = 2, 2
+    while(j < len(nums)):
+        if nums[i - 2] == nums[j]:
+            # duplicate: j needs to move and find the suitable element
+            j += 1
+        else:
+            # including i==j (first time to cover) and i < j two cases
+            nums[i] = nums[j]
+            i += 1
+            j += 1
+        
+    return i
 ```
