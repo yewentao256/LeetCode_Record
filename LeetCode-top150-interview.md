@@ -7,6 +7,7 @@
       - [Remove Element](#remove-element)
     - [Array](#array)
       - [Majority Element](#majority-element)
+      - [Best Time to Buy and Sell Stock](#best-time-to-buy-and-sell-stock)
   - [Medium](#medium)
     - [Double Pointer](#double-pointer-1)
       - [Remove Duplicates from Sorted Array II](#remove-duplicates-from-sorted-array-ii)
@@ -110,6 +111,41 @@ def majorityElement(nums: List[int]) -> int:
             candidate = num
         count += (1 if num == candidate else -1)
     return candidate
+```
+
+#### Best Time to Buy and Sell Stock
+
+Q: You are given an array `prices` where `prices[i]` is the price of a given stock on the ith day. Return the maximum profit you can achieve from this transaction. If you cannot achieve any profit, return 0.
+
+Eg:
+
+```bash
+Input: prices = [7,1,5,3,6,4]
+Output: 5
+Explanation: Buy on day 2 (price = 1) and sell on day 5 (price = 6), profit = 6-1 = 5.
+Note that buying on day 2 and selling on day 1 is not allowed because you must buy before you sell.
+Input: prices = [7,6,4,3,1]
+Output: 0
+```
+
+Solution: traverse once -- we can't only find the minimum value to buy, we have to consider the max_profit we now can get.
+
+```py
+def maxProfit(prices: List[int]) -> int:
+    # key: find the best place to buy and to sell
+    # key2: record the max_profit all the time
+    min_index = -1
+    min_value, max_value = 10**4, 0
+    max_profit = 0
+    for i in range(len(prices)):
+        if prices[i] < min_value:
+            if max_value - min_value > max_profit:
+                max_profit = max_value - min_value
+            min_value, min_index = prices[i], i
+            max_value = min_value   # reset max_value
+        elif i > min_index and prices[i] > max_value:
+            max_value = prices[i]
+    return max(max_profit, max_value - min_value)
 ```
 
 ## Medium
