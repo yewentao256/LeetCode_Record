@@ -131,7 +131,7 @@ def sortedSquares(self, nums):
 - 代码：
 
 ```py
-def rotate(self, nums, k):
+def rotate(nums, k):
     def reverse(i, j):
         while i < j:
             nums[i], nums[j] = nums[j], nums[i]

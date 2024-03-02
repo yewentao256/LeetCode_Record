@@ -11,6 +11,8 @@
   - [Medium](#medium)
     - [Double Pointer](#double-pointer-1)
       - [Remove Duplicates from Sorted Array II](#remove-duplicates-from-sorted-array-ii)
+    - [Greedy](#greedy)
+      - [Jump Game II](#jump-game-ii)
 
 link: [https://leetcode.cn/studyplan/top-interview-150/]
 
@@ -37,7 +39,7 @@ Input: nums1 = [0], m = 0, nums2 = [1], n = 1
 Output: [1]
 ```
 
-Solution: Double pointer, **starts from the tail**
+Solution: Double pointer, **starts from the tail**, Time: `O(N)`, Space: `O(1)`
 
 ```py
 def merge(nums1: List[int], m: int, nums2: List[int], n: int) -> None:
@@ -67,7 +69,7 @@ Output: 5, nums = [0,1,4,0,3,_,_,_]
 Note: the order is not cared
 ```
 
-Solution: Double pointer, **one from the beginning, one from the end**
+Solution: Double pointer, **one from the beginning, one from the end**, Time: `O(N)`, Space: `O(1)`
 
 ```py
 def removeElement(nums: List[int], val: int) -> int:
@@ -97,10 +99,9 @@ Input: nums = [3,2,3]
 Output: 3
 Input: nums = [2,2,1,1,1,2,2]
 Output: 2
-1 <= n <= 5 * 104
 ```
 
-Solution: **Vote** (Boyer-Moore)
+Solution: **Vote** (Boyer-Moore), Time: `O(N)`, Space: `O(1)`
 
 ```py
 def majorityElement(nums: List[int]) -> int:
@@ -123,12 +124,11 @@ Eg:
 Input: prices = [7,1,5,3,6,4]
 Output: 5
 Explanation: Buy on day 2 (price = 1) and sell on day 5 (price = 6), profit = 6-1 = 5.
-Note that buying on day 2 and selling on day 1 is not allowed because you must buy before you sell.
 Input: prices = [7,6,4,3,1]
 Output: 0
 ```
 
-Solution: traverse once -- we can't only find the minimum value to buy, we have to consider the max_profit we now can get.
+Solution: traverse once -- we can't only find the minimum value to buy, we have to consider the max_profit we now can get. Time: `O(N)`, Space: `O(1)`
 
 ```py
 def maxProfit(prices: List[int]) -> int:
@@ -166,24 +166,60 @@ Output: 7, nums = [0,0,1,1,2,3,3,_,_]
 # Do not allocate extra space for another array. You must do this by modifying the input array in-place with O(1) extra memory.
 ```
 
-Solution: slow and fast pointer
+Solution: slow and fast pointer, Time: `O(N)`, Space: `O(1)`
 
 ```python
 def removeDuplicates(nums: List[int]) -> int:
     # key: judge by key-2, if nums[i-2] == nums[j], nums[i] must == nums[j]
-    # key2: nums[i] shoud be covered each time when i moves
+    # key2: nums[i] should be covered each time when i moves
     if len(nums) <= 2:
         return len(nums)
     i, j = 2, 2
     while(j < len(nums)):
         if nums[i - 2] == nums[j]:
-            # duplicate: j needs to move and find the suitable element
+            # find the duplicate case, keep going and find
             j += 1
         else:
-            # including i==j (first time to cover) and i < j two cases
+            # replace the duplicate
             nums[i] = nums[j]
             i += 1
             j += 1
         
     return i
+```
+
+### Greedy
+
+#### Jump Game II
+
+Q: You are given a 0-indexed array of integers nums of length `n`. You are initially positioned at `nums[0]`. Each element `nums[i]` represents the maximum length of a forward jump from index i. Return the minimum number of jumps to reach `nums[n - 1]`. The test cases are generated such that you can reach `nums[n - 1]`.
+
+Eg:
+
+```bash
+Input: nums = [2,3,1,1,4]
+Output: 2
+Explanation: The minimum number of jumps to reach the last index is 2. Jump 1 step from index 0 to 1, then 3 steps to the last index.
+
+Input: nums = [2,3,0,1,4]
+Output: 2
+```
+
+Solution: "Global" Greedy, Time: `O(N)`, Space: `O(1)`
+
+```py
+def jump(nums: List[int]) -> int:
+    # "global" greedy: traverse each index, get the max_index
+    # if we arrive at the max_index for a jump, count += 1
+    max_index = 0  # Currently the max index we can jump
+    end = 0        # The max index we can jump at last time
+    count = 0
+    # why len(nums) - 1? the last index doesn't need to execute
+    for i in range(len(nums) - 1):
+        if max_index >= i:
+            max_index = max(max_index, i + nums[i])
+            if i == end:
+                end = max_index
+                count += 1
+    return count
 ```
