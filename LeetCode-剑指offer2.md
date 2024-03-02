@@ -4,11 +4,11 @@
 
 ### 二叉搜索树的第k大节点
 
-- 题目描述：给定一棵二叉搜索树，请找出其中第k大的节点。
+- 题目描述：给定一棵二叉搜索树（二叉排序树），请找出其中第k大的节点。
 
-- 代码：倒中序遍历
+- 代码：倒中序遍历（先访问最大的，再依次访问值逐渐减少的）
 
-时间复杂度：O（N），空间复杂度：O（N）——最差的链表情况，全部入栈
+- 时间复杂度：`O（N）`，空间复杂度：`O（N）`——最差的链表情况，全部入栈
 
 ```py
 class Solution:
@@ -37,26 +37,28 @@ class Solution:
 - 题目描述：一个长度为n-1的递增排序数组中的所有数字都是唯一的，并且每个数字都在范围0～n-1之内。在范围0～n-1内的n个数字中有且只有一个数字不在该数组中，请找出这个数字。
 
 - 示例：
+
+```bash
 输入: [0,1,3]
 输出: 2
+```
 
 - 代码：二分法
 
-时间复杂度：O（logn），空间复杂度：O（1）
+- 时间复杂度：`O（logn）`，空间复杂度：`O（1）`
 
 ```py
-class Solution:
-    def missingNumber(self, nums: List[int]) -> int:
-        left, right = 0, len(nums) - 1
+def missingNumber(nums: List[int]) -> int:
+    left, right = 0, len(nums) - 1
 
-        # 标准二分，出循环时，right = left - 1，此时left指向答案
-        while left <= right:
-            mid = (left + right) // 2
-            if nums[mid] == mid:
-                left = mid + 1
-            else:
-                right = mid - 1
-        return left
+    # 标准二分，出循环时，right = left - 1，此时left指向答案
+    while left <= right:
+        mid = (left + right) // 2
+        if nums[mid] == mid:
+            left = mid + 1
+        else:
+            right = mid - 1
+    return left
 ```
 
 ### 左旋转字符串
@@ -65,31 +67,67 @@ class Solution:
 
 - 代码：切片
 
-时间复杂度：O（N），空间复杂度：O（N）
+- 时间复杂度：`O（N）`，空间复杂度：`O（N）`
 
 ```py
-class Solution:
-    def reverseLeftWords(self, s: str, n: int) -> str:
-        # 切片效率最高。列表后join次之。新建字符串逐一拼接效率最低（python中字符串不可变）
-        return s[n:] + s[:n]
+def reverseLeftWords(s: str, n: int) -> str:
+    # 切片效率最高。列表后join次之。新建字符串逐一拼接效率最低（python中字符串不可变）
+    return s[n:] + s[:n]
 ```
+
+- 备注：列表后join就像旋转数组那样解决即可
 
 ### 在排序数组中查找数字 I
 
 - 题目描述：统计一个数字在排序数组中出现的次数。
 
 - 示例：
+
+```bash
 输入: nums = [5,7,7,8,8,10], target = 8
 输出: 2
+```
 
 - 代码：二分查找，找到上下边界，直接计算
 
-时间复杂度：O（logn），空间复杂度：O（1）
+时间复杂度：`O（logn）`，空间复杂度：`O（1）`
 
 ```py
-class Solution:
-    def search(self, nums: [int], target: int) -> int:
-        # 搜索右边界 high
+def search(nums: [int], target: int) -> int:
+    # 搜索右边界 high
+    left, right = 0, len(nums) - 1
+    while left <= right:
+        mid = (left + right) // 2
+        if nums[mid] <= target:
+            left = mid + 1
+        else:
+            right = mid - 1
+    # 注意：出循环时，right = left - 1，一定是target的指向
+    high = left
+    # 若数组中无 target ，则提前返回
+    if right >= 0 and nums[right] != target:
+        return 0
+    # 搜索左边界 low
+    left = 0
+    while left <= right:
+        mid = (left + right) // 2
+        if nums[mid] >= target:
+            right = mid - 1
+        else:
+            left = mid + 1
+    low = right         # right会走到刚好出边界之地
+
+    # 如[5,7,7,8,8,10], low = 2, high = 5
+    return high - low - 1
+```
+
+- 注：两次二分逻辑差不多，可以简化代码
+
+```py
+def search(nums: [int], target: int) -> int:
+    def search_boundary(target: int) -> int:
+        # 找到目标值+1的第一个元素
+        # 如[2, 7, 7, 8]找7，返回8的位置
         left, right = 0, len(nums) - 1
         while left <= right:
             mid = (left + right) // 2
@@ -97,77 +135,45 @@ class Solution:
                 left = mid + 1
             else:
                 right = mid - 1
-        # 注意：出循环时，right = left - 1，一定是target的指向
-        high = left
-        # 若数组中无 target ，则提前返回
-        if right >= 0 and nums[right] != target:
-            return 0
-        # 搜索左边界 low
-        left = 0
-        while left <= right:
-            mid = (left + right) // 2
-            if nums[mid] >= target:
-                right = mid - 1
-            else:
-                left = mid + 1
-        low = right         # right会走到刚好出边界之地
-
-        # 如[5,7,7,8,8,10], low = 2, high = 5
-        return high - low - 1
-```
-
-- 注：两次二分逻辑差不多，可以简化代码
-
-```py
-class Solution:
-    def search(self, nums: [int], target: int) -> int:
-        def search_boundary(target: int) -> int:
-            # 找到目标值+1的第一个元素
-            # 如[2, 7, 7, 8]找7，返回8的位置
-            left, right = 0, len(nums) - 1
-            while left <= right:
-                mid = (left + right) // 2
-                if nums[mid] <= target:
-                    left = mid + 1
-                else:
-                    right = mid - 1
-            return left
-        return search_boundary(target) - search_boundary(target - 1)
-
+        return left
+    return search_boundary(target) - search_boundary(target - 1)
 ```
 
 ### 翻转单词顺序
 
 - 题目描述：
+
 输入一个英文句子，翻转句子中单词的顺序，但单词内字符的顺序不变。为简单起见，标点符号和普通字母一样处理。例如输入字符串"I am a student. "，则输出"student. a am I"。
 
 - 示例：
+
+```bash
 输入: "a good   example"
 输出: "example good a"
 解释: 如果两个单词间有多余的空格，将反转后单词间的空格减少到只含一个。
+```
 
 - 代码：遍历
 
-时间空间复杂度：O（N）
+- 时间复杂度：`O（N）`，空间复杂度：`O（N）`
 
 ```py
-class Solution:
-    def reverseWords(self, s: str) -> str:
-        # 注意：如果可以用内置函数，python用split()最佳
-        result = []
-        word = ''
-        for c in s:
-            if c == ' ' and len(word) > 0:
-                result.append(word)
-                word = ''
-            
-            if c != ' ':
-                word += c
-        
-        if word:
+def reverseWords(s: str) -> str:
+    # 注意：如果可以用内置函数，python用split()最佳
+    result = []
+    word = ''
+    for c in s:
+        if c == ' ' and len(word) > 0:
             result.append(word)
+            word = ''
         
-        return ' '.join(result[::-1])
+        if c != ' ':
+            word += c
+    
+    if word:
+        result.append(word)
+    
+    return ' '.join(result[::-1])
 ```
 
 ### 两个链表的第一个公共节点
@@ -175,9 +181,11 @@ class Solution:
 - 题目描述：输入两个链表，找出它们的第一个公共节点。
 
 - 示例：
+
+```bash
 输入：intersectVal = 8, listA = [4,1,8,4,5], listB = [5,0,1,8,4,5], skipA = 2, skipB = 3
 输出：Reference of the node with value = 8
-注意：你不能使用输入：intersectVal、skipA和skipB
+```
 
 - 代码1：哈希表，遍历A存入哈希表，再遍历B，有的话就相交
 
@@ -185,17 +193,19 @@ class Solution:
 
 如果没有公共结点，会一起到None。如果有公共结点，那就会一起到公共结点。
 
-```py
-class Solution:
-    def getIntersectionNode(self, headA: ListNode, headB: ListNode) -> ListNode:
-        
-        nodeA, nodeB = headA, headB
-        
-        while nodeA != nodeB:
-            nodeA = nodeA.next if nodeA else headB
-            nodeB = nodeB.next if nodeB else headA
+时间复杂度：`O（n + m）`，空间复杂度：`O(1)`
 
-        return nodeA
+```py
+def getIntersectionNode(headA: ListNode, headB: ListNode) -> ListNode:
+    
+    nodeA, nodeB = headA, headB
+    
+    while nodeA != nodeB:
+        # 如果走完，换到另一个节点开始
+        nodeA = nodeA.next if nodeA else headB
+        nodeB = nodeB.next if nodeB else headA
+
+    return nodeA
 ```
 
 ### 和为s的连续正数序列
@@ -203,43 +213,47 @@ class Solution:
 - 题目描述：输入一个正整数 target ，输出所有和为 target 的连续正整数序列（至少含有两个数）。
 
 - 示例：
+
+```bash
 输入：target = 9
-输出：`[[2,3,4],[4,5]]`
+输出：[[2,3,4],[4,5]]
+```
 
 - 代码：滑动窗口
 
-```py
-class Solution:
-    def findContinuousSequence(self, target: int) -> List[List[int]]:
-        # 法一：暴力枚举，注意只需要前一半就可以了
-        # 法二：滑动窗口
-        if target <=2:
-            return []
+时间复杂度：`O（N）`，空间复杂度：`O（N）`
 
-        left, right, total = 1, 2, 3
-        mid = target // 2 + 1
-        result = []
-        while right <= mid:
+```py
+def findContinuousSequence(target: int) -> List[List[int]]:
+    # 法一：暴力枚举，注意只需要前一半就可以了
+    # 法二：滑动窗口
+    if target <=2:
+        return []
+
+    left, right, total = 1, 2, 3
+    mid = target // 2 + 1
+    result = []
+    while right <= mid:
+
+        # 比target大，左指针右移
+        if total > target:
+            total -= left
+            left += 1
+        
+        # 找到目标
+        elif total == target:
+            result.append(list(range(left, right+1)))
+            total -= left
+            left += 1
+            right += 1
+            total += right
+        
+        # 比target小，右指针右移
+        else:
+            right += 1
+            total += right
             
-            # 比target大，左指针右移
-            if total > target:
-                total -= left
-                left += 1
-            
-            # 找到目标
-            elif total == target:
-                result.append(list(range(left, right+1)))
-                total -= left
-                left += 1
-                right += 1
-                total += right
-            
-            # 比target小，右指针右移
-            else:
-                right += 1
-                total += right
-                
-        return result
+    return result
 ```
 
 ### 和为s的两个数字
@@ -247,25 +261,27 @@ class Solution:
 - 题目描述：输入一个递增排序的数组和一个数字s，在数组中查找两个数，使得它们的和正好是s。如果有多对数字的和等于s，则输出任意一对即可。
 
 - 示例：
+
+```bash
 输入：nums = [2,7,11,15], target = 9
 输出：[2,7] 或者 [7,2]
+```
 
-- 代码：双指针
+- 代码：双指针，大了右指针向左，小了左指针向右
 
-时间复杂度：O（N），空间复杂度：O（1）
+时间复杂度：`O（N）`，空间复杂度：`O（1）`
 
 ```py
-class Solution:
-    def twoSum(self, nums: List[int], target: int) -> List[int]:
-        left, right = 0, len(nums) - 1
-        while left < right:
-            s = nums[left] + nums[right]
-            if s > target:
-                right -= 1
-            elif s == target:
-                return [nums[left], nums[right]]
-            else:
-                left += 1
+def twoSum(nums: List[int], target: int) -> List[int]:
+    left, right = 0, len(nums) - 1
+    while left < right:
+        s = nums[left] + nums[right]
+        if s > target:
+            right -= 1
+        elif s == target:
+            return [nums[left], nums[right]]
+        else:
+            left += 1
 
 ```
 
@@ -277,24 +293,23 @@ class Solution:
 
 - 代码：层序遍历
 
-时间复杂读：O（N），空间复杂度：O（k），最差情况下（平衡二叉树），存储N/2个结点，O（N）
+时间复杂度：`O（N）`，空间复杂度：`O（k）`，最差情况下（平衡二叉树），存储N/2个结点，O（N）
 
 ```py
-class Solution:
-    def maxDepth(self, root: TreeNode) -> int:
-        queue = deque()     # 也可以不用queue，而是用列表，每次重新刷新列表即可
-        queue.append(root)
-        
-        count = 0
-        while queue:
-            for _ in range(len(queue)):
-                node = queue.popleft()
-                if node:
-                    queue.append(node.left)
-                    queue.append(node.right)
-            count += 1     
-        
-        return count-1         # 这样统计，最下一层的None会加入队列，因此多一层
+def maxDepth(root: TreeNode) -> int:
+    queue = deque()     # 也可以不用queue，而是用列表，每次重新刷新列表即可
+    queue.append(root)
+    
+    count = 0
+    while queue:
+        for _ in range(len(queue)):
+            node = queue.popleft()
+            if node:
+                queue.append(node.left)
+                queue.append(node.right)
+        count += 1     
+    
+    return count - 1         # 这样统计，最下一层的None会加入队列，因此多一层
 ```
 
 ### 第一个只出现一次的字符
@@ -303,15 +318,17 @@ class Solution:
 
 - 示例：
 
+```bash
 输入：s = "abaccdeff"
 输出：'b'
+```
 
 - 代码（哈希表）：
 
-时间复杂度：O（N），空间复杂度：O（1）（常数个key）
+时间复杂度：`O（N）`，空间复杂度：`O（1）`（常数个key）
 
 ```py
-def firstUniqChar(self, s: str) -> str:
+def firstUniqChar(s: str) -> str:
     dic = defaultdict(int)
     for c in s:
         dic[c] += 1
@@ -326,10 +343,10 @@ def firstUniqChar(self, s: str) -> str:
 - 题目描述：数组中有一个数字出现的次数超过数组长度的一半，请找出这个数字。你可以假设数组是非空的，并且给定的数组总是存在多数元素。
 
 - 代码1（哈希表）：
-时间复杂度和空间复杂度均为O（N），但比投票法更快因为2/3部分差不多就能return
+时间复杂度和空间复杂度均`为O（N）`，但比投票法更快因为2/3部分差不多就能return
 
 ```py
-def majorityElement(self, nums: List[int]) -> int:
+def majorityElement(nums: List[int]) -> int:
     dic = defaultdict(int)
     target = len(nums) / 2
 
@@ -340,10 +357,11 @@ def majorityElement(self, nums: List[int]) -> int:
 ```
 
 - 代码2（投票法）
-空间复杂度降低至O（1），但需要遍历完整个数组，不推荐
+
+空间复杂度降低至`O（1）`，但需要遍历完整个数组，不推荐
 
 ```py
-def majorityElement(self, nums: List[int]) -> int:
+def majorityElement(nums: List[int]) -> int:
     votes = 0
     for num in nums:
         if votes == 0:
@@ -360,21 +378,25 @@ def majorityElement(self, nums: List[int]) -> int:
 - 题目描述：输入一个整型数组，数组中的一个或连续多个整数组成一个子数组。求所有子数组的和的最大值。
 
 - 示例
+
+```bash
 输入: nums = [-2,1,-3,4,-1,2,1,-5,4]
 输出: 6
 解释: 连续子数组 [4,-1,2,1] 的和最大，为 6。
+```
 
 - 代码：动态规划
-时间复杂度：O（N），空间复杂度：O（N）
+
+时间复杂度：`O（N）`，空间复杂度：`O（N）`
 
 ```py
-def maxSubArray(self, nums: List[int]) -> int:
+def maxSubArray(nums: List[int]) -> int:
     # dp[i]：以第i个数为结尾的最大子数组和, dp[0] = nums[0]
     dp = [nums[0]] * len(nums)
 
     # 状态转移：
-    # 如果dp[i-1]<0，说明dp[i-1]负贡献，不要更好：dp[i] = nums[i]
-    # 如果dp[i-1]>0： dp[i] = nums[i] + dp[i-1]
+    # 如果dp[i-1] < 0，说明dp[i-1]负贡献，不要更好：dp[i] = nums[i]
+    # 如果dp[i-1] > 0： dp[i] = nums[i] + dp[i-1]
     for i in range(1, len(nums)):
         if dp[i-1] > 0:
             dp[i] = dp[i-1] + nums[i]
@@ -388,18 +410,22 @@ def maxSubArray(self, nums: List[int]) -> int:
 
 ### 包含min函数的栈
 
-- 题目描述：定义栈的数据结构，请在该类型中实现一个能够得到栈的最小元素的 min 函数在该栈中，调用 min、push 及 pop 的时间复杂度都是 O(1)。
+- 题目描述：定义栈的数据结构，请在该类型中实现一个能够得到栈的最小元素的 `min` 函数在该栈中，调用 `min`、`push` 及 `pop` 的时间复杂度都是 `O(1)`。
 
-- 示例：MinStack minStack = new MinStack();
+- 示例：
+
+```bash
+MinStack minStack = new MinStack();
 minStack.push(-2);
 minStack.push(0);
 minStack.push(-3);
-minStack.min();   --> 返回 -3.
+minStack.min();   # --> 返回 -3.
 minStack.pop();
-minStack.top();      --> 返回 0.
-minStack.min();   --> 返回 -2.
+minStack.top();   # --> 返回 0.
+minStack.min();   # --> 返回 -2.
+```
 
-- 代码：辅助栈，保证辅助栈的栈顶是最小值即可
+- 代码：辅助栈，保证辅助栈的栈顶是最小值即可。（因为min不会修改数组，所以相对简单）
 
 ```py
 class MinStack:
@@ -424,16 +450,21 @@ class MinStack:
 
 ### 最小的k个数
 
-- 题目描述：输入整数数组 arr ，找出其中最小的 k 个数。例如，输入4、5、1、6、2、7、3、8这8个数字，则最小的4个数字是1、2、3、4。
+- 题目描述：输入整数数组 `arr` ，找出其中最小的 `k` 个数。例如，输入4、5、1、6、2、7、3、8这8个数字，则最小的4个数字是1、2、3、4。
+
 - 示例：
+
+```bash
 输入：arr = [3,2,1], k = 2
 输出：[1,2] 或者 [2,1]
+```
 
-- 代码1：排序后切片 `return sorted(arr)[:k]`，时间复杂度：O（NlogN），空间复杂度O（N）
+- 代码1：排序后切片 `return sorted(arr)[:k]`，时间复杂度：`O（NlogN）`，空间复杂度`O（N）`
 
-- 代码2：利用快排不完全排序，仅仅找到k个最小值。时间复杂度:O（N），空间复杂度：O（logN）
+- 代码2：利用快排不完全排序，仅仅找到k个最小值。时间复杂度:`O（N）`，空间复杂度：`O（logN）`
+
 时间复杂度解析：
-首先快排是因为每次递归操作N次，递归logN次，所以N*logN
+首先快排是因为每次递归操作N次，递归logN次，所以`O(N*logN)`
 这里是假定都取平均递归子数组为N/2，那么总操作次数 = N + N/2 + N/4 + ... < 2N
 等比数列: `a1 * (1 - q^n)/(1-q)`
 
@@ -442,7 +473,7 @@ def getLeastNumbers(arr: List[int], k: int) -> List[int]:
     if k >= len(arr):
         return arr
 
-    def quick_sort(low, high):
+    def quick_sort(low: int, high: int) -> List[int]:
         left, right = low, high
         key = arr[low]
         while left < right:
@@ -469,15 +500,20 @@ def getLeastNumbers(arr: List[int], k: int) -> List[int]:
 ### 删除链表的节点
 
 - 题目描述：给定单向链表的头指针和一个要删除的节点的值，定义一个函数删除该节点。返回头结点
+
 - 示例：
 
+```bash
 输入: head = [4,5,1,9], val = 5
 输出: [4,1,9]
+```
 
-- 代码：
+- 代码：遍历找到然后删除
+
+时间复杂度：`O（N）`，空间复杂度：`O（1）`
 
 ```py
-def deleteNode(self, head: ListNode, val: int) -> ListNode:
+def deleteNode(head: ListNode, val: int) -> ListNode:
     pre, cur = ListNode(-1), head
     pre.next = head
     dummy = pre
@@ -490,26 +526,26 @@ def deleteNode(self, head: ListNode, val: int) -> ListNode:
     return dummy.next
 ```
 
-- 时间复杂度：O（N），空间复杂度：O（1）
-
 ### 反转链表
 
 - 题目描述：定义一个函数，输入一个链表的头节点，反转该链表并输出反转后链表的头节点。
 
 - 示例：
+
+```bash
 输入: 1->2->3->4->5->NULL
 输出: 5->4->3->2->1->NULL
+```
 
-- 代码：**双指针**
-时间复杂度：O（N)，空间复杂度：O（1）
+- 代码：**双指针一次就地遍历**
+
+时间复杂度：`O（N）`，空间复杂度：`O（1）`
 
 ```py
-def reverseList(self, head: ListNode) -> ListNode:
-
+def reverseList(head: ListNode) -> ListNode:
     cur, pre = head, None
     while cur:
         cur.next, pre, cur = pre, cur, cur.next
-
     return pre
 ```
 
@@ -540,17 +576,17 @@ class CQueue:
         return -1
 ```
 
-- 时间复杂度：O（1），因为弹出操作对每个元素最多只操作一次，因此均摊下来为O（1）；空间复杂度：O（N）
+- 时间复杂度：`O（1）`，因为弹出操作对每个元素最多只操作一次，因此均摊下来为`O（1）`；空间复杂度：`O（N）`
 
 ### 斐波那契数列
 
-- 题目说明：略
+- 题目说明：0 1 1 2 3 5 8 斐波那契数列求解
 
-- 代码：
+#### 代码1：简易动态规划
 
 ```py
-def fib(self, n: int) -> int:
-    MOD = 10 ** 9 + 7
+def fib(n: int) -> int:
+    MOD = 10 ** 9 + 7   # LeetCode评测要求取模
     if n < 2:
         return n
     p, q, r = 0, 0, 1
@@ -561,26 +597,90 @@ def fib(self, n: int) -> int:
     return r % MOD
 ```
 
-- 时间复杂度：O（N），空间复杂度：O（1）
-- 注：如果用矩阵快速幂的方法可以将时间复杂度降到O（logn）
-- 注：先算好再给的方法，初始化O（N）之后，每次fib都是O（1）的时间复杂度
+时间复杂度：`O（N）`，空间复杂度：`O（1）`
+
+#### 代码2：矩阵快速幂
+
+矩阵快速幂的基本原理：
+
+\[ a^{b} = a ^{b1+b2} = a^{b1} * a^{b2} \]
+
+我们从指数最低位开始处理，每次处理一位，实际上是将指数翻倍（对应底数平方），`b2 = 2*b1`
+
+矩阵快速幂的代码：
+
+```py
+def fastPow(a, b):
+    result = 1
+    while b > 0:
+        if b & 1:  # 如果b的当前最低位是1
+            result *= a
+        a *= a  # 底数平方
+        b >>= 1  # b右移一位
+    return result
+
+# 例如：a=3（底数） b=5（指数，二进制101）
+# iter1：result = 1 * 3 = 3，a平方变为9，b右移变为2（10）
+# iter2：不更新result（无贡献），a平方变为81，b右移变为1
+# iter3：更新result = 3 * 81 = 243，结束
+```
+
+所以我们只需关心二进制位有贡献的权重累乘即可，将乘法操作数从n次降低到了log次
+
+回到本题，我们可以得到斐波那契数列有：
+
+\[ \begin{pmatrix} 1 & 1 \\ 1 & 0 \end{pmatrix} \begin{pmatrix} F(n) \\ F(n-1) \end{pmatrix} \ = \begin{pmatrix} F(n) + F(n-1) \\ F(n) \end{pmatrix} = \begin{pmatrix} F(n+1) \\ F(n) \end{pmatrix} \]
+
+进而表示为：
+
+\[ \begin{pmatrix} F(n) \\ F(n-1) \end{pmatrix} = \begin{pmatrix} 1 & 1 \\ 1 & 0 \end{pmatrix}^{n-1} \begin{pmatrix} F(1) \\ F(0) \end{pmatrix} \]
+
+```py
+class Solution:
+    def fib(self, n: int) -> int:
+        MOD = 10 ** 9 + 7   # MOD为LeetCode评测要求
+        if n < 2:
+            return n
+        
+        # 矩阵乘（二维）
+        def multiply(a: List[List[int]], b: List[List[int]]) -> List[List[int]]:
+            c = [[0, 0], [0, 0]]
+            for i in range(2):
+                for j in range(2):
+                    c[i][j] = (a[i][0] * b[0][j] + a[i][1] * b[1][j]) % MOD
+            return c
+
+        # 矩阵快速幂核心算法
+        def matrix_pow(a: List[List[int]], n: int) -> List[List[int]]:
+            ret = [[1, 0], [0, 1]]
+            while n > 0:
+                if n & 1:
+                    ret = multiply(ret, a)
+                n >>= 1
+                a = multiply(a, a)
+            return ret
+
+        res = matrix_pow([[1, 1], [1, 0]], n - 1)
+        return res[0][0]
+```
 
 ### 数组中重复的数字
 
 - 题目说明：找出数组中重复的数字。
 
-在一个长度为 n 的数组 nums 里的所有数字都在 0～n-1 的范围内。数组中某些数字是重复的，但不知道有几个数字重复了，也不知道每个数字重复了几次。请找出数组中任意一个重复的数字。
+在一个长度为 `n` 的数组 `nums` 里的所有数字都在 `0～n-1` 的范围内。数组中某些数字是重复的，但不知道有几个数字重复了，也不知道每个数字重复了几次。请找出数组中任意一个重复的数字。
 
 - 示例：
 
-输入：
-[2, 3, 1, 0, 2, 5, 3]
+```bash
+输入： "[2, 3, 1, 0, 2, 5, 3]"
 输出：2 或 3
+```
 
-- 代码：
+- 代码：遍历放入set，看是否增加长度
 
 ```py
-def findRepeatNumber(self, nums: List[int]) -> int:
+def findRepeatNumber(nums: List[int]) -> int:
     s = set()
     l = 0
     for num in nums:
@@ -590,18 +690,23 @@ def findRepeatNumber(self, nums: List[int]) -> int:
             return num
 ```
 
-- 时间复杂度：O（N），空间复杂度：O（N）（会比dict稍微好一点）
+- 时间复杂度：`O（N）`，空间复杂度：`O（N）`（会比dict稍微好一点）
 
 ### 青蛙跳台阶
 
-- 题目说明：一只青蛙一次可以跳上1级台阶，也可以跳上2级台阶。求该青蛙跳上一个 n 级的台阶总共有多少种跳法。答案需要取模 1e9+7（1000000007），如计算初始结果为：1000000008，请返回 1。
+- 题目说明：一只青蛙一次可以跳上1级台阶，也可以跳上2级台阶。求该青蛙跳上一个 `n` 级的台阶总共有多少种跳法。答案需要取模 1e9+7（1000000007），如计算初始结果为：1000000008，请返回 1。
 
-- 示例：输入：n = 0；输出：1
+- 示例：
 
-- 代码：
+```bash
+输入：n = 0
+输出：1
+```
+
+- 代码：一维动态规划，设定`lst[i]`为跳上第n个台阶的跳法，`lst[0]=1, lst[1]=1`，状态转移方程`lst[i] = lst[i-1] + lst[i-2]`
 
 ```py
-def numWays(self, n: int) -> int:
+def numWays(n: int) -> int:
     MOD = 10 ** 9 + 7
     lst = [1, 1]
     for i in range(2, n+1):
@@ -610,51 +715,53 @@ def numWays(self, n: int) -> int:
     return lst[n]
 ```
 
-- 时间复杂度：O（N），空间复杂度：O（N）
-- 注：也可以使用循环变量法，`a, b = b, a + b`，使得空间复杂度降至O（1）
+- 时间复杂度：`O（N）`，空间复杂度：`O（N）`
+- 注：也可以使用循环变量法，`a, b = b, a + b`，使得空间复杂度降至`O（1）`
 
 ### 旋转数组的最小数字
 
-- 题目说明：把一个数组最开始的若干个元素搬到数组的末尾，我们称之为数组的旋转。输入一个递增排序的数组的一个旋转，输出旋转数组的最小元素。例如，数组 [3,4,5,1,2] 为 [1,2,3,4,5] 的一个旋转，该数组的最小值为1。  
+- 题目说明：把一个数组最开始的若干个元素搬到数组的末尾，我们称之为数组的旋转。输入一个递增排序的数组的一个旋转，输出旋转数组的最小元素。例如，数组 `[3,4,5,1,2]` 为 `[1,2,3,4,5]` 的一个旋转，该数组的最小值为`1`。  
 
 - 示例：
+
+```bash
 输入：[3,4,5,1,2]
 输出：1
+```
 
-- 代码（二分查找）：
+- 代码：二分查找
+
+时间复杂度：`O（logN）`，空间复杂度：`O（1）`
 
 ```py
-def minArray(self, numbers: List[int]) -> int:
-
+def minArray(numbers: List[int]) -> int:
     left, right = 0, len(numbers) - 1
     while left < right:
         p = (left+right) // 2
-        if numbers[p] > numbers[right]:     # 因为numbers[p]更大，不可能是最小的
+        if numbers[p] > numbers[right]:     # 中间值比最右值大，最小值位于中间值右侧
             left = p + 1
-        elif numbers[p] < numbers[right]:
+        elif numbers[p] < numbers[right]:   # 中间值比最右值小，最小值位于中间值左侧
             right = p
-        else:
+        else:                               # 中间值恰为最右值，最右值往左移动
             right -= 1
     
     return numbers[left]
 ```
 
-- 时间复杂度：O（N），空间复杂度：O（1）
-
 ### 替换空格
 
-- 题目描述：请实现一个函数，把字符串 s 中的每个空格替换成"%20"。
+- 题目描述：请实现一个函数，把字符串 `s` 中的每个空格替换成`"%20"`。
 
 - 示例：略
 
 - 代码：
 
 ```py
-def replaceSpace(self, s: str) -> str:
-        return '%20'.join(s.split(' '))
+def replaceSpace(s: str) -> str:
+    return '%20'.join(s.split(' '))
 ```
 
-- 时间复杂度：O（N），空间复杂度：O（N）
+- 时间复杂度：`O（N）`，空间复杂度：`O（N）`
 - 注：可以通过其他方式比如扩充字串呀什么的实现O（1）空间复杂，但没有必要
 
 ### 从头到尾打印列表
@@ -663,11 +770,10 @@ def replaceSpace(self, s: str) -> str:
 
 - 示例：略
 
-- 代码：
+- 代码：加入列表后倒序
 
 ```py
-def reversePrint(self, head: ListNode) -> List[int]:
-    
+def reversePrint(head: ListNode) -> List[int]:
     stack = []
     while head:
         stack.append(head.val)
@@ -675,20 +781,23 @@ def reversePrint(self, head: ListNode) -> List[int]:
     return stack[::-1]
 ```
 
-- 时间复杂度：O(N), 空间复杂度：O（N）
+- 时间复杂度：`O(N)`, 空间复杂度：`O（N）`
 
 ### 合并两个排序的链表
 
 - 题目说明：输入两个递增排序的链表，合并这两个链表并使新链表中的节点仍然是递增排序的。
 
 - 示例：
+
+```bash
 输入：1->2->4, 1->3->4
 输出：1->1->2->3->4->4
+```
 
-- 代码：
+- 代码：遍历比大小加入即可
 
 ```py
-def mergeTwoLists(self, l1: ListNode, l2: ListNode) -> ListNode:
+def mergeTwoLists(l1: ListNode, l2: ListNode) -> ListNode:
 
     node = head = ListNode(0)
     
@@ -704,47 +813,52 @@ def mergeTwoLists(self, l1: ListNode, l2: ListNode) -> ListNode:
     return head.next
 ```
 
-- 时间复杂度：O（N）或者说O（N1+N2），空间复杂度：O（1）
+- 时间复杂度：`O（N）`或者说 `O（N1+N2）`，空间复杂度：`O（1）`
 
 ### 二叉树的镜像
 
 - 题目说明：请完成一个函数，输入一个二叉树，该函数输出它的镜像。
 
 - 示例：
+
+```bash
 输入：root = [4,2,7,1,3,6,9]
 输出：[4,7,2,9,6,3,1]
+```
 
-- 代码：
+- 代码：递归交换
 
 ```py
-def mirrorTree(self, root: TreeNode) -> TreeNode:
+def mirrorTree(root: TreeNode) -> TreeNode:
     if not root:
         return
     root.left, root.right = root.right, root.left
     
-    self.mirrorTree(root.left)
-    self.mirrorTree(root.right)
+    mirrorTree(root.left)
+    mirrorTree(root.right)
 
     return root
 ```
 
-- 时间复杂度：O（N），空间复杂度：O（N）（栈深。最坏情况下，二叉树退化为链表）
+- 时间复杂度：`O（N）`，空间复杂度：`O（N）`（栈深。最坏情况下，二叉树退化为链表）
 
 ### 对称的二叉树
 
 - 题目说明：请实现一个函数，用来判断一棵二叉树是不是对称的。如果一棵二叉树和它的镜像一样，那么它是对称的。
 
 - 示例：
+
+```bash
 输入：root = [1,2,2,3,4,4,3]
 输出：true
 输入：root = [1,2,2,null,3,null,3]
 输出：false
+```
 
-- 代码：
+- 代码：递归比较
 
 ```py
-def isSymmetric(self, root: TreeNode) -> bool:
-    # 同时放入左右子树，就可以轻松做对比了
+def isSymmetric(root: TreeNode) -> bool:
     def recur(L, R):
         if not L and not R:
             return True
@@ -755,29 +869,32 @@ def isSymmetric(self, root: TreeNode) -> bool:
     return recur(root.left, root.right) if root else True
 ```
 
-- 时间复杂度：O（N），空间复杂度：O（N）（最差情况下，三角延伸）
+- 时间复杂度：`O（N）`，空间复杂度：`O（N）`（栈深，最差情况下，三角延伸）
 
 ### 调整数组顺序使奇数位于偶数前面
 
 - 题目说明：输入一个整数数组，实现一个函数来调整该数组中数字的顺序，使得所有奇数位于数组的前半部分，所有偶数位于数组的后半部分。
 
 - 示例：
+
+```bash
 输入：nums = [1,2,3,4]
 输出：[1,3,2,4]
 注：[3,1,2,4] 也是正确的答案之一。
+```
 
-- 代码
+- 代码：双指针，左指针从左到右，右指针从右到左，找到后交换
 
 ```py
-def exchange(self, nums: List[int]) -> List[int]:
+def exchange(nums: List[int]) -> List[int]:
     left, right = 0, len(nums)-1
 
     while left < right:
         # 找到左指针指向为奇数的
-        while left<right and nums[left] &1 == 1:    # 按位与& 比%要快挺多
+        while left < right and nums[left] &1 == 1:    # 按位与& 比%要快挺多
             left += 1
         # 找到右指针指向为奇数的
-        while left<right and nums[right] &1 ==0:
+        while left < right and nums[right] &1 ==0:
             right -= 1
 
         nums[left], nums[right] = nums[right], nums[left]
@@ -785,11 +902,11 @@ def exchange(self, nums: List[int]) -> List[int]:
     return nums
 ```
 
-- 时间复杂度：O（N），空间复杂度：O（1）
+- 时间复杂度：`O（N）`，空间复杂度：`O（1）`
 
 ### 二进制中1的个数
 
-- 题目说明：编写一个函数，输入是一个无符号整数（以二进制串的形式），返回其二进制表达式中数字位数为 '1' 的个数（也被称为 汉明重量).）。
+- 题目说明：编写一个函数，输入是一个无符号整数（以二进制串的形式），返回其二进制表达式中数字位数为 `'1'` 的个数（也被称为 汉明重量）。
 
 - 示例：
 输入：n = 11 (控制台输入 00000000000000000000000000001011)
@@ -798,7 +915,7 @@ def exchange(self, nums: List[int]) -> List[int]:
 - 代码：
 
 ```py
-def hammingWeight(self, n: int) -> int:
+def hammingWeight(n: int) -> int:
     res = 0
     while n:
         res += n & 1
@@ -806,20 +923,23 @@ def hammingWeight(self, n: int) -> int:
     return res
 ```
 
-- 时间复杂度：O（$log_2{n}$），空间复杂度：O（1）
+- 时间复杂度：`O（$log_2{n}$）`，空间复杂度：`O（1）`
 
 ### 顺时针打印矩阵
 
 - 题目描述：输入一个矩阵，按照从外向里以顺时针的顺序依次打印出每一个数字。
 
 - 示例：
+
+```bash
 输入：matrix = [[1,2,3],[4,5,6],[7,8,9]]
 输出：[1,2,3,6,9,8,7,4,5]
+```
 
-- 代码：
+- 代码：顺序打印，时间复杂度：`O（M * N）`，空间复杂度：`O（1）`
 
 ```py
-def spiralOrder(self, matrix: List[List[int]]) -> List[int]:
+def spiralOrder(matrix: List[List[int]]) -> List[int]:
     if not matrix or not matrix[0]:
         return []
 
@@ -827,49 +947,51 @@ def spiralOrder(self, matrix: List[List[int]]) -> List[int]:
     left, up, right, down = 0, 0, len(matrix[0])-1, len(matrix)-1
     result = []
     while True:
-        # 左到右
-        for i in range(left, right+1):
+        # 左到右，上界限 + 1
+        for i in range(left, right + 1):
             result.append(matrix[up][i])
         up += 1
         if up>down:
             break
 
-        # 上到下
-        for j in range(up, down+1):
+        # 上到下，右界限 + 1
+        for j in range(up, down + 1):
             result.append(matrix[j][right])
         right -= 1
-        if left>right:
+        if left > right:
             break
 
-        # 右到左
-        for i in range(right, left-1, -1):
+        # 右到左，下界限 + 1
+        for i in range(right, left - 1, -1):
             result.append(matrix[down][i])
         down -= 1
-        if up>down:
+        if up > down:
             break
 
-
-        # 下到上
+        # 下到上，左界限 + 1
         for j in range(down, up-1, -1):
             result.append(matrix[j][left])
         left += 1
-        if left>right:
+        if left > right:
             break
     return result
 ```
 
-- 时间复杂度：O（MN），空间复杂度：O（1）
-
 ### 链表中倒数第k个节点
 
 - 题目描述：输入一个链表，输出该链表中倒数第k个节点。
+
 - 示例：
+
+```bash
 给定一个链表: 1->2->3->4->5, 和 k = 2.
 返回链表 4->5.
-- 代码：
+```
+
+- 代码：双指针，右指针先走两步，时间复杂度：`O（N）`，空间复杂度：`O（1）`
 
 ```py
-def getKthFromEnd(self, head: ListNode, k: int) -> ListNode:
+def getKthFromEnd(head: ListNode, k: int) -> ListNode:
     right = left = head
     
     for i in range(k):
@@ -882,23 +1004,23 @@ def getKthFromEnd(self, head: ListNode, k: int) -> ListNode:
     return left
 ```
 
-- 时间复杂度：O（N），空间复杂度：O（1）
-
 ### 打印从1到最大的n位数
 
 - 题目描述：输入数字 n，按顺序打印出从 1 到最大的 n 位十进制数。比如输入 3，则打印出 1、2、3 一直到最大的 3 位数 999。（用返回一个整数列表来代替打印，n为正整数）
 
 - 示例：
+
+```bash
 输入: n = 1
 输出: [1,2,3,4,5,6,7,8,9]
+```
 
-- 代码1： `return list(range(1, 10 ** n))`
-- 时间复杂度：O（10**n）， 空间复杂度：O（1）
+- 代码1： `return list(range(1, 10 ** n))`，时间复杂度：`O（10**n）`， 空间复杂度：`O（1）`
 
-- 代码2：考虑到大数问题，int无法很好地保存数值，应该使用字符串保存（本题不要求）
+- 代码2：由于int表示不了大数，我们考虑dfs 字串递归，1、11、111……
 
 ```py
-def printnumsbers(self, n: int) -> List[int]:
+def printnumsbers(n: int) -> List[int]:
     def dfs(index: int, nums: list, digit: int):
         # index: 当前index
         # nums: 缓存的数组
@@ -909,54 +1031,84 @@ def printnumsbers(self, n: int) -> List[int]:
         for i in range(10):
             nums.append(str(i))
             dfs(index + 1, nums, digit)
-            nums.pop()      # 回溯，弹出刚append的str(i)
+            nums.pop()      # 回溯，弹出刚append的str(i)，恢复现场不影响下一次循环
 
     res = []
-    for digit in range(1, n + 1):
+    for digit in range(1, n + 1):    # 这个循环由digit = 1开始，保证了有序
         for first in range(1, 10):
-            nums = [str(first)]      # 将首位直接加入，可以避免dfs到001这种情况，还要去除。
+            nums = [str(first)]      # 将首位直接加入，可以避免dfs到001这种情况
             dfs(1, nums, digit)
     
     return res
 ```
 
+### 丑数
+
+- 题目描述：丑数 就是只包含质因数 2、3 和 5 的正整数。给你一个整数 n ，请你判断 n 是否为 丑数 。1被视为丑数，0不是。
+
+- 示例：
+
+```bash
+输入：n = 6
+输出：true
+解释：6 = 2 × 3
+```
+
+- 代码：遍历factor除尽，时间复杂度：`O（logN）`（为什么是logN？每次至少除2），空间复杂度：`O（1）`
+
+```py
+def isUgly(n: int) -> bool:
+    if n <= 0:
+        return False
+
+    # 为什么不需要一个大循环，除2、再除3再回过来除2？
+    # 质因数的特性使可以先除2除尽再考虑3、5
+    factors = [2, 3, 5]
+    for factor in factors:
+        while n % factor == 0:
+            n //= factor
+    
+    return n == 1
+```
+
 ## 中等
 
-### 丑数
+### 丑数二
 
 - 题目描述：我们把只包含质因子 2、3 和 5 的数称作丑数（Ugly Number）。求按从小到大的顺序的第 n 个丑数。
 
 - 示例：
+
+```bash
 输入: n = 10
 输出: 12
 解释: 1, 2, 3, 4, 5, 6, 8, 9, 10, 12 是前 10 个丑数。
+```
 
-- 代码：动态规划
-
-时间复杂度：O（N），空间复杂度：O（N）
+- 代码：动态规划：时间复杂度：`O（N）`，空间复杂度：`O（N）`
 
 ```py
-class Solution:
-    def nthUglyNumber(self, n: int) -> int:
-        # dp[i]表示第i个丑数，dp[1] = 1
-        # p2表示*2指针，p3表示*3指针，p5表示*5指针。每使用一次，指针索引加一。
-        # 例如p2=6时，dp[p2]*2 = 12，那么对于p2指向之处，*2就用掉了，之后就上p2=7，看下一个*2机会
-        # dp[i] = min(dp[p2]*2, dp[p3]*3, dp[p5]*5)
-        dp = [0] * (n + 1)
-        dp[1] = 1
-        p2 = p3 = p5 = 1
+def nthUglyNumber(n: int) -> int:
+    # dp[i]表示第i个丑数，dp[1] = 1
+    # 任意一个丑数，一定是由之前的丑数 * 2 或 * 3 或 * 5来的
+    # p2表示*2指针，p3表示*3指针，p5表示*5指针。每使用一次，指针索引加一。
+    # 例如p2=1时，dp[p2]*2 = 2，那么对于p2指向之处，*2就用掉了，之后就上p2=2，看下一个*2机会
+    # dp[i] = min(dp[p2] * 2, dp[p3] * 3, dp[p5] * 5)
+    dp = [0] * (n + 1)
+    dp[1] = 1
+    p2 = p3 = p5 = 1
 
-        for i in range(2, n + 1):
-            num2, num3, num5 = dp[p2] * 2, dp[p3] * 3, dp[p5] * 5
-            dp[i] = min(num2, num3, num5)
-            if dp[i] == num2:
-                p2 += 1
-            if dp[i] == num3:
-                p3 += 1
-            if dp[i] == num5:
-                p5 += 1
-        
-        return dp[n]
+    for i in range(2, n + 1):
+        num2, num3, num5 = dp[p2] * 2, dp[p3] * 3, dp[p5] * 5
+        dp[i] = min(num2, num3, num5)
+        if dp[i] == num2:
+            p2 += 1
+        if dp[i] == num3:
+            p3 += 1
+        if dp[i] == num5:
+            p5 += 1
+    
+    return dp[n]
 ```
 
 ### 礼物的最大价值
@@ -965,6 +1117,7 @@ class Solution:
 
 - 示例：
 
+```bash
 输入:
 [
   [1,3,1],
@@ -973,40 +1126,36 @@ class Solution:
 ]
 输出: 12
 解释: 路径 1→3→5→2→1 可以拿到最多价值的礼物
+```
 
-- 代码：动态规划
-
-时间复杂度：O（M*N）
-空间复杂度：O（M*N）
+- 代码：动态规划。时间复杂度：`O（M*N）`，空间复杂度：`O（M*N）`
 
 ```py
-class Solution:
-    def maxValue(self, grid: List[List[int]]) -> int:
-        if len(grid) == 0 or len(grid[0]) == 0:
-            return 0
+def maxValue(grid: List[List[int]]) -> int:
+    if len(grid) == 0 or len(grid[0]) == 0:
+        return 0
 
-        # dp[i][j] 表示到i、j格的最大价值
-        # dp[i][j] = max(dp[i-1][j], dp[i][j-1]) + grid[i][j]
-        # dp[0][0] = grid[0][0] 首行首列初始化依次累加
+    # dp[i][j] 表示到i、j格的最大价值
+    # dp[i][j] = max(dp[i-1][j], dp[i][j-1]) + grid[i][j]
+    # dp[0][0] = grid[0][0] 首行首列初始化依次累加
+    h, w = len(grid), len(grid[0])
+    dp = [[0] * (w) for _ in range(h)]
+    dp[0][0] = grid[0][0]
+    for i in range(1, h):
+        dp[i][0] = dp[i-1][0] + grid[i][0]
+    for j in range(1, w):
+        dp[0][j] = dp[0][j-1] + grid[0][j]
 
-        h, w = len(grid), len(grid[0])
-        dp = [[0] * (w) for _ in range(h)]
-        dp[0][0] = grid[0][0]
-        for i in range(1, h):
-            dp[i][0] = dp[i-1][0] + grid[i][0]
+
+    for i in range(1, h):
         for j in range(1, w):
-            dp[0][j] = dp[0][j-1] + grid[0][j]
-
-
-        for i in range(1, h):
-            for j in range(1, w):
-                dp[i][j] = max(dp[i-1][j], dp[i][j-1]) + grid[i][j]
-        
-        return dp[-1][-1]
+            dp[i][j] = max(dp[i-1][j], dp[i][j-1]) + grid[i][j]
+    
+    return dp[-1][-1]
 
 ```
 
-- 注：可以在grid上直接操作，使得空间复杂度降到O（1）
+注：可以在grid上直接操作，使得空间复杂度降到O（1）
 
 ### 把数字翻译成字符串
 
@@ -1014,115 +1163,116 @@ class Solution:
 
 - 示例：
 
+```bash
 输入: 12258
 输出: 5
 解释: 12258有5种不同的翻译，分别是"bccfi", "bwfi", "bczi", "mcfi"和"mzi"
-
-- 代码：动态规划
-
-```py
-class Solution:
-    def translateNum(self, num: int) -> int:
-        # dp长度为len(s), dp[i]为到s的i位置时，数字的翻译方法。
-        # dp[0] = 1, dp[1] = 1/2
-        # dp[i] = dp[i-1] if 新值不能与之前的值组成一个翻译方法
-        # dp[i] = dp[i-1] + dp[i-2] if 新值可以与之前一位的值组成一个翻译方法
-        # 解释：如果新值与前面一个值组成方法，那么方法数为dp[i-2]，如果不组成方法，方法数为dp[i-1]，求和
-        # 最终返回dp[len(s)-1] (dp[-1])
-
-        if num < 10:
-            return 1
-
-        s = str(num)
-        dp = [0] * len(s)
-        dp[0] = 1
-        dp[1] = 2 if '10' <= s[0:2] <= '25' else 1
-
-        for i in range(2, len(s)):
-            dp[i] = dp[i-1] + dp[i-2] if '10' <= s[i-1:i+1] <= '25' else dp[i-1]
-
-        return dp[-1]
 ```
 
-- 注：dp的空间复杂度可以省略，用a b变量可替换。字符串的空间复杂度很难省略，要从右到左反向动态规划，用数字取余的思路逐一处理。
+- 代码：动态规划。时间复杂度：`O（N）`，空间复杂度：`O（N）`
 
-### 把数组排成最小的数（再）
+```py
+def translateNum(num: int) -> int:
+    if num < 10:
+        return 1
+
+    # dp长度为len(s), dp[i]为到s的i位置时，数字的翻译方法。
+    # dp[0] = 1, dp[1] = 1 或 2
+    # dp[i] = dp[i-1] if 新值不能与之前的值组成一个翻译方法
+    # dp[i] = dp[i-1] + dp[i-2] if 新值可以与之前一位的值组成一个翻译方法
+    # 解释：如果新值与前面一个值组成方法，那么方法数为dp[i-2]，如果不组成方法，方法数为dp[i-1]，求和
+    # 最终返回dp[-1]
+    s = str(num)
+    dp = [0] * len(s)
+    dp[0] = 1
+    dp[1] = 2 if '10' <= s[0:2] <= '25' else 1
+
+    for i in range(2, len(s)):
+        dp[i] = dp[i-1] + dp[i-2] if '10' <= s[i-1:i+1] <= '25' else dp[i-1]
+
+    return dp[-1]
+```
+
+### 把数组排成最小的数
 
 - 题目描述：输入一个非负整数数组，把数组里所有数字拼接起来排成一个数，打印能拼接出的所有数字中最小的一个。
 
 - 示例：
+
+```bash
 输入: [5,2,3,10]
 输出: "10235"
+```
 
-- 代码：更改排序规则进行排序——自定义快排
-时间复杂度：O（NlogN），空间复杂度：O（N）
+- 代码：更改排序规则进行排序——自定义快排。时间复杂度：`O（NlogN）`，空间复杂度：`O（N）`
 
 ```py
-class Solution:
-    def minNumber(self, nums: List[int]) -> str:
+def minNumber(nums: List[int]) -> str:
 
-        # 思路：将nums用一种新的方式排序，最后拼接
-        # 新的方式是：如果 a + b > b + a， 那么b的值更小，放前面。例如3 + 30 > 30 + 3，30放前面
-        def quick_sort(nums, low , high):
-            if low >= high:
-                return
-            left, right = low, high
-            key = nums[left]                  # 需要比较的基准值
-            while left < right:
-                # 右游标左移，直到找到小于key的值（循环是始终大于）
-                while left < right and key + nums[right] <= nums[right] + key:
-                    right -= 1
-                nums[left] = nums[right]
-                # 左游标右移，直到找到大于key的值（循环是始终小于）
-                while left < right and key + nums[left] >= nums[left] + key:
-                    left += 1
-                nums[right] = nums[left]
-            # 出循环，left = right
-            nums[left] = key
+    # 思路：将nums用一种新的方式排序，最后拼接
+    # 新的方式是：如果 a + b > b + a， 那么b的值更小，放前面。
+    # 例如3 + 30（330） > 30 + 3（303），30放前面
+    def quick_sort(nums, low , high):
+        if low >= high:
+            return
+        left, right = low, high
+        key = nums[left]                  # 需要比较的基准值
+        while left < right:
+            # 右游标左移，直到找到小于key的值
+            while left < right and key + nums[right] <= nums[right] + key:
+                right -= 1
+            nums[left] = nums[right]
+            # 左游标右移，直到找到大于key的值
+            while left < right and key + nums[left] >= nums[left] + key:
+                left += 1
+            nums[right] = nums[left]
+        # 出循环，left = right
+        nums[left] = key
 
-            quick_sort(nums, low, left - 1)
-            quick_sort(nums, left + 1, high)
-        
-        str_nums = [str(num) for num in nums]
-        quick_sort(str_nums, 0, len(str_nums) - 1)
-        return ''.join(str_nums)
+        quick_sort(nums, low, left - 1)
+        quick_sort(nums, left + 1, high)
+    
+    str_nums = [str(num) for num in nums]
+    quick_sort(str_nums, 0, len(str_nums) - 1)
+    return ''.join(str_nums)
 
 ```
 
 - 注：此题要更严谨一些的话，可以证明一下传递性，a < b，b < c， 那么a < c
 - 注2：我们可以用self存nums而不必压栈，减缓空间复杂度。
 
-### 数组中数字出现的次数（再）
+### 数组中数字出现的次数
 
-- 题目描述：一个整型数组 nums 里除两个数字之外，其他数字都出现了两次。请写程序找出这两个只出现一次的数字。要求时间复杂度是O(n)，空间复杂度是O(1)。
+- 题目描述：一个整型数组 `nums` 里除两个数字之外，其他数字都出现了两次。请写程序找出这两个只出现一次的数字。要求时间复杂度是`O(N)`，空间复杂度是`O(1)`。
 
 - 示例：
 
+```bash
 输入：nums = [4,1,4,6]
 输出：[1,6] 或 [6,1]
+```
 
-- 代码：异或
+- 思路：先考虑找出数组中唯一一个只出现一次的数字，其他都出现两次，异或直接解决。`[4, 1, 4] 即 4 ^ 1 ^ 4 = 1`。但我们这里有两个只出现一次的数字，所以要考虑**分组异或**，即让两个出现一次的数字分到不同组里，其他的出现两次的数字出现在同一组里。怎么分组呢？**先找到两个只出现一次的数字的不同点，即两个数字异或后的第一个二进制位不同的地方，然后以此分组**
+
+- 代码：分组异或。时间复杂度：`O（N）`，空间复杂度：`O（1）`
 
 ```py
-def singleNumbers(self, nums: List[int]) -> List[int]:
+def singleNumbers(nums: List[int]) -> List[int]:
+    x, y = 0, 0
+    n, m = 0, 1                 # n 存储 x^y， m 存储 x^y 的首位为1的值
 
-    # 核心思路：找出数组中唯一一个只出现一次的数字，其他都出现两次
-    # [4,1,4] 4^1^4 = 1
-    result_1, result_2 = 0, 0
-    n, m = 0, 1         # n 存储 x^y， m 存储 x^y 的首位为1的值
-
-    for num in nums:         # 1. 遍历异或，得到 n = x^y
+    for num in nums:            # 1. 遍历异或，得到 n = x^y
         n ^= num
 
-    while n & m == 0:        # 2. 循环左移，得到 x^y 首位为1 的值，如0010
+    while n & m == 0:           # 2. 循环左移，得到 x^y 首位为1 的值，如0010
         m <<= 1
 
     for num in nums:            # 分组，让x、y不在同一组里
         if num & m:             # a组，num & m == 1
-            result_1 ^= num
+            x ^= num
         else:                   # b组，num & m == 0
-            result_2 ^= num
-    return result_1, result_2
+            y ^= num
+    return x, y
 ```
 
 ### 数组中数字出现的次数 II
@@ -1130,50 +1280,66 @@ def singleNumbers(self, nums: List[int]) -> List[int]:
 - 题目描述：在一个数组 nums 中除一个数字只出现一次之外，其他数字都出现了三次。请找出那个只出现一次的数字。
 
 - 示例：
+
+```bash
 输入：nums = [3,4,3,3]
 输出：4
-
-- 代码：哈希表遍历
-
-时空复杂度：O（N）
-
-```py
-class Solution:
-    def singleNumber(self, nums: List[int]) -> int:
-        dic = defaultdict(int)
-        for num in nums:
-            dic[num] += 1
-        
-        for key, value in dic.items():
-            if value == 1:
-                return key
 ```
 
-- 注：如果希望简化空间复杂度，那么考虑二进制：假设二进制不进位，那么所有num二进制的每一位和，对3取余，剩下便是最终结果。
+- 代码1：哈希表遍历。时间复杂度：`O（N）`，空间复杂度：`O（N）`
+
+```py
+def singleNumber(nums: List[int]) -> int:
+    dic = defaultdict(int)
+    for num in nums:
+        dic[num] += 1
+    
+    for key, value in dic.items():
+        if value == 1:
+            return key
+```
+
+- 代码2：核心思路——对于出现三次的数字，各二进制出现的次数都是3的倍数，统计所有数字二进制并对3求余结果即为只出现一次的数字。时间复杂度：`O（N）`，空间复杂度：`O（1）`
+
+```py
+def trainingPlan(actions: List[int]) -> int:
+    counts = [0] * 32
+    # 遍历统计第i位1的个数之和
+    for action in actions:
+        for i in range(32):
+            counts[i] += action & 1
+            action >>= 1
+
+    # 取余然后每一位拼起来
+    res, m = 0, 3
+    for i in range(31, -1, -1):
+        res <<= 1
+        res |= counts[i] % m
+    
+    return res
+```
 
 ### 二叉树中和为某一值的路径
 
-- 题目描述：给你二叉树的根节点 root 和一个整数目标和 targetSum ，找出所有 从根节点到叶子节点 路径总和等于给定目标和的路径。
+- 题目描述：给你二叉树的根节点 `root` 和一个整数目标和 `targetSum` ，找出**所有** 从根节点到叶子节点 路径总和等于给定目标和的路径。
 
 - 示例：
+
+```bash
 输入：root = [1,2,3], targetSum = 5
 输出：[]
 输入：root = [1,2,3], targetSum = 4
 输出：[1,3]
+```
 
-- 代码：dfs
-
-时间复杂度：O（N），空间复杂度：O（K）（result不算空间复杂度，path算，所以树高度为占用空间）
+- 代码：**dfs**，时间复杂度：`O（N）`，空间复杂度：`O（K）`（result不算空间复杂度，path算，所以树高度为占用空间）
 
 ```py
 def pathSum(root: TreeNode, target: int) -> List[List[int]]:
-
     result, path = [], []
-
     def dfs(node: TreeNode, target: int):
         if not node:
             return
-        
         path.append(node.val)
         target -= node.val
         if target == 0 and not node.right and not node.left:  # 叶子节点且和为目标
@@ -1189,8 +1355,10 @@ def pathSum(root: TreeNode, target: int) -> List[List[int]]:
 ### 二叉搜索树的后序遍历序列
 
 - 题目描述：输入一个整数数组，判断该数组是不是某二叉搜索树的后序遍历结果。如果是则返回 true，否则返回 false。假设输入的数组的任意两个数字都互不相同。
-- 示例：参考以下这颗二叉搜索树：
 
+- 示例：
+
+```bash
      5
     / \
    2   6
@@ -1200,30 +1368,46 @@ def pathSum(root: TreeNode, target: int) -> List[List[int]]:
 输入: [1,6,3,2,5]
 输出: false
 
-- 代码：递归分治
-时间复杂度：O（N），空间复杂度：O（N）
+     8
+    / \
+   5   9
+  / \
+ 4   6
+
+输入: [4,6,5,9,8]
+输出: true
+```
+
+- 代码：递归分治：利用二叉搜索树后序遍历定义，最后一个是根，比根小的是左子树，比根大的是右子树。然后递归判断每一个子树。时间复杂度：`O（N^2）`（因为每次都是取一个根节点递归，如果二叉树退化成链表则恰为`O（N）`），空间复杂度：`O（logN）`（退化为链表为`O（N）`）
 
 ```py
-def verifyPostorder(self, postorder: List[int]) -> bool:
+def verifyPostorder(postorder: List[int]) -> bool:
     # 二叉搜索树定义：
     # 左子树中所有节点的值 < 根节点的值；右子树中所有节点的值 > 根节点的值；左右子树也为二叉搜索树
     def recur(low, high):
         if low >= high:      # 单结点，无需判断，直接true 
             return True
+        # high为根节点值
         pointer = low 
         # 找到第一个大于根节点的值，因为没有重复值不需要考虑等于的情况
         while postorder[pointer] < postorder[high]:       
             pointer += 1
-        # 中间值
+        # 此时poiner往左是左子树，往右是右子树
         mid = pointer
 
-        # 找到小于根节点的值（不应该存在的情况，正常应该直接走到high）
+        # 让pointer走到high，如果走不到就意味着不符合
         while postorder[pointer] > postorder[high]:
             pointer += 1
         return pointer == high and recur(low, mid - 1) and recur(mid, high - 1)
 
     return recur(0, len(postorder) - 1)
 ```
+
+- 代码2：直接构建BST，看https://leetcode.cn/problems/er-cha-sou-suo-shu-de-hou-xu-bian-li-xu-lie-lcof/solutions/150225/mian-shi-ti-33-er-cha-sou-suo-shu-de-hou-xu-bian-6/的评论
+
+
+
+
 
 ### 最长不含重复字符的子字符串
 
