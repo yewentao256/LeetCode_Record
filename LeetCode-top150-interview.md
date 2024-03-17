@@ -13,6 +13,9 @@
       - [Remove Duplicates from Sorted Array II](#remove-duplicates-from-sorted-array-ii)
     - [Greedy](#greedy)
       - [Jump Game II](#jump-game-ii)
+    - [Array](#array-1)
+      - [H-Index](#h-index)
+      - [Insert Delete GetRandom O(1)](#insert-delete-getrandom-o1)
 
 link: [https://leetcode.cn/studyplan/top-interview-150/]
 
@@ -222,4 +225,162 @@ def jump(nums: List[int]) -> int:
                 end = max_index
                 count += 1
     return count
+```
+
+### Array
+
+#### H-Index
+
+Q: Given an array of integers `citations` where `citations[i]` is the number of citations a researcher received for their ith paper, return the researcher's h-index. The h-index is defined as the maximum value of `h` such that the given researcher has published at least `h` papers that have each been cited at least `h` times.
+
+Eg:
+
+```bash
+Input: citations = [3,0,6,1,5]
+Output: 3
+Explanation: [3,0,6,1,5] means the researcher has 5 papers in total and each of them had received 3, 0, 6, 1, 5 citations respectively.
+Since the researcher has 3 papers with at least 3 citations each and the remaining two with no more than 3 citations each, their h-index is 3.
+
+Input: citations = [1,3,1]
+Output: 1
+```
+
+Solution1: sorted and traverse, Time: `O(NlogN)`, Space: `O(N)`
+
+```py
+def hIndex(self, citations: List[int]) -> int:
+    # key: sorted the citations list in ascending order
+    # the later citation must be less than the previous one
+    sorted_citation = sorted(citations, reverse = True)
+    h = 0; i = 0; n = len(citations)
+    while i < n and sorted_citation[i] > h:
+        print(i, h, sorted_citation[i])
+        h += 1
+        i += 1
+    return h
+```
+
+Solution2: Count(For citation that > len(citations), **reduce it to len(citations)**), Time: `O(N)`, Space: `O(N)`
+
+```py
+def hIndex(citations: List[int]) -> int:
+    l = len(citations)
+    total = 0
+    counter = [0] * (l+1)
+    # count and reduce
+    for c in citations:
+        if c >= l:
+            counter[l] += 1
+        else:
+            counter[c] += 1
+    
+    # start from the tail, the previous one must be less than the later one
+    for i in range(l, -1, -1):
+        total += counter[i]
+        if total >= i:
+            return i
+    return 0
+```
+
+Solution3: **Binary Search The H_index**, Time: `O(N * logN)`, Space: `O(1)`
+
+```py
+def hIndex(citations: List[int]) -> int:
+    # Key: binary search the H_index
+    left, right = 0, len(citations)
+    while left < right:
+        # +1 to avoid cases like `citations = [1]`
+        mid = (left + right + 1) >> 1
+        count = 0
+        for citation in citations:
+            if citation >= mid:
+                count += 1
+        if count >= mid:
+            # H_index is in [mid, right]
+            left = mid
+        else:
+            # H_index is in [0, mid)
+            right = mid - 1
+    return left
+```
+
+#### Insert Delete GetRandom O(1)
+
+Q: Implement the `RandomizedSet` class: `bool insert(int val)` Inserts an item val into the set if not present. Returns true if the item was not present, false otherwise. `bool remove(int val)` Removes an item val from the set if present. Returns true if the item was present, false otherwise. `int getRandom()` Returns a random element from the current set of elements (it's guaranteed that at least one element exists when this method is called). Each element must have the same probability of being returned.
+
+You must implement the functions of the class such that each function works in average `O(1)` time complexity.
+
+Eg:
+
+```bash
+Input
+["RandomizedSet", "insert", "remove", "insert", "getRandom", "remove", "insert", "getRandom"]
+[[], [1], [2], [2], [], [1], [2], []]
+Output
+[null, true, false, true, 2, true, false, 2]
+
+Explanation
+RandomizedSet randomizedSet = new RandomizedSet();
+randomizedSet.insert(1); // Inserts 1 to the set. Returns true as 1 was inserted successfully.
+randomizedSet.remove(2); // Returns false as 2 does not exist in the set.
+randomizedSet.insert(2); // Inserts 2 to the set, returns true. Set now contains [1,2].
+randomizedSet.getRandom(); // getRandom() should return either 1 or 2 randomly.
+randomizedSet.remove(1); // Removes 1 from the set, returns true. Set now contains [2].
+randomizedSet.insert(2); // 2 was already in the set, so return false.
+randomizedSet.getRandom(); // Since 2 is the only number in the set, getRandom() will always return 2.
+```
+
+Idea: We may think about hash map, so the answer looks like:
+
+```py
+class RandomizedSet:
+    def __init__(self):
+        self.dic = {}
+    def insert(self, val: int) -> bool:
+        if self.dic.get(val):
+            return False
+        self.dic[val] = 1
+        return True
+    def remove(self, val: int) -> bool:
+        if self.dic.get(val):
+            del self.dic[val]
+            return True
+        return False
+    def getRandom(self) -> int:
+        return choice(list(self.dic.keys()))
+```
+
+But this is not correct since `list(self.dic.keys())` is an `O(N)` operation
+
+Solution: Hash dict + list to fetch random number
+
+```py
+from random import choice
+
+class RandomizedSet:
+
+    def __init__(self):
+        self.dic = {}   # val: index hash map
+        self.lst = []   # available index list
+
+    def insert(self, val: int) -> bool:
+        if val in self.dic:
+            return False
+        self.dic[val] = len(self.lst)
+        self.lst.append(val)
+        return True
+
+    def remove(self, val: int) -> bool:
+        if val not in self.dic:
+            return False
+        # swap with the last element in order for O(1) removal
+        last_element, idx_to_remove = self.lst[-1], self.dic[val]
+        self.lst[idx_to_remove], self.dic[last_element] = last_element, idx_to_remove
+        self.lst.pop()
+        del self.dic[val]
+        return True
+
+    def getRandom(self) -> int:
+        return choice(self.lst)
+
 ```

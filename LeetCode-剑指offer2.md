@@ -1395,33 +1395,56 @@ def verifyPostorder(postorder: List[int]) -> bool:
         # 此时poiner往左是左子树，往右是右子树
         mid = pointer
 
-        # 让pointer走到high，如果走不到就意味着不符合
+        # 让pointer右移
         while postorder[pointer] > postorder[high]:
             pointer += 1
+        # 如果pointer走不到high，意味着不满足二叉搜索树的条件。如果走到递归判断
         return pointer == high and recur(low, mid - 1) and recur(mid, high - 1)
 
     return recur(0, len(postorder) - 1)
 ```
 
-- 代码2：直接构建BST，看https://leetcode.cn/problems/er-cha-sou-suo-shu-de-hou-xu-bian-li-xu-lie-lcof/solutions/150225/mian-shi-ti-33-er-cha-sou-suo-shu-de-hou-xu-bian-6/的评论
+- 代码2：尝试拿列表直接构建BST（不需要真的构建），如果列表里值用完了说明符合。时间复杂度：`O（N）`，空间复杂度：`O（logN）`（栈递归）
 
+```py
+def verifyTreeOrder(self, postorder: List[int]) -> bool:
+    # 构建方式：从列表最后一个（根）开始，依次递归右左子树
+    def build(left: int, right: int):
+        # 列表为空直接返回
+        if not postorder:
+            return
+        val = postorder[-1]
+        # 当前值不满足范围要求直接返回
+        if not left < val < right:
+            return
+        # 移除列表的最后一个值(根节点)
+        postorder.pop()
+        # 递归构建右子树 右子树的上界不变 下界是当前节点
+        build(val, right)
+        # 递归构建左子树 左子树的下界不变 上界是当前节点
+        build(left, val)
 
-
-
+    build(-sys.maxsize, sys.maxsize)
+    # 构造结束列表不为空 说明不是合法的后序遍历序列
+    return not postorder
+```
 
 ### 最长不含重复字符的子字符串
 
 - 题目描述：请从字符串中找出一个最长的不包含重复字符的子字符串，计算该最长子字符串的长度。注意是子串，子串是相连的。
 
 - 示例：
+
+```bash
 输入: "abcabcbb"
 输出: 3
 解释: 因为无重复字符的最长子串是 "abc"，所以其长度为 3。
+```
 
-- 代码：
+- 代码：双指针滑动窗口。时间复杂度：`O（N）`，空间复杂度：`O（1）`
 
 ```py
-def lengthOfLongestSubstring(self, s: str) -> int:
+def lengthOfLongestSubstring(s: str) -> int:
 
     left, right = 0, 0
     dic = defaultdict(int)
@@ -1429,12 +1452,12 @@ def lengthOfLongestSubstring(self, s: str) -> int:
     max_l, count = 0, 0
 
     while right < l:
-
-        while dic[s[right]] == 1:     # 遇到重复字符，左指针右移，直到排除这个字符
+        # 遇到重复字符，左指针右移，直到排除这个字符
+        while dic[s[right]] == 1:
             dic[s[left]] -= 1
             left += 1
             count -= 1
-
+        # 没有重复字符，右指针右移，扩大范围
         dic[s[right]] += 1
         count += 1
         right += 1
@@ -1444,11 +1467,19 @@ def lengthOfLongestSubstring(self, s: str) -> int:
     return max_l
 ```
 
-### 数字序列中某一位的数字(再)
+### 第 N 位数字
 
-- 题目描述：数字以0123456789101112131415…的格式序列化到一个字符序列中。在这个序列中，第5位（从下标0开始计数）是5，第13位是1，第19位是4，等等。请写一个函数，求任意第n位对应的数字。
+- 题目描述：给你一个整数 `n` ，请你在无限的整数序列 `[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, ...]` 中找出并返回第 `n` 位上的数字。
 
-- 思路：找规律，统计各个阶段数位、数字、数量
+- 示例：
+
+```bash
+输入：n = 11
+输出：0
+解释：第 11 位数字在序列 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, ... 里是 0 ，它是 10 的一部分。
+```
+
+- 思路：直接计算，找规律，统计各个阶段数位、数字、数量。时间复杂度：`O（log10 N）`，空间复杂度：`O（1）`
 
 ```py
 def findNthDigit(self, n: int) -> int:
@@ -1460,7 +1491,8 @@ def findNthDigit(self, n: int) -> int:
         start *= 10     # 第二阶段开始值为10
         digit += 1      # 第二阶段数位为2
         count = 9 * start * digit       # 第二阶段总数量为9 * start * digit（180）
-    num = start + (n - 1) // digit      # 找到对应数字，如16，对应数字为10+ (16-9) // 2 =13
+    # 找到对应数字，如16，对应数字为10+ (16-9) // 2 =13
+    num = start + (n - 1) // digit
     return int(str(num)[(n - 1) % digit])       # 13对应数位为为第一位
 ```
 
@@ -1468,11 +1500,10 @@ def findNthDigit(self, n: int) -> int:
 
 - 题目描述：从上到下打印出二叉树的每个节点，同一层的节点按照从左到右的顺序打印。
 
-- 代码（层序遍历）
-时间复杂度：O（N），空间复杂度：O（N）
+- 代码：层序遍历，用一个队列辅助。时间复杂度：`O（N）`，空间复杂度：`O（N）`
 
 ```py
-def levelOrder(self, root: TreeNode) -> List[int]:
+def levelOrder(root: TreeNode) -> List[int]:
     queue = deque()
     queue.append(root)
     result = []
@@ -1501,17 +1532,15 @@ def levelOrder(self, root: TreeNode) -> List[int]:
 ]
 ```
 
-- 代码：
-时间空间复杂度都为O（N），和上一题区别在于加了个分层
+- 代码：层序遍历+分层（一次清空队列）。时间空间复杂度都为`O（N）`
 
 ```py
-def levelOrder(self, root: TreeNode) -> List[List[int]]:
+def levelOrder(root: TreeNode) -> List[List[int]]:
     queue = deque()
     queue.append(root)
     result = []
 
     while queue:
-        # 如何分层？把现有队列里所有node都pop出去自然就是一层
         tmp = []
         for _ in range(len(queue)):
             node = queue.popleft()
@@ -1539,10 +1568,10 @@ def levelOrder(self, root: TreeNode) -> List[List[int]]:
 ]
 ```
 
-- 代码：
+- 代码：层序遍历 + 分层 + 部分反序。时间复杂度：`O（N）`，空间复杂度：`O（N）`
 
 ```py
-def levelOrder(self, root: TreeNode) -> List[List[int]]:
+def levelOrder(root: TreeNode) -> List[List[int]]:
     queue = deque()
     queue.append(root)
 
@@ -1563,6 +1592,11 @@ def levelOrder(self, root: TreeNode) -> List[List[int]]:
     
     return result
 ```
+
+
+
+
+
 
 ### 字符串的排列
 
