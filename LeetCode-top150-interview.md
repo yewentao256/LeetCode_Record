@@ -2,6 +2,8 @@
 
 - [LeetCode Top 150 Interview](#leetcode-top-150-interview)
   - [Easy](#easy)
+    - [Tree](#tree)
+      - [Minimum Absolute Difference in BST](#minimum-absolute-difference-in-bst)
     - [Double Pointer](#double-pointer)
       - [Merge Sorted Array](#merge-sorted-array)
       - [Remove Element](#remove-element)
@@ -22,6 +24,47 @@ link: [https://leetcode.cn/studyplan/top-interview-150/]
 Only questions that I can't pass are recorded
 
 ## Easy
+
+### Tree
+
+#### Minimum Absolute Difference in BST
+
+Q: Given the root of a Binary Search Tree (BST), return the minimum absolute difference between the values of any two different nodes in the tree.
+
+Eg:
+
+```bash
+        4
+      /   \
+    2       6
+  /    \
+1       3
+
+output: 1
+```
+
+Solution: BST, So **In-Order Traversal**, Time: `O(N)`, Space: `O(logN)` (Maximum `O(N)` when linked list)
+
+```py
+class Solution:
+    def getMinimumDifference(self, root: Optional[TreeNode]) -> int:
+        self.prev = -float('inf')
+        self.min_diff = float('inf')
+        
+        def inorder(node):
+            if not node:
+                return
+            inorder(node.left)
+
+            # in-order
+            self.min_diff = min(self.min_diff, node.val - self.prev)
+            self.prev = node.val
+
+            inorder(node.right)
+
+        inorder(root)
+        return self.min_diff
+```
 
 ### Double Pointer
 
