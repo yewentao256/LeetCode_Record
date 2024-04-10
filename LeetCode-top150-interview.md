@@ -18,6 +18,8 @@
     - [Array](#array-1)
       - [H-Index](#h-index)
       - [Insert Delete GetRandom O(1)](#insert-delete-getrandom-o1)
+    - [Dynamic Programming](#dynamic-programming)
+      - [Maximum Subarray](#maximum-subarray)
 
 link: [https://leetcode.cn/studyplan/top-interview-150/]
 
@@ -426,4 +428,34 @@ class RandomizedSet:
     def getRandom(self) -> int:
         return choice(self.lst)
 
+```
+
+### Dynamic Programming
+
+#### Maximum Subarray
+
+Q: Given an integer array nums, find the subarray with the largest sum, and return its sum.
+
+Eg:
+
+```bash
+Input: nums = [-2,1,-3,4,-1,2,1,-5,4]
+Output: 6
+Explanation: The subarray [4,-1,2,1] has the largest sum 6.
+```
+
+Solution: Dynamic Programming / Kadane algorithm. Time: O(N), Space: O(1)
+
+```py
+def maxSubArray(nums: List[int]) -> int:
+    # Dynamic Programing; Kadane
+    # f(i) = max(f(i-1) + nums[i], nums[i])
+    # f(0) = nums[0]
+    current_sum = max_sum = nums[0]
+
+    for i in range(1, len(nums)):
+        current_sum = max(nums[i], current_sum + nums[i])
+        max_sum = max(max_sum, current_sum)
+    
+    return max_sum
 ```
