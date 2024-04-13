@@ -7,6 +7,8 @@
     - [Double Pointer](#double-pointer)
       - [Merge Sorted Array](#merge-sorted-array)
       - [Remove Element](#remove-element)
+    - [String](#string)
+      - [Add Binary](#add-binary)
     - [Array](#array)
       - [Majority Element](#majority-element)
       - [Best Time to Buy and Sell Stock](#best-time-to-buy-and-sell-stock)
@@ -18,6 +20,8 @@
     - [Array](#array-1)
       - [H-Index](#h-index)
       - [Insert Delete GetRandom O(1)](#insert-delete-getrandom-o1)
+    - [Tree](#tree-1)
+      - [Implement Trie (Prefix Tree)](#implement-trie-prefix-tree)
     - [Dynamic Programming](#dynamic-programming)
       - [Maximum Subarray](#maximum-subarray)
 
@@ -132,6 +136,54 @@ def removeElement(nums: List[int], val: int) -> int:
         else:
             i += 1
     return i
+```
+
+### String
+
+#### Add Binary
+
+Q: Given two binary strings `a` and `b`, return their sum as a binary string.
+
+Eg:
+
+```bash
+Input: a = "11", b = "1"
+Output: "100"
+Input: a = "1010", b = "1011"
+Output: "10101"
+```
+
+Solution: Pad with `"0"`, then iterate from the lasting bit, finally add the carry bit. Time: `O(N)`, Space: `O(N)`
+
+```py
+def addBinary(a: str, b: str) -> str:
+    max_len = max(len(a), len(b))
+
+    # Pad the shorter string with zeros
+    a = a.zfill(max_len)
+    b = b.zfill(max_len)
+
+    result = []
+    carry = 0
+
+    # Add from the last digit to the first
+    for i in range(max_len - 1, -1, -1):
+        sum = carry
+        sum += 1 if a[i] == '1' else 0
+        sum += 1 if b[i] == '1' else 0
+        
+        # Append the result of (sum % 2) and calculate the new carry
+        result.append(str(sum % 2))
+        carry = sum // 2
+
+    # If there is a carry left after the last addition, add it to the result
+    if carry != 0:
+        result.append(str(carry))
+
+    # Since the result array is built backwards, we need to reverse it
+    result.reverse()
+
+    return ''.join(result)
 ```
 
 ### Array
@@ -428,6 +480,72 @@ class RandomizedSet:
     def getRandom(self) -> int:
         return choice(self.lst)
 
+```
+
+### Tree
+
+#### Implement Trie (Prefix Tree)
+
+Q: A **trie** (pronounced as "try") or **prefix tree** is a tree data structure used to efficiently store and retrieve keys in a dataset of strings. Implement the Trie class:
+
+- `Trie()` Initializes the trie object.
+- `void insert(String word)` Inserts the string `word` into the trie.
+- `boolean search(String word)` Returns `true` if the string `word` is in the trie (i.e., was inserted before), and `false` otherwise.
+- `boolean startsWith(String prefix)` Returns `true` if there is a previously inserted string `word` that has the prefix `prefix`, and `false` otherwise.
+
+Note: `word` and `prefix` consist only of lowercase English letters.
+
+Eg:
+
+```bash
+Trie trie = new Trie();
+trie.insert("apple");
+trie.search("apple");   // return True
+trie.search("app");     // return False
+trie.startsWith("app"); // return True
+trie.insert("app");
+trie.search("app");     // return True
+```
+
+Solution: Construct the Tree using list or dictionary, then move forward
+
+```py
+class Trie:
+    # Prefix Tree
+    # Time complexity: O(1) for __init__, O(len(string)) for the others
+    # Space complexity: O(len(string) * 26)
+
+    def __init__(self):
+        self.children = [None] * 26    # from 'a' to 'z'
+        self.is_end = False            # mark whether the string is finished
+
+    def insert(self, word: str) -> None:
+        # insert a word into the prefix tree
+        cur_node = self
+        for c in word:
+            i = ord(c) - ord("a")
+            if not cur_node.children[i]:
+                cur_node.children[i] = Trie()
+            cur_node = cur_node.children[i]
+        cur_node.is_end = True
+
+    def search_prefix(self, prefix: str) -> "Trie":
+        cur_node = self
+        for c in prefix:
+            i = ord(c) - ord("a")
+            if not cur_node.children[i]:
+                return None
+            cur_node = cur_node.children[i]
+        return cur_node
+
+    def search(self, word: str) -> bool:
+        # search a word, return True if the word has been inserted before
+        node = self.search_prefix(word)
+        return node is not None and node.is_end
+
+    def startsWith(self, prefix: str) -> bool:
+        # search prefix, return True if the prefix exists
+        return self.search_prefix(prefix) is not None
 ```
 
 ### Dynamic Programming
