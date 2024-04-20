@@ -2,6 +2,8 @@
 
 - [LeetCode Top 150 Interview](#leetcode-top-150-interview)
   - [Easy](#easy)
+    - [Number](#number)
+      - [Palindrome Number](#palindrome-number)
     - [Tree](#tree)
       - [Minimum Absolute Difference in BST](#minimum-absolute-difference-in-bst)
     - [Double Pointer](#double-pointer)
@@ -20,16 +22,58 @@
     - [Array](#array-1)
       - [H-Index](#h-index)
       - [Insert Delete GetRandom O(1)](#insert-delete-getrandom-o1)
+      - [Valid Sudoku](#valid-sudoku)
     - [Tree](#tree-1)
       - [Implement Trie (Prefix Tree)](#implement-trie-prefix-tree)
     - [Dynamic Programming](#dynamic-programming)
       - [Maximum Subarray](#maximum-subarray)
+    - [Heap](#heap)
+      - [Kth Largest Element in an Array](#kth-largest-element-in-an-array)
 
 link: [https://leetcode.cn/studyplan/top-interview-150/]
 
 Only questions that I can't pass are recorded
 
 ## Easy
+
+### Number
+
+#### Palindrome Number
+
+Q: Given an integer x, return true if x is a palindrome, and false otherwise.
+
+Eg:
+
+```bash
+Input: x = -121
+Output: false
+Input: x = 121
+Output: true
+Input: x = 10
+Output: false
+```
+
+Solution: reverted half of the number, then compare. Time: `O(logN)`, Space: `O(1)`
+
+```py
+def isPalindrome(x: int) -> bool:
+    # x < 0, not satisfied
+    # the last number is 0, not satisfied if not 0 itself
+    if x < 0 or (x % 10== 0 and x != 0):
+        return False
+
+    # eg: 1221, try to get "21" and reverted
+    # first round: reverted_number = 1
+    # second round: reverted number = 12
+    reverted_number = 0
+    while x > reverted_number:
+        reverted_number = reverted_number * 10 + x % 10
+        x = x // 10
+
+    # x == (reverted_number // 10) is for case like 12321
+    # x = 12 and reverted_number = 123
+    return x == reverted_number or x == (reverted_number // 10)
+```
 
 ### Tree
 
@@ -482,6 +526,58 @@ class RandomizedSet:
 
 ```
 
+#### Valid Sudoku
+
+Q: Determine if a `9 x 9` Sudoku board is valid. Only the filled cells need to be validated according to the **following rules**:
+
+- Each row must contain the digits 1-9 without repetition.
+- Each column must contain the digits 1-9 without repetition.
+- Each of the nine 3 x 3 sub-boxes of the grid must contain the digits 1-9 without repetition.
+
+Eg:
+
+```bash
+Input: board = 
+[["5","3",".",".","7",".",".",".","."]
+,["6",".",".","1","9","5",".",".","."]
+,[".","9","8",".",".",".",".","6","."]
+,["8",".",".",".","6",".",".",".","3"]
+,["4",".",".","8",".","3",".",".","1"]
+,["7",".",".",".","2",".",".",".","6"]
+,[".","6",".",".",".",".","2","8","."]
+,[".",".",".","4","1","9",".",".","5"]
+,[".",".",".",".","8",".",".","7","9"]]
+Output: true
+```
+
+Solution: Iterate once, using hash table to record. Time: `O(N^2)` (`O(1)` since 9*9), Space: `O(N^2)`(`O(1)`):
+
+```py
+from collections import defaultdict
+
+def isValidSudoku(board: List[List[str]]) -> bool:
+    row_dict = defaultdict(dict)
+    column_dict = defaultdict(dict)
+    region_dict = defaultdict(dict)
+
+    for r in range(len(board)):
+        for c in range(len(board[0])):
+            value = board[r][c]
+            if value == ".":
+                continue
+            if row_dict[r].get(value):
+                return False
+            if column_dict[c].get(value):
+                return False
+            region_id = 3 * (r // 3) + c // 3
+            if region_dict[region_id].get(value):
+                return False
+            row_dict[r][value] = 1
+            column_dict[c][value] = 1
+            region_dict[region_id][value] = 1
+    return True
+```
+
 ### Tree
 
 #### Implement Trie (Prefix Tree)
@@ -577,3 +673,98 @@ def maxSubArray(nums: List[int]) -> int:
     
     return max_sum
 ```
+
+### Heap
+
+Let's start with max/min heap: **a special binary tree**
+
+The Operations:
+
+- `push`: `O(logn)`, append one element to the tail, then **sift_up** it
+- `pop`: `O(logn)`, pop the first element, then move the tail element to first, then **sift_down** (if directly pop, then choosing the child node, the tree structure will be destroyed)
+- `top`: `O(1)`
+
+```py
+class MinHeap:
+    def __init__(self) -> None:
+        self.heap = []
+    
+    def push(self, val: int) -> None:
+        self.heap.append(val)
+        self._sift_up(len(self.heap) -1)
+    
+    # sift up the ith element
+    def _sift_up(self, index: int) -> None:
+        while index > 0:
+            parent = (index - 1) // 2
+            if self.heap[index] < self.heap[parent]:
+                # changing with parent
+                self.heap[index], self.heap[parent] = self.heap[parent], self.heap[index]
+                index = parent
+            else:
+                break
+            
+    def pop(self) -> int:
+        top = self.heap[0]
+        self.heap[0] = self.heap[-1]
+        self.heap.pop()
+        if self.heap:
+            self._sift_down(0)
+        return top
+    
+    # sift down the ith element
+    def _sift_down(self, index: int) -> None:
+        n = len(self.heap)
+        # sift down can be adjusted multiple times
+        while True:
+            left = 2 * index + 1
+            right = 2 * index + 2
+            smallest = index
+            if left < n and self.heap[left] < self.heap[smallest]:
+                smallest = left
+            if right < n and self.heap[right] < self.heap[smallest]:
+                smallest = right
+            if smallest != index:
+                # changing with smallest
+                self.heap[index], self.heap[smallest] = self.heap[smallest], self.heap[index]
+                index = smallest
+            else:
+                break
+    
+    def top(self) -> int:
+        return self.heap[0] if self.heap else None
+    
+    def size(self) -> int:
+        return len(self.heap)
+```
+
+#### Kth Largest Element in an Array
+
+Q: Given an integer array `nums` and an integer `k`, return the `kth` largest element in the array. Note that it is the `kth` largest element in the sorted order, not the `kth` distinct element.
+
+Eg:
+
+```bash
+Input: nums = [3,2,1,5,6,4], k = 2
+Output: 5
+Input: nums = [3,2,3,1,2,4,5,5,6], k = 4
+Output: 4
+```
+
+Solution1: Use min heap to maintain the largest k element, so the root is the kth largest number directly. Time: `O(Nlogk)`, Space: `O(N)`
+
+```py
+def findKthLargest(nums: List[int], k: int) -> int:
+        heap = MinHeap()
+
+        for num in nums:
+            if heap.size() < k:
+                heap.push(num)
+            else:
+                if num > heap.top():
+                    heap.pop()
+                    heap.push(num)
+        return heap.top()
+```
+
+Solution2: Quick select(part of the quick sort), TODO: [https://leetcode.cn/problems/kth-largest-element-in-an-array/?envType=study-plan-v2&envId=top-interview-150]
