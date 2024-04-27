@@ -26,6 +26,7 @@
     - [Tree](#tree-1)
       - [Implement Trie (Prefix Tree)](#implement-trie-prefix-tree)
     - [Dynamic Programming](#dynamic-programming)
+      - [Triangle](#triangle)
       - [Maximum Subarray](#maximum-subarray)
     - [Heap](#heap)
       - [Kth Largest Element in an Array](#kth-largest-element-in-an-array)
@@ -645,6 +646,87 @@ class Trie:
 ```
 
 ### Dynamic Programming
+
+#### Triangle
+
+Q: Given a `triangle` array, return the minimum path sum from top to bottom.
+
+For each step, you may move to an adjacent number of the row below. More formally, if you are on index `i` on the current row, you may move to either index i or index i + 1 on the next row.
+
+Eg:
+
+```bash
+Input: triangle = [[2],[3,4],[6,5,7],[4,1,8,3]]
+Output: 11
+Explanation: The triangle looks like:
+   2
+  3 4
+ 6 5 7
+4 1 8 3
+The minimum path sum from top to bottom is 2 + 3 + 5 + 1 = 11 (underlined above).
+```
+
+Solution: 2D dynamic programming
+
+```py
+def minimumTotal(triangle: List[List[int]]) -> int:
+    # Time: O(N^2), Space: O(N^2), n is the number lines
+    # dp[i][j] means to the ith floor, the minimum value towards index j
+    # dp[0][0] = triangle[0][0]
+    n, m = len(triangle), len(triangle[-1])
+    dp = [[0] * m for _ in range(n)]
+    dp[0][0] = triangle[0][0]
+
+    # j = 0: dp[i][0] = dp[i-1][0] + triangle[i][0]
+    # j = i: dp[i][i] = dp[i-1][i-1] + triangle[i][i]
+    # other: dp[i][j] = traiangle[i][j] + min(dp[i-1][j-1] , dp[i-1][j])
+    for i in range(1, n):
+        dp[i][0] = triangle[i][0] + dp[i-1][0]
+        for j in range(1, i):
+            dp[i][j] = triangle[i][j] + min(dp[i-1][j-1] , dp[i-1][j])
+        # for the last element, there is only one path
+        dp[i][i] = dp[i-1][i-1] + triangle[i][i]
+    
+    return min(dp[-1])
+```
+
+Solution2: Optimize the space complexity from bottom to up
+
+```py
+def minimumTotal(triangle: List[List[int]]) -> int:
+    # Time: O(N^2), Space: O(N), n is the number lines
+    # dp[i] means the minimum path sum from bottom to element i in the current row.
+    # Note: NOT the minimum sum for the ith row
+    # dp = triangle[-1] for initialization
+    n = len(triangle)
+    dp = triangle[-1][:]
+    # dp = triangle[-1]     Normally we don't update the original array, but this works!
+
+    # Bottom-up calculation from the second last row to the first row
+    # dp[j] = triangle[i][j] + min(dp[j+1], dp[j])
+    for i in range(n - 2, -1, -1):
+        for j in range(i + 1):
+            dp[j] = triangle[i][j] + min(dp[j+1], dp[j])
+
+    return dp[0]
+```
+
+Solution3: Use the `triangle` itself
+
+```py
+def minimumTotal(triangle: List[List[int]]) -> int:
+    triangle.reverse()
+
+    # Dynamic programming from the second row (bottom-up)
+    for i in range(1, len(triangle)):
+        for j in range(len(triangle[i])):
+            # Update the current element by adding the minimum of the two adjacent
+            # elements from the previous row
+            triangle[i][j] += min(triangle[i-1][j], triangle[i-1][j+1])
+
+    # The top element now contains the minimum path sum from top to bottom
+    return triangle[-1][0]
+```
 
 #### Maximum Subarray
 
