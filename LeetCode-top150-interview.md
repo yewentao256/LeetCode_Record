@@ -20,6 +20,7 @@
     - [Greedy](#greedy)
       - [Jump Game II](#jump-game-ii)
     - [Array](#array-1)
+      - [Product of Array Except Self](#product-of-array-except-self)
       - [H-Index](#h-index)
       - [Insert Delete GetRandom O(1)](#insert-delete-getrandom-o1)
       - [Valid Sudoku](#valid-sudoku)
@@ -30,6 +31,9 @@
       - [Maximum Subarray](#maximum-subarray)
     - [Heap](#heap)
       - [Kth Largest Element in an Array](#kth-largest-element-in-an-array)
+  - [Hard](#hard)
+    - [Array](#array-2)
+      - [Candy](#candy)
 
 link: [https://leetcode.cn/studyplan/top-interview-150/]
 
@@ -370,6 +374,35 @@ def jump(nums: List[int]) -> int:
 ```
 
 ### Array
+
+#### Product of Array Except Self
+
+Q: Given an integer array `nums`, return an array `answer` such that `answer[i]` is equal to the product of all the elements of `nums` except `nums[i]`.
+
+Eg:
+
+```bash
+Input: nums = [1,2,3,4]
+Output: [24,12,8,6]
+Input: nums = [-1,1,0,-3,3]
+Output: [0,0,9,0,0]
+```
+
+Solution: Maintain the `left_sum` before index i and `right_sum` after index i. Time: `O(N)`, Space: `O(1)`
+
+```py
+def productExceptSelf(nums: List[int]) -> List[int]:
+    l = len(nums)
+    result = [1] * l
+    left_sum, right_sum = 1, 1
+    for i in range(l):
+        j = l - 1 - i
+        result[i] *= left_sum
+        result[j] *= right_sum
+        left_sum *= nums[i]
+        right_sum *= nums[j]
+    return result
+```
 
 #### H-Index
 
@@ -850,3 +883,89 @@ def findKthLargest(nums: List[int], k: int) -> int:
 ```
 
 Solution2: Quick select(part of the quick sort), TODO: [https://leetcode.cn/problems/kth-largest-element-in-an-array/?envType=study-plan-v2&envId=top-interview-150]
+
+## Hard
+
+### Array
+
+#### Candy
+
+Q: There are `n` children standing in a line. Each child is assigned a rating value given in the integer array `ratings`.
+
+You are giving candies to these children subjected to the following requirements:
+
+- Each child must have at least one candy.
+- Children with a higher rating get more candies than their neighbors.
+
+Return the minimum number of candies you need to have to distribute the candies to the children
+
+Eg:
+
+```bash
+Input: ratings = [1,0,2]
+Output: 5
+Explanation: You can allocate to the first, second and third child with 2, 1, 2 candies respectively.
+Input: ratings = [1,2,2]
+Output: 4
+Explanation: You can allocate to the first, second and third child with 1, 2, 1 candies respectively.
+The third child gets 1 candy because it satisfies the above two conditions.
+```
+
+Solution 1: Scan twice, Time: `O(N)`, Space: `O(N)`
+
+```py
+def candy(ratings: List[int]) -> int:
+    n = len(ratings)
+    if n == 0:
+        return 0
+
+    candies = [1] * n
+
+    # Step 1: Scan from left to right
+    for i in range(1, n):
+        if ratings[i] > ratings[i - 1]:
+            candies[i] = candies[i - 1] + 1
+
+    # Step 2: Scan from right to left
+    # Update if the ith rating is higher than the next one
+    # Note: Now that the ith candies are more than i-1th, adding more for ith can still satisfy the rule set in step 1
+    total_candies = candies[-1]
+    for i in range(n - 2, -1, -1):
+        if ratings[i] > ratings[i + 1]:
+            candies[i] = max(candies[i], candies[i + 1] + 1)
+        total_candies += candies[i]
+
+    return total_candies
+```
+
+Solution 2: Scan once, Time: `O(N)`, Space: `O(1)`
+
+```python
+def candy(ratings: List[int]) -> int:
+    result = 1
+    increase_len, decrease_len, pre_candies = 1, 0, 1
+
+    for i in range(1, len(ratings)):
+        # increasing, adding 1 or pre_candies + 1
+        if ratings[i] >= ratings[i - 1]:
+            decrease_len = 0
+            candies = 1 if ratings[i] == ratings[i - 1] else pre_candies + 1
+            result += candies
+            increase_len = candies
+            pre_candies = candies
+        # decreasing
+        else:
+            decrease_len += 1
+            # if the length is the same, eg: 10, 20, 30, 9, 8, 7
+            # the candies are: 1, 2, 3, 3, 2, 1
+            # so we should add 1 to the length(including the last one of increase)
+            # and make the candies like: 1, 2, 4, 3, 2, 1
+            if decrease_len == increase_len:
+                decrease_len += 1
+            
+            # adding the length of decrease sequence
+            result += decrease_len
+            pre_candies = 1     # reset to 1
+
+    return result
+```
