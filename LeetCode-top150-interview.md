@@ -12,6 +12,7 @@
     - [String](#string)
       - [Add Binary](#add-binary)
     - [Array](#array)
+      - [Word Pattern](#word-pattern)
       - [Majority Element](#majority-element)
       - [Best Time to Buy and Sell Stock](#best-time-to-buy-and-sell-stock)
   - [Medium](#medium)
@@ -236,6 +237,41 @@ def addBinary(a: str, b: str) -> str:
 ```
 
 ### Array
+
+#### Word Pattern
+
+Q: Given a `pattern` and a string `s`, find if s follows the same pattern.
+
+Here **follow** means a full match, such that there is a bijection between a letter in `pattern` and a **non-empty** word in `s`.
+
+Eg:
+
+```bash
+Input: pattern = "abba", s = "dog cat cat dog"
+Output: true
+Input: pattern = "abba", s = "dog cat cat fish"
+Output: false
+Input: pattern = "aaaa", s = "dog cat cat dog"
+Output: false
+```
+
+Solution: Hashmap, Time: `O(N)`, Space: `O(N)`. Note that this is a **bijection**, so `pattern ="abba"` and `s = "dog dog dog dog"` is not allowed
+
+```py
+def wordPattern(pattern: str, s: str) -> bool:
+    lst = s.split(' ')
+    dic = {}
+    reverse_dic = {}
+    if len(pattern) != len(lst):
+        return False
+    
+    for p, word in zip(pattern, lst):
+        if (p in dic and dic[p] != word) or (word in reverse_dic and reverse_dic[word] != p):
+            return False
+        dic[p] = word
+        reverse_dic[word] = p
+    return True
+```
 
 #### Majority Element
 
