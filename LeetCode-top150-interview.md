@@ -30,11 +30,14 @@
     - [Dynamic Programming](#dynamic-programming)
       - [Triangle](#triangle)
       - [Maximum Subarray](#maximum-subarray)
+    - [Dict](#dict)
+      - [Group Anagrams](#group-anagrams)
     - [Heap](#heap)
       - [Kth Largest Element in an Array](#kth-largest-element-in-an-array)
   - [Hard](#hard)
     - [Array](#array-2)
       - [Candy](#candy)
+      - [Trap Water](#trap-water)
 
 link: [https://leetcode.cn/studyplan/top-interview-150/]
 
@@ -825,6 +828,43 @@ def maxSubArray(nums: List[int]) -> int:
     return max_sum
 ```
 
+### Dict
+
+#### Group Anagrams
+
+Q: Given an array of strings `strs`, group the **anagrams** together. You can return the answer in **any order**.
+
+An **Anagram** is a word or phrase formed by rearranging the letters of a different word or phrase, typically using all the original letters exactly once.
+
+Eg:
+
+```bash
+Input: strs = ["eat","tea","tan","ate","nat","bat"]
+Output: [["bat"],["nat","tan"],["ate","eat","tea"]]
+Input: strs = [""]
+Output: [[""]]
+Input: strs = ["a"]
+Output: [["a"]]
+
+1 <= strs.length <= 104
+0 <= strs[i].length <= 100
+strs[i] consists of lowercase English letters.
+```
+
+Solution: dict + count
+
+```py
+def groupAnagrams(self, strs: List[str]) -> List[List[str]]:
+    # Time: O(N * M), Space: O(N * M)
+    d = collections.defaultdict(list)
+    for s in strs:
+        counts = [0] * 26
+        for c in s:
+            counts[ord(c) - ord("a")] += 1
+        d[tuple(counts)].append(s)
+    return list(d.values())
+```
+
 ### Heap
 
 Let's start with max/min heap: **a special binary tree**
@@ -1003,5 +1043,96 @@ def candy(ratings: List[int]) -> int:
             result += decrease_len
             pre_candies = 1     # reset to 1
 
+    return result
+```
+
+#### Trap Water
+
+Given `n` non-negative integers representing an elevation map where the width of each bar is `1`, compute how much water it can trap after raining.
+
+Example:
+
+```bash
+Input: height = [0,1,0,2,1,0,1,3,2,1,2,1]
+Output: 6
+Explanation: The above elevation map (black section) is represented by array [0,1,0,2,1,0,1,3,2,1,2,1]. In this case, 6 units of rain water (blue section) are being trapped.
+Input: height = [4,2,0,3,2,5]
+Output: 9
+```
+
+My Solution: monotonic stack, Time: `O(N)`, Space: `O(N)`
+
+```py
+class Solution:
+    def trap(self, height: List[int]) -> int:
+        class Block:
+            def __init__(self, i: int, value: int) -> None:
+                self.i = i
+                self.value = value
+
+        s: list[Block] = []
+        result = 0
+        for i, h in enumerate(height):
+            while s and h > s[-1].value:
+                v = s.pop()
+                if not s:
+                    break
+                distance = i - s[-1].i - 1
+                diff = min(h, s[-1].value) - v.value
+                result += diff * distance
+            s.append(Block(i, h))
+        return result
+```
+
+Solution2(skip): Double Pointer, Time: `O(N)`, Space: `O(1)`
+
+```py
+def trap(height: List[int]) -> int:
+    if not height:
+        return 0
+    
+    left, right = 0, len(height) - 1
+    left_max, right_max = height[left], height[right]
+    result = 0
+    
+    while left < right:
+        if left_max < right_max:
+            left += 1
+            left_max = max(left_max, height[left])
+            result += left_max - height[left]
+        else:
+            right -= 1
+            right_max = max(right_max, height[right])
+            result += right_max - height[right]
+    
+    return result
+```
+
+Solution3(skip): Dynamic programming. Time: `O(N)`, Space: `O(N)`
+
+```py
+def trap(height: List[int]) -> int:
+    if not height:
+        return 0
+
+    n = len(height)
+    left_max = [0] * n
+    right_max = [0] * n
+
+    # Fill left_max array
+    left_max[0] = height[0]
+    for i in range(1, n):
+        left_max[i] = max(left_max[i - 1], height[i])
+
+    # Fill right_max array
+    right_max[n - 1] = height[n - 1]
+    for i in range(n - 2, -1, -1):
+        right_max[i] = max(right_max[i + 1], height[i])
+
+    # Regions that satisfy both of the max array can trap the rain
+    result = 0
+    for i in range(n):
+        result += min(left_max[i], right_max[i]) - height[i]
+    
     return result
 ```
