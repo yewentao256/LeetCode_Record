@@ -3,6 +3,7 @@
 - [LeetCode Top 150 Interview](#leetcode-top-150-interview)
   - [Easy](#easy)
     - [Number](#number)
+      - [Reverse Bits](#reverse-bits)
       - [Palindrome Number](#palindrome-number)
     - [Tree](#tree)
       - [Minimum Absolute Difference in BST](#minimum-absolute-difference-in-bst)
@@ -28,6 +29,7 @@
     - [Tree](#tree-1)
       - [Implement Trie (Prefix Tree)](#implement-trie-prefix-tree)
     - [Dynamic Programming](#dynamic-programming)
+      - [Word Break](#word-break)
       - [Triangle](#triangle)
       - [Maximum Subarray](#maximum-subarray)
     - [Dict](#dict)
@@ -35,6 +37,8 @@
     - [Heap](#heap)
       - [Kth Largest Element in an Array](#kth-largest-element-in-an-array)
   - [Hard](#hard)
+    - [Heap](#heap-1)
+      - [IPO](#ipo)
     - [Array](#array-2)
       - [Candy](#candy)
       - [Trap Water](#trap-water)
@@ -46,6 +50,45 @@ Only questions that I can't pass are recorded
 ## Easy
 
 ### Number
+
+#### Reverse Bits
+
+Q: Reverse bits of a given 32 bits unsigned integer.
+
+Eg:
+
+```bash
+Input: n = 00000010100101000001111010011100
+Output:    964176192 (00111001011110000010100101000000)
+Explanation: The input binary string 00000010100101000001111010011100 represents the unsigned integer 43261596, so return 964176192 which its binary representation is 00111001011110000010100101000000.
+```
+
+Solution: Swap the bits gradually, Time: `O(1)` Space: `O(1)`
+
+```py
+def reverseBits(self, n: int) -> int:
+    m1 = 0x55555555     # 01010101010101010101010101010101
+    m2 = 0x33333333     # 00110011001100110011001100110011
+    m4 = 0x0f0f0f0f     # 00001111000011110000111100001111
+    m8 = 0x00ff00ff     # 00000000111111110000000011111111
+
+    # Step 1: Swap odd and even bits
+    n = ((n >> 1) & m1) | ((n & m1) << 1)
+
+    # Step 2: Swap consecutive pairs
+    n = ((n >> 2) & m2) | ((n & m2) << 2)
+
+    # Step 3: Swap nibbles (4 bits)
+    n = ((n >> 4) & m4) | ((n & m4) << 4)
+
+    # Step 4: Swap bytes
+    n = ((n >> 8) & m8) | ((n & m8) << 8)
+
+    # Step 5: Swap 2-byte long pairs
+    n = (n >> 16) | (n << 16)
+
+    return n & 0xFFFFFFFF  # Ensure n is within 32-bit bounds
+```
 
 #### Palindrome Number
 
@@ -719,6 +762,47 @@ class Trie:
 
 ### Dynamic Programming
 
+#### Word Break
+
+Q: Given a string `s` and a dictionary of strings `wordDict`, return `true` if `s` can be segmented into a space-separated sequence of one or more dictionary words.
+
+Eg:
+
+```bash
+Input: s = "leetcode", wordDict = ["leet","code"]
+Output: true
+Explanation: Return true because "leetcode" can be segmented as "leet code".
+
+Input: s = "applepenapple", wordDict = ["apple","pen"]
+Output: true
+Explanation: Return true because "applepenapple" can be segmented as "apple pen apple".
+Note that you are allowed to reuse a dictionary word.
+
+Input: s = "catsandog", wordDict = ["cats","dog","sand","and","cat"]
+Output: false
+```
+
+Solution: Dynamic Programming
+
+```py
+def wordBreak(s: str, wordDict: List[str]) -> bool:
+    # Time: O(N^2), Space: O(N)
+    word_set = set(wordDict)
+
+    # dp[i] means to the ith char, whether can be split
+    dp = [False] * (len(s) + 1)
+    dp[0] = True    # empty string can be split
+
+    # dp[i] = 1 if from arbitrary 0~i-1(j), dp[j] and s[j:i] can be a word
+    for i in range(1, len(s) + 1):
+        for j in range(i):
+            if dp[j] and s[j:i] in word_set:
+                dp[i] = True
+                break
+
+    return dp[-1]
+```
+
 #### Triangle
 
 Q: Given a `triangle` array, return the minimum path sum from top to bottom.
@@ -961,6 +1045,65 @@ def findKthLargest(nums: List[int], k: int) -> int:
 Solution2: Quick select(part of the quick sort), TODO: [https://leetcode.cn/problems/kth-largest-element-in-an-array/?envType=study-plan-v2&envId=top-interview-150]
 
 ## Hard
+
+### Heap
+
+#### IPO
+
+Q: You are given `n` projects where the `ith` project has a pure profit `profits[i]` and a minimum capital of `capital[i]` is needed to start it.
+
+Initially, you have `w` capital. When you finish a project, you will obtain its pure profit and the profit will be added to your total capital.
+
+Pick a list of **at most** `k` distinct projects from given projects to **maximize your final capital**, and return the final maximized capital.
+
+Eg:
+
+```bash
+Input: k = 2, w = 0, profits = [1,2,3], capital = [0,1,1]
+Output: 4
+Explanation: Since your initial capital is 0, you can only start the project indexed 0.
+After finishing it you will obtain profit 1 and your capital becomes 1.
+With capital 1, you can either start the project indexed 1 or the project indexed 2.
+Since you can choose at most 2 projects, you need to finish the project indexed 2 to get the maximum capital.
+Therefore, output the final maximized capital, which is 0 + 1 + 3 = 4.
+
+Input: k = 3, w = 0, profits = [1,2,3], capital = [0,1,2]
+Output: 6
+```
+
+Solution: max heap + greedy.
+
+```py
+def findMaximizedCapital(k: int, w: int, profits: List, capital: List) -> int:
+    # max heap + greedy. Time: O(NlogN), Space: O(N)
+
+    if w >= max(capital):
+        # short circuit for special cases
+        return w + sum(heapq.nlargest(k, profits))
+
+    l = len(capital)
+    cp_packs = [(capital[i], profits[i]) for i in range(l)]
+    cp_packs.sort(key=lambda x:x[0])
+
+    heap = []
+    i = 0
+    for _ in range(k):
+        while i < l and cp_packs[i][0] <= w:
+            # python uses min heap, so insert with negative profit
+            heapq.heappush(heap, -cp_packs[i][1])
+            i += 1
+        if heap:
+            p = heapq.heappop(heap)
+            w += -p
+
+    return w
+```
+
+Notes:
+
+- For python, default heap is min heap
+- Remember to use short circuit for special cases
+- `.sort()` should be better than `sorted()`
 
 ### Array
 
