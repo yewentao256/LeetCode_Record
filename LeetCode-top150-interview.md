@@ -22,6 +22,7 @@
     - [Greedy](#greedy)
       - [Jump Game II](#jump-game-ii)
     - [Array](#array-1)
+      - [Find the Index of the First Occurrence in a String(KMP)](#find-the-index-of-the-first-occurrence-in-a-stringkmp)
       - [Product of Array Except Self](#product-of-array-except-self)
       - [H-Index](#h-index)
       - [Insert Delete GetRandom O(1)](#insert-delete-getrandom-o1)
@@ -456,6 +457,77 @@ def jump(nums: List[int]) -> int:
 ```
 
 ### Array
+
+#### Find the Index of the First Occurrence in a String(KMP)
+
+Q: Given two strings `needle` and `haystack`, return the index of the first occurrence of `needle` in `haystack`, or `-1` if `needle` is not part of `haystack`.
+
+Eg:
+
+```bash
+Input: haystack = "sadbutsad", needle = "sad"
+Output: 0
+Explanation: "sad" occurs at index 0 and 6.
+
+Input: haystack = "leetcode", needle = "leeto"
+Output: -1
+Explanation: "leeto" did not occur in "leetcode", so we return -1.
+```
+
+Solution: KMP, Time: `O(N + M)`, Space: `O(M)`. The key point of KMP is: The `i` in haystack never goes back.
+
+```py
+def build_next(pattern) -> list[int]:
+    next = [0]
+    length = 0      # the common pre/suffix length
+    i = 1
+    while i < len(pattern):
+        if pattern[length] == pattern[i]:
+            # matches
+            length += 1
+            next.append(length)
+            i += 1
+        else:
+            # doesn't match
+            if length == 0:
+                # no common pre/suffix now
+                next.append(0)
+                i += 1
+            else:
+                # eg:              A  B  A  C  A  B  A  B
+                # we've built the [0, 0, 1, 0, 1, 2, 3, ?]
+                # when calculating `?`, our length = 3, meaning "A B A"
+                # not matches, try back, start from "A B", fetch next[length -1]
+                # if you don't understand, consider this is a technique
+                length = next[length - 1]
+    return next
+
+def kmp_search(string: str, pattern: str) -> int:
+    # build a next array for skipping some characters
+    # it means the common pre/suffix for the ith character
+    # eg: ABABC, we can get [0, 0, 1, 2, 0]
+    # eg2: ABACABAB, we can get [0, 0, 1, 0, 1, 2, 3, 2]
+    next = build_next(pattern)
+    
+    i, j = 0, 0
+    while i  < len(string):
+        if string[i] == pattern[j]:
+            # matches, move on
+            i += 1
+            j += 1
+        elif j > 0:
+            # doesn't match, skip some characters based on next array
+            # eg: find ABABC in ABABABCAA, j = 4 and get new j = 2
+            j = next[j - 1]
+        else:
+            # when j = 0, this is a start
+            i += 1
+        
+        if j == len(pattern):
+            # matches all of the pattern
+            return i - j
+    return -1
+```
 
 #### Product of Array Except Self
 
