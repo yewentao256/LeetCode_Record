@@ -22,6 +22,7 @@
     - [Greedy](#greedy)
       - [Jump Game II](#jump-game-ii)
     - [Array](#array-1)
+      - [Minimum Genetic Mutation](#minimum-genetic-mutation)
       - [Find the Index of the First Occurrence in a String(KMP)](#find-the-index-of-the-first-occurrence-in-a-stringkmp)
       - [Product of Array Except Self](#product-of-array-except-self)
       - [H-Index](#h-index)
@@ -458,6 +459,55 @@ def jump(nums: List[int]) -> int:
 
 ### Array
 
+#### Minimum Genetic Mutation
+
+Q: A gene string can be represented by an 8-character long string, with choices from `'A'`, `'C'`, `'G'`, and `'T'`.
+
+Suppose we need to investigate a mutation from a gene string `startGene` to a gene string `endGene` where one mutation is defined as one single character changed in the gene string.
+
+For example, `"AACCGGTT" --> "AACCGGTA"` is one mutation.
+There is also a gene `bank` that records all the valid gene mutations. A gene must be in `bank` to make it a valid gene string.
+
+Given the two gene strings `startGene` and `endGene` and the gene `bank`, return the minimum number of mutations needed to mutate from `startGene` to `endGene`. If there is no such a mutation, return `-1`.
+
+Eg:
+
+```bash
+Input: startGene = "AACCGGTT", endGene = "AACCGGTA", bank = ["AACCGGTA"]
+Output: 1
+Input: startGene = "AACCGGTT", endGene = "AAACGGTA", bank = ["AACCGGTA","AACCGCTA","AAACGGTA"]
+Output: 2
+```
+
+Solution: Brutal BFS
+
+```py
+def minMutation(startGene: str, endGene: str, bank: List[str]) -> int:
+    # Time: O(3 * 8 * N), N means the number of strings in bank
+    # Space: O(8 * N)
+    bank_set = set(bank)
+    if endGene not in bank_set:
+        return -1
+    
+    queue = deque([(startGene, 0)])
+    visited = set([startGene])
+
+    while queue:
+        current_gene, mutation_count = queue.popleft()
+
+        # for each char, try all possible mutation
+        for i in range(len(current_gene)):
+            for char in "ACGT":
+                if char != current_gene[i]:
+                    mutated_gene = current_gene[:i] + char + current_gene[i+1:]
+                    if mutated_gene == endGene:
+                        return mutation_count + 1
+                    if mutated_gene in bank_set and mutated_gene not in visited:
+                        visited.add(mutated_gene)
+                        queue.append((mutated_gene, mutation_count + 1))
+    return -1
+```
+
 #### Find the Index of the First Occurrence in a String(KMP)
 
 Q: Given two strings `needle` and `haystack`, return the index of the first occurrence of `needle` in `haystack`, or `-1` if `needle` is not part of `haystack`.
@@ -477,7 +527,7 @@ Explanation: "leeto" did not occur in "leetcode", so we return -1.
 Solution: KMP, Time: `O(N + M)`, Space: `O(M)`. The key point of KMP is: The `i` in haystack never goes back.
 
 ```py
-def build_next(pattern) -> list[int]:
+def build_next(pattern: str) -> list[int]:
     next = [0]
     length = 0      # the common pre/suffix length
     i = 1
