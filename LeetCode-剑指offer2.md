@@ -1441,30 +1441,21 @@ def verifyTreeOrder(self, postorder: List[int]) -> bool:
 解释: 因为无重复字符的最长子串是 "abc"，所以其长度为 3。
 ```
 
-- 代码：双指针滑动窗口。时间复杂度：`O（N）`，空间复杂度：`O（1）`
+- 代码：双指针滑动窗口。时间复杂度：`O（N）`，空间复杂度：`O（N）`
 
 ```py
 def lengthOfLongestSubstring(s: str) -> int:
-
+    # Time: O(N), Space: O(N)
     left, right = 0, 0
-    dic = defaultdict(int)
-    l = len(s)
-    max_l, count = 0, 0
-
-    while right < l:
-        # 遇到重复字符，左指针右移，直到排除这个字符
-        while dic[s[right]] == 1:
-            dic[s[left]] -= 1
+    char_set = set()
+    result = 0
+    for right in range(len(s)):
+        while s[right] in char_set:
+            char_set.remove(s[left])
             left += 1
-            count -= 1
-        # 没有重复字符，右指针右移，扩大范围
-        dic[s[right]] += 1
-        count += 1
-        right += 1
-        if count > max_l:
-            max_l = count
-    
-    return max_l
+        char_set.add(s[right])
+        result = max(result, right - left + 1)
+    return max(len(char_set), result)
 ```
 
 ### 第 N 位数字
@@ -1593,22 +1584,21 @@ def levelOrder(root: TreeNode) -> List[List[int]]:
     return result
 ```
 
-
-
-
-
-
 ### 字符串的排列
 
 - 题目描述：输入一个字符串，打印出该字符串中字符的所有排列。
+
 - 示例：
+
+```bash
 输入：s = "abc"
 输出：["abc","acb","bac","bca","cab","cba"]
+```
 
-- 代码：
+- 代码：统计字符数 + dfs遍历。时间复杂度：`O（N!）`（递减），空间复杂度：`O（N）`
 
 ```py
-def permutation(self, s: str) -> List[str]:
+def permutation(s: str) -> List[str]:
     # 统计字符数
     dic = defaultdict(int)
     for c in s:
@@ -1619,7 +1609,7 @@ def permutation(self, s: str) -> List[str]:
     # dfs遍历所有排列组合，此时不需要剪枝因为每一次迭代都是有效组合
     def dfs(s, level):
         for next_key in dic.keys():
-            tmp = s     # 这里需要使用tmp而不是s，避免s被其他干扰
+            tmp = s
             if dic[next_key] > 0:
                 tmp += next_key
                 dic[next_key] -= 1
@@ -1635,20 +1625,19 @@ def permutation(self, s: str) -> List[str]:
 
 ### 栈的压入、弹出序列
 
-- 题目描述：输入两个整数序列，第一个序列表示栈的压入顺序，请判断第二个序列是否为该栈的弹出顺序。假设压入栈的所有数字均不相等。例如，序列 {1,2,3,4,5} 是某栈的压栈序列，序列 {4,5,3,2,1} 是该压栈序列对应的一个弹出序列，但 {4,3,5,1,2} 就不可能是该压栈序列的弹出序列。
+- 题目描述：输入两个整数序列，第一个序列表示栈的压入顺序，请判断第二个序列是否为该栈的弹出顺序。假设压入栈的所有数字均不相等。例如，序列 `{1,2,3,4,5}` 是某栈的压栈序列，序列 `{4,5,3,2,1}` 是该压栈序列对应的一个弹出序列，但 `{4,3,5,1,2}` 就不可能是该压栈序列的弹出序列。
 
-- 代码：
+- 代码：贪心，每次出栈一定要取到值，要么刚好栈顶是，要么刚好就是新入栈的取到。时间复杂度：`O（N）`，空间复杂度：`O（N）`
 
 ```py
-def validateStackSequences(self, pushed: List[int], popped: List[int]) -> bool:
-    # 思路：辅助栈贪心，每次取要么是新放入栈的取，要么是刚好栈顶就是
+def validateStackSequences(pushed: List[int], popped: List[int]) -> bool:
     push_index = 0
     stack = []
     for num in popped:
-        # 栈顶不是对应元素，新放入栈
+        # 栈顶不是对应元素，持续入栈
         while len(stack) == 0 or stack[-1] != num:
-            # 所有元素入栈，但还没能走完poped，说明无法匹配
             if push_index == len(pushed):
+                # 所有元素入栈，但还没能走完poped，说明无法匹配
                 return False
             stack.append(pushed[push_index])
             push_index += 1
@@ -1659,21 +1648,19 @@ def validateStackSequences(self, pushed: List[int], popped: List[int]) -> bool:
     return True
 ```
 
-- 时间复杂度：O（N），空间复杂度：O（N）
-
 ### 二叉搜索树与双向链表
 
 - 题目描述：输入一棵二叉搜索树，将该二叉搜索树转换成一个排序的循环双向链表。要求不能创建任何新的节点，只能调整树中节点指针的指向。
 
 - 示例：见[leetcode](https://leetcode-cn.com/problems/er-cha-sou-suo-shu-yu-shuang-xiang-lian-biao-lcof/)
 
-- 代码：前序遍历，准备一个pre指针指向前一个访问过的结点。
+- 思路：中序遍历二叉搜索树可以直接得到一个递增序列，准备一个pre指针指向前一个访问过的结点。
+
+- 代码：时间复杂度：`O（N）`，空间复杂度：`O（logN）`（最差情况`O（N）`）
 
 ```py
 class Solution:
-
     def __init__(self):
-        # 使用self可以直接存变量，比递归中用参数存变量方便
         self.pre = self.head = None
 
     def treeToDoublyList(self, root: 'Node') -> 'Node':
@@ -1702,7 +1689,7 @@ class Solution:
 
 ### 复杂链表的复制
 
-- 题目说明：请实现 copyRandomList 函数，复制一个复杂链表。在复杂链表中，每个节点除了有一个 next 指针指向下一个节点，还有一个 random 指针指向链表中的任意节点或者 null。
+- 题目说明：请实现 `copyRandomList` 函数，复制一个复杂链表。在复杂链表中，每个节点除了有一个 `next` 指针指向下一个节点，还有一个 `random` 指针指向链表中的任意节点或者 `null`
 
 - 示例：
 
@@ -1711,15 +1698,13 @@ class Solution:
 输出：[[7,null],[13,0],[11,4],[10,2],[1,0]]
 ```
 
-注：显然不能指向同一片内存空间，而应该是新创建的
-
 - 切入：难点在于random指向任意结点，那么显然双指针就行不通了。
-- 代码1——**哈希表，“原节点 -> 新节点” 的映射**：
+- 代码1——**哈希表，“原节点 -> 新节点” 的映射**：利用哈希表，能遍历一次创建新节点，再遍历一次实现random构建。
 
-时间复杂度：O（N），空间复杂度：O（N）
+时间复杂度：`O（N）`，空间复杂度：`O（N）`
 
 ```py
-def copyRandomList(self, head: 'Node') -> 'Node':
+def copyRandomList(head: 'Node') -> 'Node':
     if not head:
         return
     dic = {}
@@ -1744,14 +1729,14 @@ def copyRandomList(self, head: 'Node') -> 'Node':
 
 - 代码2——**构建新链表，原节点 1 -> 新节点 1 -> 原节点 2 -> 新节点 2 -> … ，加上random后再拆分**：
 
-时间复杂度：O（N），空间复杂度：O（1）（构建答案不算空间复杂度）
+时间复杂度：`O（N）`，空间复杂度：`O（1）`
 
 ```py
-def copyRandomList(self, head: 'Node') -> 'Node':
+def copyRandomList(head: 'Node') -> 'Node':
     if not head:
         return
     
-    # 1. 复制各节点，并构建拼接链表
+    # 1. 复制各节点，构建拼接链表
     cur = head
     while cur:
         tmp = Node(cur.val)
@@ -1774,22 +1759,18 @@ def copyRandomList(self, head: 'Node') -> 'Node':
         cur.next = cur.next.next
         pre = pre.next
         cur = cur.next
-    pre.next = None # 单独处理原链表尾节点(这样对原链表没有影响。你的函数不应该影响原链表)
+    # 单独处理原链表尾节点(这样对原链表没有影响。你的函数不应该影响原链表)
+    pre.next = None
     return res      # 返回新链表头节点
 ```
 
 ### 二维数组的查找
 
-- 题目说明：在一个 n * m 的二维数组中，每一行都按照从左到右递增的顺序排序，每一列都按照从上到下递增的顺序排序。请完成一个高效的函数，输入这样的一个二维数组和一个整数，判断数组中是否含有该整数。
-
-0 <= n <= 1000
-0 <= m <= 1000
+- 题目说明：在一个 `n * m` 的二维数组中，每一行都按照从左到右递增的顺序排序，每一列都按照从上到下递增的顺序排序。请完成一个高效的函数，输入这样的一个二维数组和一个整数，判断数组中是否含有该整数。
 
 - 示例：
 
-现有矩阵 matrix 如下：
-
-```c
+```bash
 [
   [1,   4,  7, 11, 15],
   [2,   5,  8, 12, 19],
@@ -1797,36 +1778,32 @@ def copyRandomList(self, head: 'Node') -> 'Node':
   [10, 13, 14, 17, 24],
   [18, 21, 23, 26, 30]
 ]
-```
 
 给定 target = 5，返回 true。
 给定 target = 20，返回 false。
+```
 
-- 代码——**往左往下走**：
+- 代码——**从右上开始，往左往下走，保证路径唯一**：时间复杂度：`O（N + M）`，空间复杂度：`O（1）`
 
 ```py
-def findNumberIn2DArray(self, matrix: List[List[int]], target: int) -> bool:
+def findNumberIn2DArray(matrix: List[List[int]], target: int) -> bool:
     if len(matrix) == 0 or len(matrix[0]) == 0:
         return False
     h, w = len(matrix), len(matrix[0])
-    x, y = w-1, 0       # 从右上角开始，保证不会漏
+    x, y = w - 1, 0       # 从右上角开始，保证不会漏
     while x >= 0 and y < h:
         if matrix[y][x] == target:
             return True
         elif matrix[y][x] > target:
-            x = x-1
+            x = x - 1
         else:
             y = y + 1
     return False
 ```
 
-- 时间复杂度：O（N+M），空间复杂度：O（1）
-- 注：如果从左上角开始就有可能漏数，比如点位在下方却往右走了。而左下或右上开始，可以很容易证明路径唯一。
-- 证明：如果当前元素大于目标值，说明当前元素的下边的所有元素都一定大于目标值，因此往下查找不可能找到目标值，往左查找可能找到目标值（左下也在左）。如果当前元素小于目标值，说明当前元素的左边的所有元素都一定小于目标值，因此往左查找不可能找到目标值，往下查找可能找到目标值。
+### 矩阵中的路径
 
-### 矩阵中的路径（再）
-
-给定一个 m x n 二维字符网格 board 和一个字符串单词 word 。如果 word 存在于网格中，返回 true ；否则，返回 false 。
+- 问题：给定一个 `m x n` 和一个字符串单词 `word` 。如果 `word` 存在于网格中，返回 `true` ；否则，返回 `false` 。
 
 单词必须按照字母顺序，通过相邻的单元格内的字母构成，其中“相邻”单元格是那些水平相邻或垂直相邻的单元格。同一个单元格内的字母不允许被重复使用。
 
@@ -1835,23 +1812,22 @@ def findNumberIn2DArray(self, matrix: List[List[int]], target: int) -> bool:
 输入：board = [["A","B","C","E"],["S","F","C","S"],["A","D","E","E"]], word = "ABCCED"
 输出：true
 
-- 代码：
+- 代码：DFS回溯，时间复杂度：`O（MN * 3^k）`，MN为开启dfs次数，3^k为最坏情况下的搜索次数（每个都搜索3次，搜索k层）；空间复杂度：`O（k）`或者`O（1）`，k为栈最多调用次数
 
 ```py
 def exist(self, board: List[List[str]], word: str) -> bool:
-        
     w, h = len(board[0]), len(board)
     l = len(word)
-    def dfs(x, y, k):
+    def dfs(x: int, y: int, k: int) -> bool:
         if not 0 <= x < w or not 0 <= y < h or board[y][x] != word[k]:
             return False
         if k == l - 1:
             return True
         board[y][x] = ''    # 标记在原数组就不需要标记数组
-        for nx, ny in [(x+1, y), (x, y+1), (x-1, y), (x, y-1)]:
-            if dfs(nx, ny, k+1):
+        for nx, ny in [(x + 1, y), (x, y + 1), (x - 1, y), (x, y - 1)]:
+            if dfs(nx, ny, k + 1):
                 return True
-        board[y][x] = word[k]   # 很重要！将结果回溯
+        board[y][x] = word[k]   # 很重要！没找到需要将结果回溯
 
     for x in range(w):
         for y in range(h):
@@ -1860,23 +1836,22 @@ def exist(self, board: List[List[str]], word: str) -> bool:
     return False
 ```
 
-- 时间复杂度：O（MN * 3^k)，MN为开启dfs次数，3^k为最坏情况下的搜索次数（每个都搜索3次，搜索k层）
-- 空间复杂度：O（k）或者O（1），k为栈最多调用次数
+### 机器人的运动范围
 
-### 机器人的运动范围（再）
-
-- 题目说明：地上有一个m行n列的方格，从坐标 [0,0] 到坐标 [m-1,n-1] 。一个机器人从坐标 [0, 0] 的格子开始移动，它每次可以向左、右、上、下移动一格（不能移动到方格外），也不能进入行坐标和列坐标的数位之和大于k的格子。例如，当k为18时，机器人能够进入方格 [35, 37] ，因为3+5+3+7=18。但它不能进入方格 [35, 38]，因为3+5+3+8=19。请问该机器人能够到达多少个格子？
+- 题目说明：地上有一个m行n列的方格，从坐标 `[0,0]` 到坐标 `[m-1,n-1]` 。一个机器人从坐标 [0, 0] 的格子开始移动，它每次可以向左、右、上、下移动一格（不能移动到方格外），也不能进入行坐标和列坐标的数位之和大于k的格子。例如，当k为18时，机器人能够进入方格 [35, 37] ，因为3+5+3+7=18。但它不能进入方格 [35, 38]，因为3+5+3+8=19。请问该机器人能够到达多少个格子？
 
 - 示例：
+
+```bash
 输入：m = 2, n = 3, k = 1
 输出：3
+```
 
-- 代码：dfs
+- 代码：dfs; 时间复杂度：`O（MN）`，空间复杂度：`O（MN）`
 
 ```py
 def movingCount(self, m: int, n: int, k: int) -> int:
-    
-    def digit_sum(x: int):
+    def digit_sum(x: int) -> int:
         # 通用计算数位和方法
         result = 0
         while x != 0:
@@ -1886,50 +1861,48 @@ def movingCount(self, m: int, n: int, k: int) -> int:
 
     marks = [[0] * n for _ in range(m)]
 
-    def dfs(x: int, y: int):
-        # 实际证明，dfs先判断更好
-        if not (0 <= x < n and 0 <= y < m and (digit_sum(x)+digit_sum(y))<=k and marks[y][x] != 1):
+    def dfs(x: int, y: int) -> int:
+        if not (0 <= x < n and 0 <= y < m and (digit_sum(x) + digit_sum(y)) <= k and marks[y][x] != 1):
             return 0
         marks[y][x] = 1
-        return 1 + dfs(x+1, y) + dfs(x, y+1) + dfs(x-1, y) + dfs(x, y-1)
+        return 1 + dfs(x + 1, y) + dfs(x, y + 1) + dfs(x - 1, y) + dfs(x, y - 1)
     
     return dfs(0, 0)
 ```
 
-- 时间复杂度：O（MN），空间复杂度：O（MN）
-
-### 重建二叉树（再）
+### 重建二叉树
 
 - 题目描述：输入某二叉树的前序遍历和中序遍历的结果，请构建该二叉树并返回其根节点。假设不含重复数字
 
 - 示例：
+
+```bash
 Input: preorder = [3,9,20,15,7], inorder = [9,3,15,20,7]
 Output: [3,9,20,null,null,15,7]
-
-- 代码：
-
-```py
-def buildTree(self, preorder: List[int], inorder: List[int]) -> TreeNode:
-    # 核心思路：递归，找到中序（先左子树）的根，划分中序结果为左、根、右，再把前序划分为根、左、右即可
-
-    def recur(pre_root: int, in_left: int, in_right: int):
-        if in_left > in_right:    # 递归终止
-            return                               
-        node = TreeNode(preorder[pre_root])
-        in_root = dic[preorder[pre_root]]
-        node.left = recur(pre_root + 1, in_left, in_root - 1)
-        # in_root - in_left + pre_root + 1 解释：找到preorder中右子树根的位置
-        node.right = recur(in_root - in_left + pre_root + 1, in_root + 1, in_right)
-        return node
-
-    dic = {}
-    for i in range(len(inorder)):   # 哈希表以快速获取index，只有在无重复值时能用
-        dic[inorder[i]] = i
-    return recur(0, 0, len(inorder) - 1)
-
+Input: preorder = [-1], inorder = [-1]
+Output: [-1]
 ```
 
-- 时间复杂度：O（N），空间复杂度：O（N）
+- 代码：从前序遍历和中序遍历的意义出发，发现前序遍历的根对应中序遍历的index可以区分左右子树，然后就以此类推递归处理。时间复杂度：`O（N）`，空间复杂度：`O（N）`（哈希表）
+
+```py
+def buildTree(preorder: List[int], inorder: List[int]) -> Optional[TreeNode]:
+
+    def recur(preorder_root: int, inorder_left: int, inorder_right: int) -> Optional[TreeNode]:
+        if inorder_left >= inorder_right:
+            return None
+        node = TreeNode(preorder[preorder_root])
+        index = index_dict[node.val]
+        node.left = recur(preorder_root + 1, inorder_left, index)
+        # preorder_root for node.right: preoder_root + left tree length + 1
+        # node.right的root index：当前root index + 左子树长度 + 1
+        node.right = recur(preorder_root + index - inorder_left +  + 1, index+1, inorder_right)
+        return node
+
+    index_dict = {ele: index for index, ele in enumerate(inorder)}
+    return recur(0, 0, len(inorder))
+
+```
 
 ### 剪绳子-1（再）
 
