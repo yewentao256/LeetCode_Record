@@ -859,14 +859,19 @@ def mirrorTree(root: TreeNode) -> TreeNode:
 
 ```py
 def isSymmetric(root: TreeNode) -> bool:
-    def recur(L, R):
+    # Symmetry satisfies:
+    # 1. L.val = R.val
+    # 2. L.left.val = R.right.val
+    # 3. L.right.val = R.left.val
+    # recursive: recur(L.left, R.right) and recur(L.right, R.left)
+    def recur(L: TreeNode, R: TreeNode) -> bool:
         if not L and not R:
             return True
         if not L or not R or L.val != R.val:
             return False
         return recur(L.left, R.right) and recur(L.right, R.left)
 
-    return recur(root.left, root.right) if root else True
+    return recur(root.left, root.right)
 ```
 
 - 时间复杂度：`O（N）`，空间复杂度：`O（N）`（栈深，最差情况下，三角延伸）
