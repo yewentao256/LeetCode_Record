@@ -32,6 +32,8 @@
       - [Implement Trie (Prefix Tree)](#implement-trie-prefix-tree)
       - [Design Add and Search Words Data Structure (Prefix Tree)](#design-add-and-search-words-data-structure-prefix-tree)
     - [Dynamic Programming](#dynamic-programming)
+      - [Longest Palindromic Substring](#longest-palindromic-substring)
+      - [Coin Change](#coin-change)
       - [Word Break](#word-break)
       - [Triangle](#triangle)
       - [Maximum Subarray](#maximum-subarray)
@@ -946,6 +948,116 @@ class WordDictionary:
 ```
 
 ### Dynamic Programming
+
+#### Longest Palindromic Substring
+
+Q: Given a string s, return the longest **palindromic substring** in s.
+
+Eg:
+
+```bash
+Input: s = "babad"
+Output: "bab"
+Explanation: "aba" is also a valid answer.
+Input: s = "cbbd"
+Output: "bb"
+```
+
+Solution1: Dynamic Programming. Time: `O(N^2)`, Space: `O(N^2)`
+
+```py
+def longestPalindrome(s: str) -> str:
+    # dp[i][j] means s[i:j+1] is palindrome or not
+    # dp[i][i] = 1
+    # if two adjacent characters, dp[i][j] = 1 if c1 == c2 else 0
+    # >2 characters, dp[i][j] = 1 if dp[i+1][j-1] and s[i] == s[j] else 0
+    n = len(s)
+    if n < 2:
+        return s
+
+    dp = [[0 for _ in range(n)] for _ in range(n)]
+    start, max_len = 0, 1
+    
+    # init
+    for i in range(n):
+        dp[i][i] = 1
+    
+    # 2 adjacent characters:
+    for i in range(n - 1):
+        if s[i] == s[i+1]:
+            dp[i][i+1] = 1
+            start = i
+            max_len = 2
+    
+    # >2 characters:
+    for length in range(3, n+1):
+        for i in range(n - length + 1):
+            # eg: length = 3, n = 5, i can iterate in range (0, 2)
+            j = i + length - 1
+            if s[i] == s[j] and dp[i+1][j-1]:
+                dp[i][j] = True
+                start = i
+                max_len = length
+    
+    # here the last one record is the longest
+    return s[start: start + max_len]
+```
+
+Solution2: Expand around center, Time: `O(N^2)`, Space: `O(1)`
+
+```py
+def longestPalindrome(s: str) -> str:
+    def expand_around_center(s: str, left: int, right: int) -> int:
+        while left >= 0 and right < len(s) and s[left] == s[right]:
+            left -= 1
+            right += 1
+        return right - left - 1
+
+    start, end = 0, 0
+    for i in range(len(s)):
+        len1 = expand_around_center(s, i, i)        # odd
+        len2 = expand_around_center(s, i, i + 1)    # even
+        max_len = max(len1, len2)
+        if max_len > (end - start):
+            start = i - (max_len - 1) // 2
+            end = i + max_len // 2
+    return s[start:end + 1]
+```
+
+#### Coin Change
+
+Q: You are given an integer array `coins` representing coins of different denominations and an integer amount representing a total `amount` of money. Return the fewest number of coins that you need to make up that amount. If that amount of money cannot be made up by any combination of the coins, return `-1`. You may assume that you have an infinite number of each kind of coin.
+
+Eg:
+
+```bash
+Input: coins = [1,2,5], amount = 11
+Output: 3
+Explanation: 11 = 5 + 5 + 1
+Input: coins = [2], amount = 3
+Output: -1
+Input: coins = [1], amount = 0
+Output: 0
+```
+
+Solution: Dynamic programming: Time: `O(N * len(coins))`, Space: `O(N)`
+
+```py
+def coinChange(coins: List[int], amount: int) -> int:
+    # dp[i] means to realize amount i, the minimum count of coins.
+    # init: dp[each coin] = 1, dp[i] = float('inf')
+    # dp[i] = min(dp[i - coin]) + 1 if dp[i - coin] > 0 else -1
+    if not amount:
+        return 0
+    dp = [float('inf') for _ in range(amount + 1)]
+    for i in range(1, amount + 1):
+        for coin in coins:
+            if i == coin:
+                dp[i] = 1
+            elif i - coin > 0 and dp[i - coin] != -1:
+                dp[i] = min(dp[i], dp[i-coin] + 1)
+    return dp[-1] if dp[-1] != float("inf") else -1
+```
 
 #### Word Break
 
