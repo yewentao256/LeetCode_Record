@@ -21,6 +21,8 @@
       - [Remove Duplicates from Sorted Array II](#remove-duplicates-from-sorted-array-ii)
     - [Greedy](#greedy)
       - [Jump Game II](#jump-game-ii)
+    - [DFS](#dfs)
+      - [Combinations](#combinations)
     - [Array](#array-1)
       - [Minimum Genetic Mutation](#minimum-genetic-mutation)
       - [Find the Index of the First Occurrence in a String(KMP)](#find-the-index-of-the-first-occurrence-in-a-stringkmp)
@@ -458,6 +460,43 @@ def jump(nums: List[int]) -> int:
                 end = max_index
                 count += 1
     return count
+```
+
+### DFS
+
+#### Combinations
+
+Q: Given two integers `n` and `k`, return all possible combinations of `k` numbers chosen from the range `[1, n]`.
+
+Eg:
+
+```bash
+Input: n = 4, k = 2
+Output: [[1,2],[1,3],[1,4],[2,3],[2,4],[3,4]]
+Explanation: There are 4 choose 2 = 6 total combinations.
+Note that combinations are unordered, i.e., [1,2] and [2,1] are considered to be the same combination.
+
+Input: n = 1, k = 1
+Output: [[1]]
+Explanation: There is 1 choose 1 = 1 total combination.
+```
+
+Solution: DFS + trace back, Time: `O(C(n, k) * k)` (count of results * k times). Space: `O(k + k)`(stack trace + temp l)
+
+```py
+def combine(n: int, k: int) -> List[List[int]]:
+    results = []
+    l = []
+    def dfs(start: int, k: int) -> None:
+        if not k:
+            results.append(l.copy())
+            return
+        for num in range(start, n + 1):
+            l.append(num)
+            dfs(num + 1, k - 1)
+            l.pop()
+    dfs(1, k)
+    return results
 ```
 
 ### Array
