@@ -22,8 +22,10 @@
     - [Greedy](#greedy)
       - [Jump Game II](#jump-game-ii)
     - [DFS](#dfs)
+      - [Clone Graph](#clone-graph)
       - [Combinations](#combinations)
     - [Array](#array-1)
+      - [Longest Increasing Subsequence](#longest-increasing-subsequence)
       - [Minimum Genetic Mutation](#minimum-genetic-mutation)
       - [Find the Index of the First Occurrence in a String(KMP)](#find-the-index-of-the-first-occurrence-in-a-stringkmp)
       - [Product of Array Except Self](#product-of-array-except-self)
@@ -31,9 +33,12 @@
       - [Insert Delete GetRandom O(1)](#insert-delete-getrandom-o1)
       - [Valid Sudoku](#valid-sudoku)
     - [Tree](#tree-1)
+      - [Construct Quad Tree](#construct-quad-tree)
+      - [Flatten Binary Tree to Linked List](#flatten-binary-tree-to-linked-list)
       - [Implement Trie (Prefix Tree)](#implement-trie-prefix-tree)
       - [Design Add and Search Words Data Structure (Prefix Tree)](#design-add-and-search-words-data-structure-prefix-tree)
     - [Dynamic Programming](#dynamic-programming)
+      - [Interleaving String](#interleaving-string)
       - [Longest Palindromic Substring](#longest-palindromic-substring)
       - [Coin Change](#coin-change)
       - [Word Break](#word-break)
@@ -464,6 +469,44 @@ def jump(nums: List[int]) -> int:
 
 ### DFS
 
+#### Clone Graph
+
+Questions and Example: Details at [LeetCode](https://leetcode.cn/problems/clone-graph/)
+
+Solution: DFS + record the map
+
+```py
+class Node:
+    def __init__(self, val = 0, neighbors = None):
+        self.val = val
+        self.neighbors = neighbors if neighbors is not None else []
+
+from typing import Optional
+class Solution:
+    def cloneGraph(self, node: Optional['Node']) -> Optional['Node']:
+        # DFS while recording the cloned nodes
+        # Time: O(N), Space: O(N)
+        if not node:
+            return None
+        
+        # Note: We can't record the edge as visited, since we may create multiple repeated nodes
+        cloned_nodes = {}
+        
+        def dfs(original_node: Node) -> Node:
+            if original_node in cloned_nodes:
+                return cloned_nodes[original_node]
+            
+            cloned_node = Node(original_node.val)
+            cloned_nodes[original_node] = cloned_node
+            
+            for neighbor in original_node.neighbors:
+                cloned_node.neighbors.append(dfs(neighbor))
+                
+            return cloned_node
+        
+        return dfs(node)
+```
+
 #### Combinations
 
 Q: Given two integers `n` and `k`, return all possible combinations of `k` numbers chosen from the range `[1, n]`.
@@ -500,6 +543,82 @@ def combine(n: int, k: int) -> List[List[int]]:
 ```
 
 ### Array
+
+#### Longest Increasing Subsequence
+
+Q: Given an integer array nums, return the length of the longest strictly increasing subsequence.
+
+Eg:
+
+```bash
+Input: nums = [10,9,2,5,3,7,101,18]
+Output: 4
+Explanation: The longest increasing subsequence is [2,3,7,101], therefore the length is 4.
+
+Input: nums = [0,1,0,3,2,3]
+Output: 4
+Input: nums = [7,7,7,7,7,7,7]
+Output: 1
+```
+
+Solution1: Dynamic Programming. Time: `O(N^2)`, Space: `O(N)`
+
+```py
+def lengthOfLIS(nums: List[int]) -> int:
+    # dp[i] = to the index i, the length of the longest sequence
+    # dp[0] = 1
+    # dp[i] = max(dp[j]) + 1  (j from 0 ~ i)
+    dp = [0] * len(nums)
+    dp[0] = 1
+    for i in range(1, len(nums)):
+        
+        for j in range(0, i):
+            if nums[i] > nums[j]:
+                dp[i] = max(dp[i] - 1, dp[j]) + 1
+        if not dp[i]:
+            dp[i] = 1
+    return max(dp)
+```
+
+Solution2: Greed + Bisect. Time: `O(N * logN)`, Space: `O(N)`
+
+```py
+from typing import List
+
+def my_bisect_left(array: List[int], val: int) -> int:
+    left, right = 0, len(array)
+    while left < right:
+        mid = (left + right) // 2
+        if array[mid] < val:
+            # mid has been used, left should + 1
+            left = mid + 1
+        else:
+            # right means the upper index you can not visit, no needs to -1
+            right = mid
+    return left
+
+def lengthOfLIS(nums: List[int]) -> int:
+    # tails[i] means when length == i+1, LIS' last element
+    # So len(tails[i]) == len(LIS)
+    # eg: [10,9,2,5,3,7,101,18,1] we have tails = [1, 3, 7, 18]
+    # meaning that we have the LIS length == 4, the last element is 18
+    # for tails[2] = 3, means we can find the sequence [2,3] for the brightest future
+    # This is a kind of greedy solution.
+    
+    tails = []
+    
+    for num in nums:
+        index = my_bisect_left(tails, num)
+        if index == len(tails):
+            # last element < num, means we can expand our LIS
+            tails.append(num)
+        else:
+            # we can update our LIS, to build a better one, ending with the num
+            # eg, tail = [1], means for length == 1's sequence, use [1] is the best
+            # eg2, tail = [1,3,7,18], tail[2] = 7 means for length == 3's sequence, use [2, 3, 7](ending with 7) is the best 
+            tails[index] = num
+    return len(tails)
+```
 
 #### Minimum Genetic Mutation
 
@@ -860,6 +979,137 @@ def isValidSudoku(board: List[List[str]]) -> bool:
 
 ### Tree
 
+#### Construct Quad Tree
+
+Question and example: Details at [LeetCode](https://leetcode.cn/problems/construct-quad-tree/description/)
+
+Solution: Divide and conquer
+
+```py
+def construct(grid: List[List[int]]) -> Node:
+    # Time: O(N^2), Space: O(logN)
+    # How do we get the time complexity?
+    # First, T(N) = a * T(n/b) + f(n), divide to `a` subtasks, f(n) means the cost to manage the subtasks
+    # Here our a = 4 and b = 2, f(n) = O(1) = O(N^0) (iterate 4 subnodes)
+    # So c = 0 < logb(a) = 2, T(N) = O(n^logb(a)) = O(N^2)
+    # Note: if c == logb(a), T(N) = O(n^logb(a) * logN)
+    # if c > logb(a), T(N) = f(N), means the main cost is to manage
+    # Or, we can consider: We will iterate through all grid[i][i] once, O(N^2)
+    n = len(grid)
+    
+    def build_node(left: int, right: int, top: int, bottom: int) -> Node:
+        if left == right - 1 and top == bottom - 1:
+            # leaf node
+            return Node(grid[top][left], True, None, None, None, None)
+        else:
+            root_x, root_y = (left + right) // 2, (top + bottom) // 2
+            top_left = build_node(left, root_x, top, root_y)
+            top_right = build_node(root_x, right, top, root_y)
+            bottom_left = build_node(left, root_x, root_y, bottom)
+            bottom_right = build_node(root_x, right, root_y, bottom)
+            
+            all_is_leaf = top_left.isLeaf and top_right.isLeaf and bottom_left.isLeaf and bottom_right.isLeaf
+            all_value_equals = top_left.val == top_right.val == bottom_left.val == bottom_right.val
+            if all_is_leaf and all_value_equals:
+                # All equals, merge leaf nodes
+                return Node(top_left.val, True, None, None, None, None)
+            else:
+                # Not leaf node
+                return Node(0, False, top_left, top_right, bottom_left, bottom_right)
+    
+    return build_node(0, n, 0, n)
+```
+
+Solution2: Divide and Conquer + prefix sum
+
+```py
+def construct(grid: List[List[int]]) -> Node:
+    # Divide and Conquer + prefix sum
+    # prefix[i][j] = sum(grid[0][0] ~ grid[i][j]) (whole matrix)
+    # Time: O(N^2), Space: O(N^2)
+    n = len(grid)
+    prefix_sum = [[0] * (n + 1) for _ in range(n + 1)]
+    
+    # Compute prefix sums
+    for i in range(n):
+        for j in range(n):
+            prefix_sum[i + 1][j + 1] = grid[i][j] + prefix_sum[i][j + 1] + prefix_sum[i + 1][j] - prefix_sum[i][j]
+            
+    def get_sum(x1, y1, x2, y2):
+        return prefix_sum[x2 + 1][y2 + 1] - prefix_sum[x1][y2 + 1] - prefix_sum[x2 + 1][y1] + prefix_sum[x1][y1]
+    
+    def build_node(x1, y1, x2, y2):
+        total = get_sum(x1, y1, x2 - 1, y2 - 1)
+        area = (x2 - x1) * (y2 - y1)
+        if total == 0:
+            # all 0s
+            return Node(False, True)
+        if total == area:
+            # all 1s
+            return Node(True, True)
+        
+        mid_x = (x1 + x2) // 2
+        mid_y = (y1 + y2) // 2
+        top_left = build_node(x1, y1, mid_x, mid_y)
+        top_right = build_node(x1, mid_y, mid_x, y2)
+        bottom_left = build_node(mid_x, y1, x2, mid_y)
+        bottom_right = build_node(mid_x, mid_y, x2, y2)
+        
+        if top_left.isLeaf and top_right.isLeaf and bottom_left.isLeaf and bottom_right.isLeaf:
+            if top_left.val == top_right.val == bottom_left.val == bottom_right.val:
+                return Node(top_left.val, True)
+        
+        return Node(True, False, top_left, top_right, bottom_left, bottom_right)
+    
+    return build_node(0, 0, n, n)
+```
+
+#### Flatten Binary Tree to Linked List
+
+Q: Given the `root` of a binary tree, flatten the tree into a "linked list":
+
+- The "linked list" should use the same `TreeNode` class where the `right` child pointer points to the next node in the list and the `left` child pointer is always null.
+- The "linked list" should be in the same order as a pre-order traversal of the binary tree.
+
+Eg:
+
+```bash
+       1                    1
+      /  \                    2
+    2      5       =>           3
+   /  \     \                    4
+  3    4     6                     5
+                                    6
+
+Input: root = [1,2,5,3,4,null,6]
+Output: [1,null,2,null,3,null,4,null,5,null,6]
+Input: root = []
+Output: []
+Input: root = [0]
+Output: [0]
+```
+
+Solution: Update in-place, Time: `O(N)`, Space: `O(1)`. Only consider for node(leftmost and rightmost), do not consider as a chain!
+
+```py
+def flatten(root: Optional[TreeNode]) -> None:
+    # Time: O(N), Space: O(1)
+    current = root
+    
+    while current:
+        if current.left:
+            # find the rightmost node in the left subtree
+            rightmost = current.left
+            while rightmost.right:
+                rightmost = rightmost.right
+            
+            # rewrite the connections
+            rightmost.right = current.right
+            current.right = current.left
+            current.left = None
+        current = current.right
+```
+
 #### Implement Trie (Prefix Tree)
 
 Q: A **trie** (pronounced as "try") or **prefix tree** is a tree data structure used to efficiently store and retrieve keys in a dataset of strings. Implement the Trie class:
@@ -987,6 +1237,80 @@ class WordDictionary:
 ```
 
 ### Dynamic Programming
+
+#### Interleaving String
+
+Q: Given strings `s1`, `s2`, and `s3`, find whether `s3` is formed by an **interleaving** of `s1` and `s2`.
+
+Eg:
+
+```bash
+Input: s1 = "aabcc", s2 = "dbbca", s3 = "aadbbcbcac"
+Output: true
+Explanation: One way to obtain s3 is:
+Split s1 into s1 = "aa" + "bc" + "c", and s2 into s2 = "dbbc" + "a".
+Interleaving the two splits, we get "aa" + "dbbc" + "bc" + "a" + "c" = "aadbbcbcac".
+Since s3 can be obtained by interleaving s1 and s2, we return true.
+
+Input: s1 = "aabcc", s2 = "dbbca", s3 = "aadbbbaccc"
+Output: false
+Explanation: Notice how it is impossible to interleave s2 with any other string to obtain s3.
+
+Input: s1 = "", s2 = "", s3 = ""
+Output: true
+```
+
+Solution: Dynamic Programming. Time: `O(N^2)`, Space: `O(N^2)`
+
+```py
+def isInterleave(s1: str, s2: str, s3: str) -> bool:
+    # dp[i][j] means to the ith character of s1, jth character of s2, is interleave or not
+    # dp[0][0] = 1
+    # dp[i][0] = dp[i-1][0] and s1[i-1] == s3[i-1]
+    # dp[0][j] = dp[0][j-1] and s2[j-1] == s3[j-1]
+    # dp[i][j] = (s1[i-1] == s3[i+j-1] and dp[i-1][j]) or (s2[j-1] == s3[i+j-1] and dp[i][j-1])
+    n, m = len(s1), len(s2)
+    
+    # Be careful, according to the definition, len(s1) + len(s2) must equal to len(s3)!
+    if n + m != len(s3):
+        return False
+    dp = [[False for _ in range(m + 1)] for _ in range(n + 1)]
+    dp[0][0] = True
+    for i in range(1, n + 1):
+        dp[i][0] = dp[i-1][0] and s1[i-1] == s3[i-1]
+    for j in range(1, m + 1):
+        dp[0][j] = dp[0][j-1] and s2[j-1] == s3[j-1]
+    for i in range(1, n+1):
+        for j in range(1, m+1):
+            dp[i][j] = (dp[i-1][j] and s1[i - 1] == s3[i + j - 1]) or (dp[i][j-1] and s2[j-1] == s3[i+j-1])
+    return dp[-1][-1]
+```
+
+Solution Optimization: DP with Space Optimized to `O(N)`
+
+```py
+class Solution:
+    def isInterleave(self, s1: str, s2: str, s3: str) -> bool:
+        # Note: this is not easy to understand, since dp[j] can have multiple i, we can do this since we've done the dp[i][j]
+        # dp[j] means to the ith character of s1, jth character of s2, is interleave or not
+        # dp[0] = True
+        # dp[j] = dp[0][j-1] and s2[j-1] == s3[j-1]
+        # dp[j] = (s1[i-1] == s3[i+j-1] and dp[j]) or (s2[j-1] == s3[i+j-1] and dp[j-1])
+        n, m = len(s1), len(s2)
+        
+        # Be careful, according to the definition, len(s1) + len(s2) must equal to len(s3)!
+        if n + m != len(s3):
+            return False
+        dp = [False] * (m + 1)
+        dp[0] = True
+        for j in range(1, m + 1):
+            dp[j] = dp[j-1] and s2[j-1] == s3[j-1]
+        for i in range(1, n+1):
+            dp[0] = dp[0] and s1[i-1] == s3[i-1]
+            for j in range(1, m+1):
+                dp[j] = (dp[j] and s1[i - 1] == s3[i + j - 1]) or (dp[j-1] and s2[j-1] == s3[i+j-1])
+        return dp[-1]
+```
 
 #### Longest Palindromic Substring
 
