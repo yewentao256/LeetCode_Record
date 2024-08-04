@@ -44,6 +44,7 @@
       - [Word Break](#word-break)
       - [Triangle](#triangle)
       - [Maximum Subarray](#maximum-subarray)
+      - [Maximum Sum Circular Subarray](#maximum-sum-circular-subarray)
     - [Dict](#dict)
       - [Group Anagrams](#group-anagrams)
     - [Heap](#heap)
@@ -1570,6 +1571,54 @@ def maxSubArray(nums: List[int]) -> int:
         max_sum = max(max_sum, current_sum)
     
     return max_sum
+```
+
+#### Maximum Sum Circular Subarray
+
+Q: Given a **circular integer array** `nums` of length `n`, return the maximum possible sum of a non-empty **subarray** of `nums`.
+
+A circular array means the end of the array connects to the beginning of the array. Formally, the next element of `nums[i]` is `nums[(i + 1) % n]` and the previous element of `nums[i]` is `nums[(i - 1 + n) % n]`.
+
+A **subarray** may only include each element of the fixed buffer `nums` at most once.
+
+Eg:
+
+```bash
+Input: nums = [1,-2,3,-2]
+Output: 3
+Explanation: Subarray [3] has maximum sum 3.
+
+Input: nums = [5,-3,5]
+Output: 10
+Input: nums = [-3,-2,-3]
+Output: -2
+```
+
+Solution: Kadane's algorithm + inverted nums. Time: `O(N)`, Space: `O(1)`
+
+```py
+def maxSubarraySumCircular(nums: List[int]) -> int:
+    # Note: the sum of `nums[0:i]` and `nums[j:n]` equals to sum - `nums[i:j]`
+    def kadane(arr: List[int]) -> List[int]:
+        current_sum = max_sum = arr[0]
+        for x in arr[1:]:
+            current_sum = max(x, current_sum + x)
+            max_sum = max(max_sum, current_sum)
+        return max_sum
+
+    total_sum = sum(nums)
+    max_kadane = kadane(nums)
+    
+    # To find the minimum subarray sum, invert the values and apply Kadane's algorithm
+    inverted_nums = [-x for x in nums]
+    min_kadane = kadane(inverted_nums)
+    max_circular = total_sum + min_kadane
+
+    # If max_circular is zero, it means all elements are negative
+    if max_circular == 0:
+        return max_kadane
+    
+    return max(max_kadane, max_circular)
 ```
 
 ### Dict
