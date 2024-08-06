@@ -50,6 +50,8 @@
     - [Heap](#heap)
       - [Kth Largest Element in an Array](#kth-largest-element-in-an-array)
   - [Hard](#hard)
+    - [String](#string-1)
+      - [Substring with Concatenation of All Words](#substring-with-concatenation-of-all-words)
     - [Heap](#heap-1)
       - [IPO](#ipo)
     - [Array](#array-2)
@@ -1754,6 +1756,66 @@ def findKthLargest(nums: List[int], k: int) -> int:
 Solution2: Quick select(part of the quick sort), TODO: [https://leetcode.cn/problems/kth-largest-element-in-an-array/?envType=study-plan-v2&envId=top-interview-150]
 
 ## Hard
+
+### String
+
+#### Substring with Concatenation of All Words
+
+Q: You are given a string `s` and an array of strings `words`. All the strings of `words` are of **the same length.** A **concatenated string** is a string that exactly contains all the strings of any permutation of `words` concatenated.
+
+Return an array of the starting indices of all the concatenated substrings in `s`. You can return the answer **in any order**.
+
+Eg:
+
+```bash
+Input: s = "barfoothefoobarman", words = ["foo","bar"]
+Output: [0,9]
+Explanation:
+The substring starting at 0 is "barfoo". It is the concatenation of ["bar","foo"] which is a permutation of words.
+The substring starting at 9 is "foobar". It is the concatenation of ["foo","bar"] which is a permutation of words.
+
+Input: s = "wordgoodgoodgoodbestword", words = ["word","good","best","word"]
+Output: []
+
+Input: s = "barfoofoobarthefoobarman", words = ["bar","foo","the"]
+Output: [6,9,12]
+```
+
+Solution: Sliding Window. Note: 1. You should start with each index **in a word length**("abc" eg, you should try `0, 1, 2`). 2. Since **the same length**, we do not need to consider the problem of prefix("a", "ab"). 3. Use two dic to help instead of one.
+
+```py
+def findSubstring(s: str, words: List[str]) -> List[int]:
+    # Time: `O(N * Length of word)`, Space: `O(Word number)`
+    word_length = len(words[0])
+    if len(s) < word_length * len(words):
+        return []
+    word_count = defaultdict(int)
+    for word in words:
+        word_count[word] += 1
+    results = []
+    for i in range(word_length):
+        left, right, count = i, i, 0
+        current_count = defaultdict(int)
+        while right + word_length <= len(s):
+            word = s[right:right + word_length]
+            right += word_length
+            if word in word_count:
+                current_count[word] += 1
+                count += 1
+                while current_count[word] > word_count[word]:
+                    # word counts doesn't satisfy, move left forward
+                    left_word = s[left:left + word_length]
+                    current_count[left_word] -= 1
+                    count -= 1
+                    left += word_length
+                if count == len(words):
+                    results.append(left)
+            else:
+                current_count.clear()
+                count = 0
+                left = right
+    return results
+```
 
 ### Heap
 
