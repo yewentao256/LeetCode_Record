@@ -55,3 +55,66 @@ def threeSum(nums: List[int]) -> List[List[int]]:
                 right -= 1
     return result
 ```
+
+## Maximum Value at a Given Index in a Bounded Array
+
+Q: You are given three positive integers: n, index, and maxSum. You want to construct an array nums (0-indexed) that satisfies the following conditions:
+
+- nums.length == n
+- nums[i] is a positive integer where 0 <= i < n.
+- abs(nums[i] - nums[i+1]) <= 1 where 0 <= i < n-1.
+- The sum of all the elements of nums does not exceed maxSum.
+- nums[index] is maximized.
+
+Return nums[index] of the constructed array.
+
+Eg:
+
+```bash
+Input: n = 4, index = 2,  maxSum = 6
+Output: 2
+Explanation: nums = [1,2,2,1] is one array that satisfies all the conditions.
+There are no arrays that satisfy all the conditions and have nums[2] == 3, so 2 is the maximum nums[2].
+
+Input: n = 6, index = 1,  maxSum = 10
+Output: 3
+```
+
+Solution:
+
+```py
+def maxValue(n: int, index: int, maxSum: int) -> int:
+    # binary search + math validation
+    # Time: O(logN), Space: O(1)
+    def calculateSum(x):
+        left_count = index
+        right_count = n - index - 1
+        
+        # sum of left
+        if x > left_count:
+            # x is bigger than count, no need to worry "1"
+            sum_left = (x + (x - left_count)) * (left_count + 1) // 2
+        else:
+            sum_left = (x * (x + 1)) // 2 + (left_count - x + 1)
+        
+        if x > right_count:
+            sum_right = (x + (x - right_count)) * (right_count + 1) // 2
+        else:
+            sum_right = (x * (x + 1)) // 2 + (right_count - x + 1)
+        
+        total_sum = sum_left + sum_right - x
+        
+        return total_sum
+    
+    # binary search
+    low, high = 1, maxSum
+    
+    while low < high:
+        mid = (low + high + 1) // 2
+        if calculateSum(mid) <= maxSum:
+            low = mid
+        else:
+            high = mid - 1
+    
+    return low
+```
