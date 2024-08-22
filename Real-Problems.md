@@ -1,5 +1,90 @@
 # Real-Problems
 
+## Minimum Swaps to Group All 1's Together
+
+Q: Given a binary array data, return the **minimum** number of swaps required to group all 1’s present in the array together in any place in the array.
+
+Eg:
+
+```c++
+Input: [1,0,1,0,1]
+Output: 1
+Explanation: 
+There are 3 ways to group all 1 together:
+[1,1,1,0,0] using 1 swap.
+[0,1,1,1,0] using 2 swaps.
+[0,0,1,1,1] using 1 swap.
+The minimum is 1.
+
+Input: [0,0,0,1,0]
+Output: 0
+Explanation: 
+Since there is only one 1 in the array, no swaps needed.
+
+Input: [1,0,1,0,1,0,0,1,1,0,1]
+Output: 3
+Explanation: 
+One possible solution that uses 3 swaps is [0,0,0,0,0,1,1,1,1,1,1].
+```
+
+Solution: Count all `1` then sliding windows. Time: `O(N)`, Space: `O(1)`
+
+```py
+def minSwaps(data):
+    # Step 1: Count total number of 1's
+    total_ones = sum(data)
+    if total_ones == 0:
+        return 0
+
+    # Step 2: Initialize the first window
+    current_zeros = total_ones - sum(data[:total_ones])
+    min_zeros = current_zeros
+
+    # Step 3: Slide the window across the array
+    for i in range(total_ones, len(data)):
+        current_zeros += data[i - total_ones] - data[i]
+        min_zeros = min(min_zeros, current_zeros)
+    
+    return min_zeros
+
+# Example test cases
+print(minSwaps([1,0,1,0,1]))        # Output: 1
+print(minSwaps([0,0,0,1,0]))        # Output: 0
+print(minSwaps([1,0,1,0,1,0,0,1,1,0,1]))  # Output: 3
+
+```
+
+## Find Greatest Common Divisor of Array
+
+Q: Given an integer array nums, return the **greatest common divisor** of num pairs in `nums`.
+
+Eg:
+
+```c++
+Input: [2, 4, 8, 6]
+Output: 4
+```
+
+Solution: GCD + for each, Time: `O(N^2)`, Space: `O(1)`
+
+```py
+def gcd(a: int, b: int) -> int:
+    while b:
+        a, b = b, a % b
+    return a
+
+def findMaxGCD(nums: list[int]) -> int:
+    max_gcd = 0
+    n = len(nums)
+    for i in range(n):
+        for j in range(i + 1, n):
+            current_gcd = gcd(nums[i], nums[j])
+            if current_gcd > max_gcd:
+                max_gcd = current_gcd
+    return max_gcd
+
+```
+
 ## 3Sum
 
 Q: Given an integer array nums, return all the triplets `[nums[i], nums[j], nums[k]]` such that `i != j`, `i != k`, and `j != k`, and `nums[i] + nums[j] + nums[k] == 0`.
