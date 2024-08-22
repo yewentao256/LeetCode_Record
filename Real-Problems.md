@@ -82,8 +82,9 @@ def findMaxGCD(nums: list[int]) -> int:
             if current_gcd > max_gcd:
                 max_gcd = current_gcd
     return max_gcd
-
 ```
+
+Note: If for least common multiple(LCM), `a * b / gcd(a, b)`
 
 ## 3Sum
 
