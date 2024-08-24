@@ -425,7 +425,7 @@ minStack.top();   # --> 返回 0.
 minStack.min();   # --> 返回 -2.
 ```
 
-- 代码：辅助栈，保证辅助栈的栈顶是最小值即可。（因为min不会修改数组，所以相对简单）
+- 代码：辅助栈，保证辅助栈的栈顶是最小值即可。为什么可以让最小栈的元素数量小于栈3本身？因为比如3、5、7、9这样加元素，3放在最小栈处，后面的元素在3出栈前出栈，所以始终是最小。只有后面的元素比3小了，才需要开始考虑后面的元素。
 
 ```py
 class MinStack:
@@ -1908,6 +1908,10 @@ def buildTree(preorder: List[int], inorder: List[int]) -> Optional[TreeNode]:
     return recur(0, 0, len(inorder))
 
 ```
+
+
+
+
 
 ### 剪绳子-1（再）
 
