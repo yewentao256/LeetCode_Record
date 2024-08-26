@@ -6,6 +6,8 @@
       - [Maximum Points Inside the Square](#maximum-points-inside-the-square)
     - [DFS](#dfs)
       - [Partition to K Equal Sum Subsets](#partition-to-k-equal-sum-subsets)
+  - [Hard](#hard)
+    - [Find the Median of the Uniqueness Array](#find-the-median-of-the-uniqueness-array)
 
 ## Medium
 
@@ -96,4 +98,82 @@ def canPartitionKSubsets(nums: List[int], k: int) -> bool:
         return False
     
     return dfs(0, 0, 0)
+```
+
+## Hard
+
+### Find the Median of the Uniqueness Array
+
+Q: You are given an integer array nums. The **uniqueness array** of nums is the sorted array that contains the number of distinct elements of all the subarrays of `nums`. In other words, it is a sorted array consisting of distinct(`nums[i..j]`), for all `0 <= i <= j < nums.length`.
+
+Here, `distinct(nums[i..j])` denotes the number of distinct elements in the subarray that starts at index i and ends at index j.
+
+Return the **median** of the **uniqueness array** of `nums`.
+
+Note that the median of an array is defined as the middle element of the array when it is sorted in non-decreasing order. If there are two choices for a median, the **smaller** of the two values is taken.
+
+Eg:
+
+```bash
+Input: nums = [1,2,3]
+Output: 1
+The uniqueness array of nums is [distinct(nums[0..0]), distinct(nums[1..1]), distinct(nums[2..2]), distinct(nums[0..1]), distinct(nums[1..2]), distinct(nums[0..2])] which is equal to [1, 1, 1, 2, 2, 3]. The uniqueness array has a median of 1. Therefore, the answer is 1.
+
+Input: nums = [3,4,3,4,5]
+Output: 2
+The uniqueness array of nums is [1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3]. The uniqueness array has a median of 2. Therefore, the answer is 2.
+
+Input: nums = [4,3,5,4]
+Output: 2
+The uniqueness array of nums is [1, 1, 1, 1, 2, 2, 2, 3, 3, 3]. The uniqueness array has a median of 2. Therefore, the answer is 2.
+```
+
+Solution: binary search + sliding window. Time: `O(N*logN)`, Space: `O(N)`
+
+```py
+def medianOfUniquenessArray(nums: List[int]) -> int:
+    # Solution: binary search(directly find the median) + sliding window
+    # the lowest boundary is 1 (at least) and the highest is len(set(nums))
+    def count_subarrays_with_median(median: int) -> int:
+        # calculate the count of subarrays with given median(max distinct number)
+        count = 0           # count of available subarrays
+        left = 0
+        freq = defaultdict(int)
+        distinct_count = 0  # distinct elements in current window
+        
+        for right in range(len(nums)):
+            if freq[nums[right]] == 0:
+                distinct_count += 1
+            freq[nums[right]] += 1
+            
+            # sliding window, moving left forward, making sure current window can
+            # satisfy with the given median
+            while distinct_count > median:
+                freq[nums[left]] -= 1
+                if freq[nums[left]] == 0:
+                    distinct_count -= 1
+                left += 1
+            
+            # adding all of the subarrys ending with right
+            # eg: [1, 2] 
+            # count += 1, nums[0...0]
+            # count += 2, nums[0...1] and nums[1...1]
+            count += right - left + 1
+        
+        return count
+
+    n = len(nums)
+    low, high = 1, len(set(nums))
+    median_index = ((n * (n + 1)) // 2 + 1) // 2    # (total count + 1) // 2
+    
+    while low < high:
+        mid = (low + high) // 2
+        # if the number of subarrays is smaller than median index
+        # it means the median should be bigger, increase low. decrease high otherwise
+        if count_subarrays_with_median(mid) < median_index:
+            low = mid + 1
+        else:
+            high = mid
+    
+    return low
 ```
