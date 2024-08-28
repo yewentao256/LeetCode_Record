@@ -18,6 +18,7 @@
       - [Best Time to Buy and Sell Stock](#best-time-to-buy-and-sell-stock)
   - [Medium](#medium)
     - [Double Pointer](#double-pointer-1)
+      - [Container With Most Water](#container-with-most-water)
       - [Remove Duplicates from Sorted Array II](#remove-duplicates-from-sorted-array-ii)
     - [Greedy](#greedy)
       - [Jump Game II](#jump-game-ii)
@@ -397,6 +398,33 @@ def maxProfit(prices: List[int]) -> int:
 ## Medium
 
 ### Double Pointer
+
+#### Container With Most Water
+
+Q and Eg: [https://leetcode.cn/problems/container-with-most-water/description/?envType=study-plan-v2&envId=top-interview-150]
+
+Solution: Double pointer + greedy, Time: `O(N)`, Space: `O(1)`
+
+```py
+def maxArea(height: List[int]) -> int:
+    left, right = 0, len(height) - 1
+    result = 0
+    while left < right:
+        area = min(height[left], height[right]) * (right - left)
+        result = max(area, result)
+        # Why greedy here works?
+        # Prove: we should always move the smaller one
+        # originally, area = min(height[left], height[right]) * (right - left)
+        # if height[right] > height[left] and we want to move right
+        # new_area = min(height[left], height[right']) * (right' - left)
+        # we have 1: min(height[left], height[right']) <= min(height[left], height[right]) forever, (if height[right'] > height[right], min(..) = height[left])
+        # we have 2: (right' - left) < (right - left) forever
+        if height[left] < height[right]:
+            left += 1
+        else:
+            right -= 1
+    return result
+```
 
 #### Remove Duplicates from Sorted Array II
 
