@@ -8,6 +8,7 @@
       - [Partition to K Equal Sum Subsets](#partition-to-k-equal-sum-subsets)
   - [Hard](#hard)
     - [Find the Median of the Uniqueness Array](#find-the-median-of-the-uniqueness-array)
+    - [Find the Maximum Length of a Good Subsequence II](#find-the-maximum-length-of-a-good-subsequence-ii)
 
 ## Medium
 
@@ -177,3 +178,52 @@ def medianOfUniquenessArray(nums: List[int]) -> int:
     
     return low
 ```
+
+### Find the Maximum Length of a Good Subsequence II
+
+Q: You are given an integer array `nums` and a non-negative integer `k`. A sequence of integers `seq` is called good if there are at most `k` indices `i` in the range `[0, seq.length - 2]` such that `seq[i] != seq[i + 1]`.
+
+In other words, at most `k` numbers that are not equal. ([1,2] only count for once)
+
+Return the maximum possible length of a good **subsequence** of nums.
+
+Eg:
+
+```bash
+Input: nums = [1,2,1,1,3], k = 2
+Output: 4
+Explanation:
+The maximum length subsequence is [1,2,1,1].
+
+Input: nums = [1,2,3,4,5,1], k = 0
+Output: 2
+Explanation:
+The maximum length subsequence is [1,1].
+```
+
+Solution1: Simple 2-D DP. Time: `O(N^2 * k)`, Space: `O(N*k)`
+
+```py
+class Solution:
+    def maximumLength(self, nums: List[int], k: int) -> int:
+        # dp[i][l] means ending with nums[i], allows l elements that are not equal
+        # dp[i][0] = 1
+        # dp[i][l] = for p in (0, i), 
+        # if nums[p] == nums[i]: max(dp[p][l-1] + 1) 
+        # if nums[p] != nums[i]: max(dp[p][l] + 1)
+        dp = [[-1] * (k + 1) for _ in range(len(nums))]
+        max_length = 0
+        for i in range(len(nums)):
+            dp[i][0] = 1
+            for l in range(k + 1):
+                for p in range(i):
+                    if nums[p] == nums[i]:
+                        dp[i][l] = max(dp[i][l], dp[p][l] + 1)
+                    elif l > 0:  # Only allow changes if l > 0
+                        dp[i][l] = max(dp[i][l], dp[p][l - 1] + 1)
+                max_length = max(max_length, dp[i][l])
+
+        return max_length
+```
+
+Solution2(Optional): [https://www.bilibili.com/video/BV1Tx4y1b7wk/?vd_source=de2754bd08012f6237bf8272aa55de57]
