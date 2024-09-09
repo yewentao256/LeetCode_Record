@@ -26,6 +26,7 @@
       - [Clone Graph](#clone-graph)
       - [Combinations](#combinations)
     - [Array](#array-1)
+      - [Insert Interval](#insert-interval)
       - [Longest Increasing Subsequence](#longest-increasing-subsequence)
       - [Minimum Genetic Mutation](#minimum-genetic-mutation)
       - [Find the Index of the First Occurrence in a String(KMP)](#find-the-index-of-the-first-occurrence-in-a-stringkmp)
@@ -574,6 +575,56 @@ def combine(n: int, k: int) -> List[List[int]]:
 ```
 
 ### Array
+
+#### Insert Interval
+
+Q: Insert a `newInterval` into intervals (which is sorted by start_i in ascending order.)
+
+Eg:
+
+```bash
+Input: intervals = [[1,3],[6,9]], newInterval = [2,5]
+Output: [[1,5],[6,9]]
+
+Input: intervals = [[1,2],[3,5],[6,7],[8,10],[12,16]], newInterval = [4,8]
+Output: [[1,2],[3,10],[12,16]]
+Explanation: Because the new interval [4,8] overlaps with [3,5],[6,7],[8,10].
+```
+
+Solution: Binary search(conservative) + iterate
+
+```py
+from bisect import bisect_left
+
+def insert(intervals: list[list[int]], newInterval: list[int]) -> list[list[int]]:
+    # Time: O(N) but with the help of bisect, it could be closer to O(logN)
+    # Space: O(1) if results are not counted
+    results = []
+
+    # Binary search to find the correct insertion position
+    i = bisect_left(intervals, newInterval[0], key=lambda x: x[0])
+    if i > 0:
+        # conservative strategy
+        i -= 1
+
+    # Add all intervals before newInterval (those that end before the newInterval starts)
+    results.extend(intervals[:i])
+    if i < len(intervals) and intervals[i][1] < newInterval[0]:
+        results.append(intervals[i])
+        i += 1
+
+    # Merge the overlapping intervals with newInterval
+    while i < len(intervals) and intervals[i][0] <= newInterval[1]:
+        # this is needed like [1, 3][6, 9] insert with [2,5], i start with 0 
+        newInterval[0] = min(newInterval[0], intervals[i][0])
+        newInterval[1] = max(newInterval[1], intervals[i][1])
+        i += 1
+    
+    # Add the merged newInterval and the rest
+    results.append(newInterval)
+    results.extend(intervals[i:])
+    return results
+```
 
 #### Longest Increasing Subsequence
 
