@@ -3,6 +3,7 @@
 - [LeetCode2024](#leetcode2024)
   - [Medium](#medium)
     - [Array](#array)
+      - [Points That Intersect With Cars](#points-that-intersect-with-cars)
       - [Maximum Points Inside the Square](#maximum-points-inside-the-square)
     - [DFS](#dfs)
       - [Partition to K Equal Sum Subsets](#partition-to-k-equal-sum-subsets)
@@ -13,6 +14,59 @@
 ## Medium
 
 ### Array
+
+#### Points That Intersect With Cars
+
+Q: You are given a **0-indexed** 2D integer array nums representing the coordinates of the cars parking on a number line. For any index `i`, `nums[i] = [starti, endi]` where `starti` is the starting point of the `ith` car and `endi` is the ending point of the ith car.
+
+Return the number of integer points on the line that are covered with **any part** of a car.
+
+Eg:
+
+```bash
+Input: nums = [[3,6],[1,5],[4,7]]
+Output: 7
+Explanation: All the points from 1 to 7 intersect at least one car, therefore the answer would be 7.
+
+Input: nums = [[1,3],[5,8]]
+Output: 7
+Explanation: Points intersecting at least one car are 1, 2, 3, 5, 6, 7, 8. There are a total of 7 points, therefore the answer would be 7.
+```
+
+Constraints: (Choose a optimal method!)
+1 <= nums.length <= 10000
+1 <= starti <= endi <= 10000
+
+Solution: difference array
+
+```py
+def numberOfPoints(nums: List[List[int]]) -> int:
+    # Time: O(N + L), Space: O(L)
+
+    # Determine Largest L (endpoint)
+    L = max(end for _, end in nums)
+
+    # Initialize the difference array
+    diff_arr = [0] * (L + 2)  # +2 to handle end + 1
+    
+    # Update the difference array
+    for start, end in nums:
+        diff_arr[start] += 1
+        diff_arr[end + 1] -= 1
+    # Eg: [[3,6],[1,5],[4,7]]
+    # index     i    0    1    2    3    4    5     6     7    8
+    # diff_arr[i]    0    1    0    1    1    0    -1    -1    -1
+
+    # Compute the prefix sum and count the covered points
+    count = 0
+    total_points = 0
+    for i in range(1, L + 1):   # ith, starting from 1
+        count += diff_arr[i]
+        if count > 0:
+            total_points += 1
+    
+    return total_points
+```
 
 #### Maximum Points Inside the Square
 
