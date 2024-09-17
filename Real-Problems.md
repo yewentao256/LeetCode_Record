@@ -204,3 +204,104 @@ def maxValue(n: int, index: int, maxSum: int) -> int:
     
     return low
 ```
+
+## Minimum Number of Moves for Towers
+
+Q: You are given an integer array `towers`, where each element represents the height of a tower. You are tasked with adjusting the heights of the towers by adding blocks to make the towers follow a strictly increasing or strictly decreasing stair-step pattern. This means the height of each tower should differ from its neighbors by exactly 1.
+
+To change the height of a tower, you can make multiple moves, each of which adds exactly one block to the top of any tower. Your goal is to determine the minimum number of moves required to make the towers either strictly ascending or strictly descending, whichever requires fewer moves.
+
+Eg:
+
+```bash
+Input: `towers = [1, 4, 3, 2]`
+Output: 4
+Explanation: `[5, 4, 3, 2]`
+
+Input: `towers = [5, 7, 9, 4, 11]`
+Output: 9
+Explanation: `[7, 8, 9, 10, 11]`
+```
+
+Solution: Find the appropriate first element then go. Time: `O(N)`, Space: `O(N)`(temp)
+
+```py
+def min_operations(towers: list[int]) -> int:
+    n = len(towers)
+    if n == 0:
+        return 0
+
+    # Find the h0 for ascending array
+    h0_inc = max(towers[i] - i for i in range(n))
+    total_cost_inc = sum((h0_inc + i - towers[i]) for i in range(n))
+
+    # Find the h0 for descending array
+    h0_dec = max(towers[i] + i for i in range(n))
+    total_cost_dec = sum((h0_dec - i - towers[i]) for i in range(n))
+
+    return min(total_cost_inc, total_cost_dec)
+```
+
+## Longest Segment of Contiguous Houses
+
+Q: You are given an array `queries`, representing the locations of new houses to be built in the order they will be built. After each house is built, your task is to find the longest segment of contiguous houses in the district.
+
+Eg:
+
+```bash
+Input: `queries = [2, 1, 3]`
+Output `[1, 2, 3]`
+Explanation:
+Step 1: Build a house at position 2. The longest contiguous segment is `[2]`, which has a length of 1.
+Step 2: Build a house at position 1. Now the longest contiguous segment is `[1, 2]`, which has a length of 2.
+Step 3: Build a house at position 3. Now the longest contiguous segment is `[1, 2, 3]`, which has a length of 3.
+
+Input: `queries = [1,3,0,4]`
+Output: `[1, 1, 2, 2]`
+```
+
+Solution: Union-Find. Mark union and expand generally. Time: `O(N)`(Note: `find` is fast since we have Path compression.), Space: `O(N)`
+
+```py
+def longest_consecutive_segments(queries: list[int]) -> list[int]:
+    parent: dict[int, int] = {}
+    size: dict[int, int] = {}
+    max_length = 0
+    result = []
+
+    def find(x: int) -> int:
+        # Path compression
+        if parent[x] != x:
+            parent[x] = find(parent[x])
+        return parent[x]
+
+    def union(x: int, y: int) -> None:
+        xroot = find(x)
+        yroot = find(y)
+        if xroot == yroot:
+            return
+        # Union by size
+        if size[xroot] < size[yroot]:
+            parent[xroot] = yroot
+            size[yroot] += size[xroot]
+        else:
+            parent[yroot] = xroot
+            size[xroot] += size[yroot]
+
+    for x in queries:
+        # Initialize parent and size for the new house
+        parent[x] = x
+        size[x] = 1
+
+        # Check neighbors
+        for neighbor in [x - 1, x + 1]:
+            if neighbor in parent:
+                union(x, neighbor)
+
+        # Find the root and update max_length
+        root = find(x)
+        max_length = max(max_length, size[root])
+        result.append(max_length)
+
+    return result
+```
