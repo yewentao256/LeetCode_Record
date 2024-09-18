@@ -3,6 +3,7 @@
 - [LeetCode2024](#leetcode2024)
   - [Medium](#medium)
     - [Array](#array)
+      - [Longest Consecutive Sequence](#longest-consecutive-sequence)
       - [Points That Intersect With Cars](#points-that-intersect-with-cars)
       - [Maximum Points Inside the Square](#maximum-points-inside-the-square)
     - [DFS](#dfs)
@@ -14,6 +15,47 @@
 ## Medium
 
 ### Array
+
+#### Longest Consecutive Sequence
+
+Q: Given an unsorted array of integers `nums`, return the length of the longest consecutive elements sequence.
+
+Eg:
+
+```bash
+Input: nums = [100,4,200,1,3,2]
+Output: 4
+Explanation: The longest consecutive elements sequence is `[1, 2, 3, 4]`. Therefore its length is 4.
+Input: nums = [0,3,7,2,5,8,4,6,0,1]
+Output: 9
+```
+
+Solutions: Using a set, only start from the head. Time: `O(N)`, Space: `O(N)`
+
+```py
+def longestConsecutive(nums: List[int]) -> int:
+    if not nums:
+        return 0
+
+    num_set = set(nums)  # O(n) time and space
+    max_length = 0
+
+    for num in num_set:
+        # Only start counting if 'num' is the start of a sequence
+        if num - 1 not in num_set:
+            current_num = num
+            current_length = 1
+
+            # Increment the sequence
+            while current_num + 1 in num_set:
+                current_num += 1
+                current_length += 1
+
+            # Update max_length if current sequence is longer
+            max_length = max(max_length, current_length)
+
+    return max_length
+```
 
 #### Points That Intersect With Cars
 
