@@ -22,7 +22,8 @@
       - [Remove Duplicates from Sorted Array II](#remove-duplicates-from-sorted-array-ii)
     - [Greedy](#greedy)
       - [Jump Game II](#jump-game-ii)
-    - [DFS](#dfs)
+    - [Graph(DFS)](#graphdfs)
+      - [Evaluation Division](#evaluation-division)
       - [Clone Graph](#clone-graph)
       - [Combinations](#combinations)
     - [Array](#array-1)
@@ -40,6 +41,7 @@
       - [Implement Trie (Prefix Tree)](#implement-trie-prefix-tree)
       - [Design Add and Search Words Data Structure (Prefix Tree)](#design-add-and-search-words-data-structure-prefix-tree)
     - [Dynamic Programming](#dynamic-programming)
+      - [Edit Distance](#edit-distance)
       - [Interleaving String](#interleaving-string)
       - [Longest Palindromic Substring](#longest-palindromic-substring)
       - [Coin Change](#coin-change)
@@ -499,7 +501,64 @@ def jump(nums: List[int]) -> int:
     return count
 ```
 
-### DFS
+### Graph(DFS)
+
+#### Evaluation Division
+
+Q: You are given an array of variable pairs equations and an array of real numbers values, where equations[i] = [Ai, Bi] and values[i] represent the equation Ai / Bi = values[i]. Each Ai or Bi is a string that represents a single variable.
+
+You are also given some queries, where queries[j] = [Cj, Dj] represents the jth query where you must find the answer for Cj / Dj = ?.
+
+Return the answers to all queries. If a single answer cannot be determined, return -1.0.
+
+Eg:
+
+```bash
+Input: equations = [["a","b"],["b","c"]], values = [2.0,3.0], queries = [["a","c"],["b","a"],["a","e"],["a","a"],["x","x"]]
+Output: [6.00000,0.50000,-1.00000,1.00000,-1.00000]
+Explanation: 
+Given: a / b = 2.0, b / c = 3.0
+queries are: a / c = ?, b / a = ?, a / e = ?, a / a = ?, x / x = ? 
+return: [6.0, 0.5, -1.0, 1.0, -1.0 ]
+note: x is undefined => -1.0
+
+Input: equations = [["a","b"],["b","c"],["bc","cd"]], values = [1.5,2.5,5.0], queries = [["a","c"],["c","b"],["bc","cd"],["cd","bc"]]
+Output: [3.75000,0.40000,5.00000,0.20000]
+
+Input: equations = [["a","b"]], values = [0.5], queries = [["a","b"],["b","a"],["a","c"],["x","y"]]
+Output: [0.50000,2.00000,-1.00000,-1.00000]
+```
+
+Solution: Graph(`dict[str, list]`), Time: `O(Q * E)`(queries * equations), Space: O(V + E) (variables + equations)
+
+```py
+def calcEquation(equations: List[List[str]], values: List[float], queries: List[List[str]]) -> List[float]:
+    graph = defaultdict(list)
+    for (A, B), value in zip(equations, values):
+        graph[A].append((B, value))
+        graph[B].append((A, 1/value))
+    
+    def dfs(current: str, target: str, accumulated: float, visited:set) -> float:
+        if current == target:
+            return accumulated
+        visited.add(current)
+        for neighbor, value in graph[current]:
+            if neighbor in visited:
+                continue
+            result = dfs(neighbor, target, accumulated * value, visited)
+            if result != -1.0:
+                return result
+        return -1
+    results = []
+    for C, D in queries:
+        if C not in graph or D not in graph:
+            results.append(-1)
+        elif C == D:
+            results.append(1)
+        else:
+            results.append(dfs(C, D, 1.0, set()))
+    return results        
+```
 
 #### Clone Graph
 
@@ -1319,6 +1378,69 @@ class WordDictionary:
 ```
 
 ### Dynamic Programming
+
+#### Edit Distance
+
+Q: Given two strings word1 and word2, return the minimum number of operations required to convert word1 to word2.
+
+You have the following three operations permitted on a word:
+
+- Insert a character
+- Delete a character
+- Replace a character
+
+Eg:
+
+```bash
+Input: word1 = "horse", word2 = "ros"
+Output: 3
+Explanation: 
+horse -> rorse (replace 'h' with 'r')
+rorse -> rose (remove 'r')
+rose -> ros (remove 'e')
+
+Input: word1 = "intention", word2 = "execution"
+Output: 5
+Explanation: 
+intention -> inention (remove 't')
+inention -> enention (replace 'i' with 'e')
+enention -> exention (replace 'n' with 'x')
+exention -> exection (replace 'n' with 'c')
+exection -> execution (insert 'u')
+```
+
+Solution: 2D Dynamic programming, Time: O(`N*M`), Space: O(`N*M`)
+
+```py
+def minDistance(word1: str, word2: str) -> int:
+    # dp[i][j] means changing i characters from word1 to the characters word2, minumum operations
+    # dp[0][0] = 0 (empty)
+    # dp[0][j] = j, dp[i][0] = i
+    # dp[i][j] = 
+    #   dp[i-1][j-1] if s[i] == s[j]
+    #   1 + min(
+    #       dp[i-1][j]       # delete one character
+    #       dp[i-1][j-1]     # replace
+    #       dp[i][j-1]       # based on to j-1, insert one character
+    #   )
+
+    m, n = len(word1), len(word2)
+    dp = [[0] * (n+1) for _ in range(m+1)]
+
+    for i in range(1, m+1):
+        dp[i][0] = i
+    for j in range(1, n+1):
+        dp[0][j] = j
+    
+    for i in range(1, m+1):
+        for j in range(1, n+1):
+            if word1[i-1] == word2[j-1]:
+                dp[i][j] = dp[i-1][j-1]
+            else:
+                dp[i][j] = 1 + min(dp[i-1][j], dp[i-1][j-1], dp[i][j-1])
+
+    return dp[-1][-1]
+```
 
 #### Interleaving String
 
