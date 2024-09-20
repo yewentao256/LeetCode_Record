@@ -1,8 +1,11 @@
 # LeetCode2024
 
 - [LeetCode2024](#leetcode2024)
-  - [Medium](#medium)
+  - [Easy](#easy)
     - [Array](#array)
+      - [Sort Array by Increasing Frequency](#sort-array-by-increasing-frequency)
+  - [Medium](#medium)
+    - [Array](#array-1)
       - [Longest Consecutive Sequence](#longest-consecutive-sequence)
       - [Points That Intersect With Cars](#points-that-intersect-with-cars)
       - [Maximum Points Inside the Square](#maximum-points-inside-the-square)
@@ -11,6 +14,47 @@
   - [Hard](#hard)
     - [Find the Median of the Uniqueness Array](#find-the-median-of-the-uniqueness-array)
     - [Find the Maximum Length of a Good Subsequence II](#find-the-maximum-length-of-a-good-subsequence-ii)
+
+## Easy
+
+### Array
+
+#### Sort Array by Increasing Frequency
+
+Q: Given an array of integers nums, sort the array in increasing order based on the frequency of the values. If multiple values have the same frequency, sort them in decreasing order.
+
+Return the sorted array.
+
+Eg:
+
+```bash
+Input: nums = [1,1,2,2,2,3]
+Output: [3,1,1,2,2,2]
+Explanation: '3' has a frequency of 1, '1' has a frequency of 2, and '2' has a frequency of 3.
+
+Input: nums = [2,3,1,3,2]
+Output: [1,3,3,2,2]
+Explanation: '2' and '3' both have a frequency of 2, so they are sorted in decreasing order.
+
+Input: nums = [-1,1,-6,4,5,-6,1,4,1]
+Output: [5,-1,4,4,-6,-6,1,1,1]
+
+```
+
+Solution: Use `.sort()`
+
+```py
+def frequencySort(nums: List[int]) -> List[int]:
+    # Time: O(NlogN), Space: O(N)
+    from collections import Counter
+
+    counter = Counter(nums)
+    # (counter[x], -x) means
+    # 1. choose frequency as the primary element
+    # 2. choose -x as the second element(to descend)
+    nums.sort(key=lambda x: (counter[x], -x))
+    return nums
+```
 
 ## Medium
 
