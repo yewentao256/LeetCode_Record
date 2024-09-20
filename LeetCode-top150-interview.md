@@ -23,6 +23,7 @@
     - [Greedy](#greedy)
       - [Jump Game II](#jump-game-ii)
     - [Graph(DFS)](#graphdfs)
+      - [Course Schedule II](#course-schedule-ii)
       - [Course Schedule](#course-schedule)
       - [Evaluation Division](#evaluation-division)
       - [Clone Graph](#clone-graph)
@@ -503,6 +504,69 @@ def jump(nums: List[int]) -> int:
 ```
 
 ### Graph(DFS)
+
+#### Course Schedule II
+
+Q: There are a total of numCourses courses you have to take, labeled from 0 to numCourses - 1. You are given an array prerequisites where prerequisites[i] = [ai, bi] indicates that you must take course bi first if you want to take course ai.
+
+For example, the pair [0, 1], indicates that to take course 0 you have to first take course 1.
+Return the ordering of courses you should take to finish all courses. If there are many valid answers, return any of them. If it is impossible to finish all courses, return an empty array.
+
+Eg:
+
+```bash
+Input: numCourses = 2, prerequisites = [[1,0]]
+Output: [0,1]
+Explanation: There are a total of 2 courses to take. To take course 1 you should have finished course 0. So the correct course order is [0,1].
+
+Input: numCourses = 4, prerequisites = [[1,0],[2,0],[3,1],[3,2]]
+Output: [0,2,1,3]
+Explanation: There are a total of 4 courses to take. To take course 3 you should have finished both courses 1 and 2. Both courses 1 and 2 should be taken after you finished course 0.
+So one correct course order is [0,1,2,3]. Another correct ordering is [0,2,1,3].
+
+Input: numCourses = 1, prerequisites = []
+Output: [0]
+```
+
+Solution: DFS + check circle in DAG
+
+```py
+def findOrder(numCourses: int, prerequisites: List[List[int]]) -> List[int]:
+    # Main idea: find a path in DAG, ensuring no circle
+    # Solution: DFS(path + check if there is a circle)
+
+    # build graph
+    graph = [[] for _ in range(numCourses)]
+    for dest, src in prerequisites:
+        graph[src].append(dest)
+
+    # dfs
+    # Note: we can't deal with a node and add to path immediately
+    # eg: 1 -> 3, 2-> 3. If immediately, 3 will be added
+    # The correct solution is to add the node later, so 3 will be added in first index
+    # then make it reversed
+    path = []
+    visited = [0] * numCourses  # 0 for unvisited, 1 for visiting, 2 for visited
+    def dfs(course: int) -> bool:
+        if visited[course] == 2:
+            return True
+        if visited[course] == 1:
+            # a circle
+            return False
+        visited[course] = 1
+        for next_course in graph[course]:
+            if not dfs(next_course):
+                return False
+        visited[course] = 2
+        path.append(course)
+        return True
+
+    for start_course in range(numCourses):
+        if not dfs(start_course):
+            return []
+    
+    return path[::-1]
+```
 
 #### Course Schedule
 
