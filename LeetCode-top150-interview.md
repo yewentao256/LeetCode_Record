@@ -56,6 +56,8 @@
     - [Heap](#heap)
       - [Kth Largest Element in an Array](#kth-largest-element-in-an-array)
   - [Hard](#hard)
+    - [Graph](#graph)
+      - [Word Ladder](#word-ladder)
     - [String](#string-1)
       - [Substring with Concatenation of All Words](#substring-with-concatenation-of-all-words)
     - [Heap](#heap-1)
@@ -2079,6 +2081,104 @@ def findKthLargest(nums: List[int], k: int) -> int:
 Solution2: Quick select(part of the quick sort), TODO: [https://leetcode.cn/problems/kth-largest-element-in-an-array/?envType=study-plan-v2&envId=top-interview-150]
 
 ## Hard
+
+### Graph
+
+#### Word Ladder
+
+Q: A transformation sequence from word beginWord to word endWord using a dictionary wordList is a sequence of words beginWord -> s1 -> s2 -> ... -> sk such that:
+
+- Every adjacent pair of words differs by a single letter.
+- Every si for 1 <= i <= k is in wordList. Note that beginWord does not need to be in wordList.
+- sk == endWord
+
+Given two words, beginWord and endWord, and a dictionary wordList, return the number of words in the shortest transformation sequence from beginWord to endWord, or 0 if no such sequence exists.
+
+Eg:
+
+```bash
+Input: beginWord = "hit", endWord = "cog", wordList = `["hot","dot","dog","lot","log","cog"]`
+Output: 5
+Explanation: One shortest transformation sequence is `"hit" -> "hot" -> "dot" -> "dog" -> cog"`, which is 5 words long.
+
+Input: beginWord = "hit", endWord = "cog", wordList = `["hot","dot","dog","lot","log"]`
+Output: 0
+Explanation: The endWord "cog" is not in wordList, therefore there is no valid transformation sequence.
+```
+
+Solution1: Single BFS, for each index try 26 characters. Time: `O(N*M*26)`, Space: O`(N*M)`
+
+```py
+def ladderLength(beginWord: str, endWord: str, wordList: List[str]) -> int:
+    word_set = set(wordList)
+    if endWord not in word_set:
+        return 0
+
+    queue = deque([(beginWord, 1)])
+    visited = set([beginWord])
+    word_len = len(beginWord)
+
+    while queue:
+        current_word, level = queue.popleft()
+        for i in range(word_len):
+            # try 26 characters
+            for c in 'abcdefghijklmnopqrstuvwxyz':
+                if c == current_word[i]:
+                    continue
+                next_word = current_word[:i] + c + current_word[i+1:]
+
+                if next_word == endWord:
+                    # find end word
+                    return level + 1
+                
+                if next_word in word_set and next_word not in visited:
+                    queue.append((next_word, level + 1))
+                    visited.add(next_word)
+    return 0
+```
+
+Solution2: Double BFS. Start from beginning and the end. Time: `O(N*M*26)`, Space: `O(N*M)`.
+
+This could be faster than BFS, eg: if each word can be transformed to 10 words, the path is 6.
+
+- For BFS: `10^6`
+- For Double BFS: `10^3 * 2`
+
+```py
+def ladderLength(beginWord: str, endWord: str, wordList: List[str]) -> int:
+    word_set = set(wordList)
+    if endWord not in word_set:
+        return 0
+
+    begin_set = set([beginWord])
+    end_set = set([endWord])
+    visited = set([beginWord, endWord])
+    word_len = len(beginWord)
+    level = 1
+
+    while begin_set and end_set:
+        # always start from the smaller set
+        if len(begin_set) > len(end_set):
+            begin_set, end_set = end_set, begin_set
+
+        # we can't change iterable during iteration, so use a temp to track
+        temp = set()
+        for word in begin_set:
+            for i in range(word_len):
+                for c in 'abcdefghijklmnopqrstuvwxyz':
+                    if c == word[i]:
+                        continue
+                    next_word = word[:i] + c + word[i+1:]
+                    if next_word in end_set:
+                        return level + 1
+                    if next_word in word_set and next_word not in visited:
+                        temp.add(next_word)
+                        visited.add(next_word)
+        begin_set = temp
+        level += 1
+
+    return 0
+```
 
 ### String
 
