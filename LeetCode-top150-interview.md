@@ -23,6 +23,7 @@
     - [Greedy](#greedy)
       - [Jump Game II](#jump-game-ii)
     - [Graph(DFS)](#graphdfs)
+      - [Word Search](#word-search)
       - [Course Schedule II](#course-schedule-ii)
       - [Course Schedule](#course-schedule)
       - [Evaluation Division](#evaluation-division)
@@ -506,6 +507,58 @@ def jump(nums: List[int]) -> int:
 ```
 
 ### Graph(DFS)
+
+#### Word Search
+
+Q and eg: See [leetcode](https://leetcode.cn/problems/word-search/description/?envType=study-plan-v2&envId=top-interview-150)
+
+Solution: DFS + traceback. Time: `O(N*M*3^k)`, Space: `O(k)`, k means the length of word.
+
+```py
+from collections import Counter
+def exist(board: List[List[str]], word: str) -> bool:
+    m, n = len(board), len(board[0])
+
+    # Optimize: Word count, if not enough characters for word, return False
+    board_count = Counter(char for row in board for char in row)
+    word_count = Counter(word)
+    for char in word_count:
+        if board_count.get(char, 0) < word_count[char]:
+            return False
+
+    # Optimize: if too much first character, reverse the word
+    if board_count[word[0]] > board_count[word[-1]]:
+        word = word[::-1]
+
+    def dfs(i: int, j: int, index: int) -> bool:
+        if index == len(word):
+            return True
+        # check border and character match 
+        if i < 0 or i >= m or j < 0 or j >= n or board[i][j] != word[index]:
+            return False
+
+        # mark current board as visited(temp)
+        temp = board[i][j]
+        board[i][j] = '#'
+
+        # search in four directions
+        found = (dfs(i+1, j, index+1) or
+                dfs(i-1, j, index+1) or
+                dfs(i, j+1, index+1) or
+                dfs(i, j-1, index+1))
+
+        # restore the temp character
+        board[i][j] = temp
+
+        return found
+
+    for i in range(m):
+        for j in range(n):
+            if dfs(i, j, 0):
+                return True
+
+    return False
+```
 
 #### Course Schedule II
 
