@@ -5,6 +5,8 @@
     - [Array](#array)
       - [Sort Array by Increasing Frequency](#sort-array-by-increasing-frequency)
   - [Medium](#medium)
+    - [Sliding Window](#sliding-window)
+      - [Take K of Each Character From Left and Right](#take-k-of-each-character-from-left-and-right)
     - [Array](#array-1)
       - [Longest Consecutive Sequence](#longest-consecutive-sequence)
       - [Points That Intersect With Cars](#points-that-intersect-with-cars)
@@ -57,6 +59,61 @@ def frequencySort(nums: List[int]) -> List[int]:
 ```
 
 ## Medium
+
+### Sliding Window
+
+#### Take K of Each Character From Left and Right
+
+Q: You are given a string s consisting of the characters 'a', 'b', and 'c' and a non-negative integer k. Each minute, you may take either the leftmost character of s, or the rightmost character of s.
+
+Return the **minimum** number of minutes needed for you to take **at least** k of each character, or return `-1` if it is not possible to take k of each character.
+
+Eg:
+
+```bash
+Input: s = "aabaaaacaabc", k = 2
+Output: 8
+Explanation: 
+Take three characters from the left of s. You now have two 'a' characters, and one 'b' character.
+Take five characters from the right of s. You now have four 'a' characters, two 'b' characters, and two 'c' characters.
+A total of 3 + 5 = 8 minutes is needed.
+It can be proven that 8 is the minimum number of minutes needed.
+
+Input: s = "a", k = 1
+Output: -1
+Explanation: It is not possible to take one 'b' or 'c' so return -1.
+```
+
+Solution:
+
+```py
+def takeCharacters(s: str, k: int) -> int:
+    # Solution: Sliding window
+    # Time: O(N), Space: O(1)
+    # Reverse thinking: get the maximum substring that satisfy a b c all >= k outside
+    # So we firstly count all of the characters, as window grows, we subtract the count
+    counts = [0] * 3
+    min_ops = len(s)
+
+    for c in s:
+        counts[ord(c) - ord('a')] += 1
+    
+    # return earlier if not satisfied
+    if not (counts[0] >= k and counts[1] >= k and counts[2] >= k):
+        return -1
+
+    # sliding window
+    left = 0
+    for right, c in enumerate(s):
+        counts[ord(c) - ord('a')] -= 1
+        while left < right and (counts[0] < k or counts[1] < k or counts[2] < k):
+            counts[ord(s[left]) - ord('a')] += 1
+            left += 1
+        if counts[0] >= k and counts[1] >= k and counts[2] >= k:
+            min_ops = min(min_ops, len(s) - (right - left + 1))
+
+    return min_ops
+```
 
 ### Array
 
