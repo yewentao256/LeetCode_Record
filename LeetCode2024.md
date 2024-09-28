@@ -14,6 +14,7 @@
     - [DFS](#dfs)
       - [Partition to K Equal Sum Subsets](#partition-to-k-equal-sum-subsets)
   - [Hard](#hard)
+    - [Maximum Number of Robots Within Budget](#maximum-number-of-robots-within-budget)
     - [Find the Median of the Uniqueness Array](#find-the-median-of-the-uniqueness-array)
     - [Find the Maximum Length of a Good Subsequence II](#find-the-maximum-length-of-a-good-subsequence-ii)
 
@@ -299,6 +300,70 @@ def canPartitionKSubsets(nums: List[int], k: int) -> bool:
 ```
 
 ## Hard
+
+### Maximum Number of Robots Within Budget
+
+Q: You have n robots. You are given two 0-indexed integer arrays, chargeTimes and runningCosts, both of length n. The ith robot costs chargeTimes[i] units to charge and costs runningCosts[i] units to run. You are also given an integer budget.
+
+The total cost of running k chosen robots is equal to max(chargeTimes) + k * sum(runningCosts), where max(chargeTimes) is the largest charge cost among the k robots and sum(runningCosts) is the sum of running costs among the k robots.
+
+Return the maximum number of consecutive robots you can run such that the total cost does not exceed budget.
+
+Eg:
+
+```bash
+Input: chargeTimes = [3,6,1,3,4], runningCosts = [2,1,3,4,5], budget = 25
+Output: 3
+Explanation: 
+It is possible to run all individual and consecutive pairs of robots within budget.
+To obtain answer 3, consider the first 3 robots. The total cost will be max(3,6,1) + 3 * sum(2,1,3) = 6 + 3 * 6 = 24 which is less than 25.
+It can be shown that it is not possible to run more than 3 consecutive robots within budget, so we return 3.
+
+Input: chargeTimes = [11,12,19], runningCosts = [10,8,7], budget = 19
+Output: 0
+Explanation: No robot can be run that does not exceed the budget, so we return 0.
+```
+
+Solution: Sliding window + monotonic queue
+
+```py
+def maximumRobots(chargeTimes: List[int], runningCosts: List[int], budget: int) -> int:
+    # Time: O(N), Space: O(N)
+    left = 0
+    running_sum = 0
+    max_charge = 0
+    max_queue = deque()
+    max_length = 0
+
+    for right in range(len(chargeTimes)):
+        running_sum += runningCosts[right]
+
+        # maintain the monotonic queue, keeping the head maximum chargetime
+        while max_queue and chargeTimes[right] > chargeTimes[max_queue[-1]]:
+            max_queue.pop()
+        max_queue.append(right)
+        max_charge = chargeTimes[max_queue[0]]
+        
+        # Calculating the total cost
+        window_size = right - left + 1
+        current_cost = max_charge + window_size * running_sum
+        
+        # Out of budget, moving left
+        while current_cost > budget and left <= right:
+            running_sum -= runningCosts[left]
+            if max_queue[0] == left:
+                max_queue.popleft()
+            left += 1
+            if max_queue:
+                max_charge = chargeTimes[max_queue[0]]
+            else:
+                max_charge = 0
+            window_size = right - left + 1
+            current_cost = max_charge + window_size * running_sum
+        
+        max_length = max(max_length, right - left + 1)        
+    return max_length
+```
 
 ### Find the Median of the Uniqueness Array
 
