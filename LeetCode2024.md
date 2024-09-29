@@ -5,6 +5,8 @@
     - [Array](#array)
       - [Sort Array by Increasing Frequency](#sort-array-by-increasing-frequency)
   - [Medium](#medium)
+    - [Heap](#heap)
+      - [Seat Reservation Manager](#seat-reservation-manager)
     - [Sliding Window](#sliding-window)
       - [Take K of Each Character From Left and Right](#take-k-of-each-character-from-left-and-right)
     - [Array](#array-1)
@@ -60,6 +62,66 @@ def frequencySort(nums: List[int]) -> List[int]:
 ```
 
 ## Medium
+
+### Heap
+
+#### Seat Reservation Manager
+
+Q: Design a system that manages the reservation state of n seats that are numbered from 1 to n.
+
+Implement the SeatManager class:
+
+- `SeatManager(int n)` Initializes a SeatManager object that will manage n seats numbered from 1 to n. All seats are initially available.
+- `int reserve()` Fetches the smallest-numbered unreserved seat, reserves it, and returns its number.
+- `void unreserve(int seatNumber)` Unreserves the seat with the given seatNumber.
+
+Note: For each call to reserve, it is guaranteed that there will be at least one unreserved seat. For each call to unreserve, it is guaranteed that seatNumber will be reserved.
+
+Eg:
+
+```bash
+Input
+["SeatManager", "reserve", "reserve", "unreserve", "reserve", "reserve", "reserve", "reserve", "unreserve"]
+[[5], [], [], [2], [], [], [], [], [5]]
+Output
+[null, 1, 2, null, 2, 3, 4, 5, null]
+
+Explanation
+SeatManager seatManager = new SeatManager(5); // Initializes a SeatManager with 5 seats.
+seatManager.reserve();    // All seats are available, so return the lowest numbered seat, which is 1.
+seatManager.reserve();    // The available seats are [2,3,4,5], so return the lowest of them, which is 2.
+seatManager.unreserve(2); // Unreserve seat 2, so now the available seats are [2,3,4,5].
+seatManager.reserve();    // The available seats are [2,3,4,5], so return the lowest of them, which is 2.
+seatManager.reserve();    // The available seats are [3,4,5], so return the lowest of them, which is 3.
+seatManager.reserve();    // The available seats are [4,5], so return the lowest of them, which is 4.
+seatManager.reserve();    // The only available seat is seat 5, so return 5.
+seatManager.unreserve(5); // Unreserve seat 5, so now the available seats are [5].
+```
+
+Solution: Min heap, Time: `O(LogN)`, Space: `O(N)`
+
+```py
+import heapq
+class SeatManager:
+    def __init__(self, n: int):
+        # No need to initialize the heap with all seats to keep it efficient.
+        # We'll dynamically add unreserved seats to the heap.
+        self.available_seats = []
+        self.next_seat = 0
+
+    def reserve(self) -> int:
+        if self.available_seats:
+            return heapq.heappop(self.available_seats)
+        else:
+            self.next_seat += 1
+            return self.next_seat
+
+    def unreserve(self, seatNumber: int) -> None:
+        # Add the seat back to the heap if it's within the range and not already unreserved.
+        # Since the problem guarantees that unreserve is called only on reserved seats,
+        # we don't need to check for duplicates.
+        heapq.heappush(self.available_seats, seatNumber)
+```
 
 ### Sliding Window
 
