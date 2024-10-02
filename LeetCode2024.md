@@ -16,6 +16,7 @@
     - [DFS](#dfs)
       - [Partition to K Equal Sum Subsets](#partition-to-k-equal-sum-subsets)
   - [Hard](#hard)
+    - [Minimum Cost to Reach Destination in Time(Example)](#minimum-cost-to-reach-destination-in-timeexample)
     - [Maximum Number of Robots Within Budget](#maximum-number-of-robots-within-budget)
     - [Find the Median of the Uniqueness Array](#find-the-median-of-the-uniqueness-array)
     - [Find the Maximum Length of a Good Subsequence II](#find-the-maximum-length-of-a-good-subsequence-ii)
@@ -362,6 +363,54 @@ def canPartitionKSubsets(nums: List[int], k: int) -> bool:
 ```
 
 ## Hard
+
+### Minimum Cost to Reach Destination in Time(Example)
+
+Q and Eg: [Leetcode](https://leetcode.cn/problems/minimum-cost-to-reach-destination-in-time/description/?envType=daily-question&envId=2024-10-03)
+
+Solution: Dijkstra + Heap. Time: `O(E + E * logE)`, Space: `O(E + N)`
+
+Note: `logE` for handling the heap.
+
+```py
+def minCost(maxTime: int, edges: List[List[int]], passingFees: List[int]) -> int:
+    # Build the graph as an adjacency list
+    graph = defaultdict(list)
+    for x, y, time in edges:
+        graph[x].append((y, time))
+        graph[y].append((x, time))
+    
+    # Min heap: (current_cost, current_node, current_time). Start with city 0
+    heap = [(passingFees[0], 0, 0)]
+    
+    # Initialize min_time array to keep track of the minimum time to reach each city
+    min_time = [float('inf')] * len(passingFees)
+    min_time[0] = 0
+    
+    while heap:
+        current_cost, current_node, current_time = heapq.heappop(heap)
+        
+        # If we've reached the destination within the allowed time, return the cost
+        if current_node == len(passingFees) - 1 and current_time <= maxTime:
+            return current_cost
+        
+        # Explore neighboring cities
+        for neighbor, travel_time in graph[current_node]:
+            new_time = current_time + travel_time
+            if new_time > maxTime:
+                continue
+
+            new_cost = current_cost + passingFees[neighbor]
+            # If we've found a faster way to reach the neighbor, consider this path
+            # Note: Will it overwrite the smallest cost? No
+            # Because we always choose the smallest cost to go, if we arrive within the time, we return earlier.
+            if new_time < min_time[neighbor]:
+                min_time[neighbor] = new_time
+                heapq.heappush(heap, (new_cost, neighbor, new_time))
+    # If destination is not reachable within maxTime
+    return -1
+
+```
 
 ### Maximum Number of Robots Within Budget
 
