@@ -5,6 +5,8 @@
     - [Array](#array)
       - [Sort Array by Increasing Frequency](#sort-array-by-increasing-frequency)
   - [Medium](#medium)
+    - [Math](#math)
+      - [Airplane Seat Assignment Probability](#airplane-seat-assignment-probability)
     - [Heap](#heap)
       - [Seat Reservation Manager](#seat-reservation-manager)
     - [Sliding Window](#sliding-window)
@@ -63,6 +65,46 @@ def frequencySort(nums: List[int]) -> List[int]:
 ```
 
 ## Medium
+
+### Math
+
+#### Airplane Seat Assignment Probability
+
+Q: n passengers board an airplane with exactly n seats. The first passenger has lost the ticket and picks a seat randomly. But after that, the rest of the passengers will:
+
+- Take their own seat if it is still available, and
+- Pick other seats randomly when they find their seat occupied
+
+Return the probability that the nth person gets his own seat.
+
+Eg:
+
+```bash
+Example 1:
+
+Input: n = 1
+Output: 1.00000
+Explanation: The first person can only get the first seat.
+Example 2:
+
+Input: n = 2
+Output: 0.50000
+Explanation: The second person has a probability of 0.5 to get the second seat (when first person gets the first seat).
+```
+
+Solution: Mathematical induction. Time: `O(1)`, Space: `O(1)`
+
+```py
+def nthPersonGetsNthSeat(n: int) -> float:
+    # f(1) = 1, f(2) = 0.5, calculate and get f(3) = 0.5, f(4) = 0.5
+    # Mathematical induction: assume f(k) = 0.5
+    # f(k + 1) = 1 / (k+1) + 1/ (k+1) * f(k) * (k-1) + 0 = 0.5
+    # Prove done
+    if n == 1:
+        return 1
+    else:
+        return 0.5
+```
 
 ### Heap
 
