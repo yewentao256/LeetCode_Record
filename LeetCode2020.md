@@ -429,11 +429,13 @@ def countNodes(self, root: TreeNode) -> int:
 
 #### 加油站：Gas Station
 
-- 题目说明：
-在一条环路上有 N 个加油站，其中第 i 个加油站有汽油 gas[i] 升。你有一辆油箱容量无限的的汽车，从第 i 个加油站开往第 i+1 个加油站需要消耗汽油 cost[i] 升。你从其中的一个加油站出发，开始时油箱为空。如果你可以绕环路行驶一周，则返回出发时加油站的编号，否则返回 -1。
+题目说明：在一条环路上有 `N` 个加油站，其中第 `i` 个加油站有汽油 `gas[i]` 升。你有一辆油箱容量无限的的汽车，从第 i 个加油站开往第 i+1 个加油站需要消耗汽油 `cost[i]` 升。你从其中的一个加油站出发，开始时油箱为空。如果你可以绕环路行驶一周，则返回出发时加油站的编号，否则返回 `-1`。
+
 如果题目有解，该答案即为唯一答案。输入数组均为非空数组，且长度相同。输入数组中的元素均为非负数。
-- 样例：
-```c
+
+样例：
+
+```bash
 输入: 
 gas  = [1,2,3,4,5]
 cost = [3,4,5,1,2]
@@ -447,32 +449,35 @@ cost = [3,4,5,1,2]
 开往 3 号加油站，你需要消耗 5 升汽油，正好足够你返回到 3 号加油站。
 因此，3 可为起始索引。
 ```
-- 思路：直觉为双层循环暴力破解。我们要想办法剪枝做到一次遍历。
-首先我们可以证明一个结论：**x-y（不妨设x<y) 走不了，那么x-y中间任意一个z出发都走不了。**
+
+思路：直觉为双层循环暴力破解。我们要想办法剪枝做到一次遍历。
+
+首先我们可以证明一个结论：**x到y（不妨设x<y）走不了，有前面油的积累都走不了，那么x-y中间任意一个z出发都走不了。**
+
 由前提有：
     1. $\sum_{i=x}^y gas[i]<\sum_{i=x}^y cost[i]$
     2. $\sum_{i=x}^j gas[i]>=\sum_{i=x}^j cost[i]$  (j取x到y的任意一个值)
 
-    所以：
-    $\sum_{i=z}^y gas[i] = \sum_{i=x}^y gas[i] - \sum_{i=x}^{z-1} gas[i]$$<\sum_{i=x}^y cost[i]-\sum_{i=x}^{z-1} cost[i] = \sum_{i=z}^y cost[i]$
-    证明完毕，有这个结论后我们即可一次遍历实现全过程
-- 空间复杂度：O（1）， 时间复杂度：O（N）
-- 代码：
+所以：
+$\sum_{i=z}^y gas[i] = \sum_{i=x}^y gas[i] - \sum_{i=x}^{z-1} gas[i]$$<\sum_{i=x}^y cost[i]-\sum_{i=x}^{z-1} cost[i] = \sum_{i=z}^y cost[i]$
+证明完毕，有这个结论后我们即可一次遍历实现全过程
+
+空间复杂度：`O（1）`， 时间复杂度：`O（N）`
+
 ```python
-class Solution:
-    def canCompleteCircuit(self, gas: List[int], cost: List[int]) -> int:
-        # total_gas记录可获得的总油量-总油耗， now_gas记录当前油耗情况， start_index记录出发位置
-        total_gas, now_gas, start_index = 0, 0, 0
-        for i in range(len(gas)):
-            total_gas += gas[i] - cost[i]
-            now_gas += gas[i] - cost[i]
-            if now_gas < 0:             # 油不够开到i站
-                now_gas = 0             # now_gas置零，在新位置重新开始计算油耗情况
-                start_index = i + 1     # 将起始位置改成i+1
-        if total_gas>=0:                # 如果total_gas>0那么一定有一个点可以环行一周
-            return start_index          # 此处的index可以满足它开始到结尾的now_gas判断，那么必定为所需答案
-        else:
-            return -1
+def canCompleteCircuit(gas: List[int], cost: List[int]) -> int:
+    # total_gas记录可获得的总油量-总油耗， now_gas记录当前油耗情况， start_index记录出发位置
+    total_gas, now_gas, start_index = 0, 0, 0
+    for i in range(len(gas)):
+        total_gas += gas[i] - cost[i]
+        now_gas += gas[i] - cost[i]
+        if now_gas < 0:             # 油不够开到i站
+            now_gas = 0             # now_gas置零，在新位置重新开始计算油耗情况
+            start_index = i + 1     # 将起始位置改成i+1
+    if total_gas>=0:                # 如果total_gas>0那么一定有一个点可以环行一周
+        return start_index          # 此处的index可以满足它开始到结尾的now_gas判断，那么必定为所需答案
+    else:
+        return -1
 ```
 
 #### 单调递增的数字：Monotone Increasing Digits
