@@ -172,27 +172,28 @@ def moveZeroes(self, nums):
 
 ### 两数之和 II - 输入有序数组
 
-- 题目描述：给定一个已按照 升序排列  的整数数组 numbers ，请你从数组中找出两个数满足相加之和等于目标数 target 。
+- 题目描述：给定一个已按照 升序排列 的整数数组 `numbers`，请你从数组中找出两个数满足相加之和等于目标数 `target`
 
-函数应该以长度为 2 的整数数组的形式返回这两个数的下标值。numbers 的下标 从 1 开始计数 ，所以答案数组应当满足 1 <= answer[0] < answer[1] <= numbers.length 。
+函数应该以长度为 2 的整数数组的形式返回这两个数的下标值。`numbers` 的下标 从 1 开始计数 ，所以答案数组应当满足 1 <= answer[0] < answer[1] <= numbers.length 。
 
 你可以假设每个输入只对应唯一的答案，而且你不可以重复使用相同的元素。
 
 - 示例：
 
+```bash
 输入：numbers = [2,7,11,15], target = 9
 输出：[1,2]
-解释：2 与 7 之和等于目标数 9 。因此 index1 = 1, index2 = 2 。
+解释：2 与 7 之和等于目标数 9 。因此 index1 = 1, index2 = 2
+```
 
 - 代码：
 
 ```py
-def twoSum(self, numbers, target):
+def twoSum(numbers, target):
     low, high = 0, len(numbers) - 1
     # O(N) 遍历，利用有序数组，如果和>target，右侧左移，如果和小于target，左侧右移
-    # 会不会漏解？不会漏解：因为答案位置是固定的，要么左侧先到答案位置，要么右侧先到答案位置。
-    # 如果左侧先到，那么此时total>target，那么一定是右侧左移
-    # 如果右侧先到，那么此时total<target，那么一定是右侧右移
+    # 如果左侧先到，那么此时total > target，那么一定是右侧左移
+    # 如果右侧先到，那么此时total < target，那么一定是右侧右移
     while low < high:
         total = numbers[low] + numbers[high]
         if total == target:
@@ -290,47 +291,6 @@ def removeNthFromEnd(self, head, n):
 ```
 
 ## 滑动窗口
-
-### 无重复字符的最长子串
-
-- 题目描述：给定一个字符串 s ，请你找出其中不含有重复字符的 最长子串 的长度。
-- 示例：
-输入: s = "abcabcbb"
-输出: 3
-解释: 因为无重复字符的最长子串是 "abc"，所以其长度为 3。
-
-- 代码：
-
-```py
-def lengthOfLongestSubstring(self, s):
-    left = right = 0
-    content = set()
-    max_len = 0
-    while right < len(s):
-        if s[right] in content:
-            content.remove(s[left])
-            left += 1
-        else:
-            content.add(s[right])
-            right += 1
-            max_len = max(len(content), max_len)
-    return max_len
-```
-
-- 优化：注意此时，left可能需要移动多次才能到新的位置。优化思路：记录字符出现的下标
-
-```py
-def lengthOfLongestSubstring(self, s):
-    start, result, c_dict = -1, 0, {}
-    for i, c in enumerate(s):
-        if c in c_dict and c_dict[c] > start:  # 字符c在字典中 且 上次出现的下标大于当前长度的起始下标
-            start = c_dict[c]
-            c_dict[c] = i
-        else:
-            c_dict[c] = i
-            result = max(result, i-start)
-    return result
-```
 
 ### 字符串的排列
 
