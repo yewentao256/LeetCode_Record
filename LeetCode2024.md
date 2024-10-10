@@ -20,6 +20,7 @@
     - [DFS](#dfs)
       - [Partition to K Equal Sum Subsets](#partition-to-k-equal-sum-subsets)
   - [Hard](#hard)
+    - [Find Subarray With Bitwise OR Closest to K](#find-subarray-with-bitwise-or-closest-to-k)
     - [Minimum Cost to Reach Destination in Time(Example)](#minimum-cost-to-reach-destination-in-timeexample)
     - [Maximum Number of Robots Within Budget](#maximum-number-of-robots-within-budget)
     - [Find the Median of the Uniqueness Array](#find-the-median-of-the-uniqueness-array)
@@ -456,6 +457,61 @@ def canPartitionKSubsets(nums: List[int], k: int) -> bool:
 ```
 
 ## Hard
+
+### Find Subarray With Bitwise OR Closest to K
+
+Q: You are given an array nums and an integer k. You need to find a subarray of nums such that the absolute difference between k and the bitwise OR of the subarray elements is as small as possible. In other words, select a subarray nums[l..r] such that |k - (nums[l] OR nums[l + 1] ... OR nums[r])| is minimum.
+
+Return the minimum possible value of the absolute difference.
+
+Eg:
+
+```bash
+Input: nums = [1,2,4,5], k = 3
+Output: 0
+The subarray nums[0..1] has OR value 3, which gives the minimum absolute difference |3 - 3| = 0.
+
+Input: nums = [1,3,1,3], k = 2
+Output: 1
+The subarray nums[1..1] has OR value 3, which gives the minimum absolute difference |3 - 2| = 1.
+
+Input: nums = [1], k = 10
+Output: 9
+There is a single subarray with OR value 1, which gives the minimum absolute difference |10 - 1| = 9.
+```
+
+Solution: Set + `Or` feature
+
+```py
+def minimumDifference(nums: List[int], k: int) -> int:
+    # Note: Since or can only have 32 kinds, so we use set
+    # Time: O(N * bits), Space: O(bits)
+
+    prev_ors = set()
+    min_diff = float('inf')
+    
+    for num in nums:
+        current_ors = set()
+        # current_ors init with num it self
+        current_ors.add(num)
+        
+        # here we get the result from all before
+        # eg: [0~n], [1~n], [2~n]... [n-1, n]
+        for or_val in prev_ors:
+            current_ors.add(or_val | num)
+        
+        # update min_diff
+        for or_val in current_ors:
+            diff = abs(k - or_val)
+            if diff < min_diff:
+                min_diff = diff
+                if min_diff == 0:
+                    return 0
+        
+        prev_ors = current_ors
+    
+    return min_diff
+```
 
 ### Minimum Cost to Reach Destination in Time(Example)
 
