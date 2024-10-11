@@ -14,6 +14,7 @@
     - [Sliding Window](#sliding-window)
       - [Take K of Each Character From Left and Right](#take-k-of-each-character-from-left-and-right)
     - [Array](#array-1)
+      - [Find the Number of Good Pairs](#find-the-number-of-good-pairs)
       - [Longest Consecutive Sequence](#longest-consecutive-sequence)
       - [Points That Intersect With Cars](#points-that-intersect-with-cars)
       - [Maximum Points Inside the Square](#maximum-points-inside-the-square)
@@ -274,6 +275,47 @@ def takeCharacters(s: str, k: int) -> int:
 ```
 
 ### Array
+
+#### Find the Number of Good Pairs
+
+Q: You are given 2 integer arrays nums1 and nums2 of lengths n and m respectively. You are also given a positive integer k.
+
+A pair (i, j) is called good if nums1[i] is divisible by nums2[j] * k (0 <= i <= n - 1, 0 <= j <= m - 1).
+
+Return the total number of good pairs.
+
+Eg:
+
+```bash
+Input: nums1 = [1,3,4], nums2 = [1,3,4], k = 1
+Output: 5
+The 5 good pairs are (0, 0), (1, 0), (1, 1), (2, 0), and (2, 2).
+
+Input: nums1 = [1,2,4,12], nums2 = [2,4], k = 3
+Output: 2
+The 2 good pairs are (3, 0) and (3, 1).
+```
+
+Solution: Frequency Counter. Time: `O(N + M + v/k*ln(v/k))`, Space: `O(N+M)`
+
+```py
+def numberOfPairs(nums1: List[int], nums2: List[int], k: int) -> int:
+    # Time: O(N + M + inner loop)
+    # Consider v = max_value, each loop will execute for v/k/num2 times
+    # in the worst case, num2=[1,2,3,4...,v/k]
+    # Inner loop: ∑(num2=1 -> num2=v/k, v/num2/k) = v/k * ∑(num2=1 -> num2=v/k, 1/num2)
+    #                                             = v/k * ln(v/k) 
+    # Space: O(N+M)
+    nums1_count = Counter(nums1)
+    max_value = max(nums1_count)
+    res = 0
+    for num2, cnt in Counter(nums2).items():
+        # num2 * k, 2 * num2 * k ...
+        for candidate in range(num2 * k, max_value + 1, num2 * k):
+            if candidate in nums1_count:
+                res += nums1_count[candidate] * cnt
+    return res
+```
 
 #### Longest Consecutive Sequence
 
