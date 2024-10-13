@@ -21,6 +21,7 @@
     - [DFS](#dfs)
       - [Partition to K Equal Sum Subsets](#partition-to-k-equal-sum-subsets)
   - [Hard](#hard)
+    - [Super Egg Drop](#super-egg-drop)
     - [Find Subarray With Bitwise OR Closest to K](#find-subarray-with-bitwise-or-closest-to-k)
     - [Minimum Cost to Reach Destination in Time(Example)](#minimum-cost-to-reach-destination-in-timeexample)
     - [Maximum Number of Robots Within Budget](#maximum-number-of-robots-within-budget)
@@ -499,6 +500,76 @@ def canPartitionKSubsets(nums: List[int], k: int) -> bool:
 ```
 
 ## Hard
+
+### Super Egg Drop
+
+Q: You are given k identical eggs and you have access to a building with n floors labeled from 1 to n.
+
+You know that there exists a floor f where 0 <= f <= n such that any egg dropped at a floor higher than f will break, and any egg dropped at or below floor f will not break.
+
+Each move, you may take an unbroken egg and drop it from any floor x (where 1 <= x <= n). If the egg breaks, you can no longer use it. However, if the egg does not break, you may reuse it in future moves.
+
+Return the minimum number of moves that you need to determine with certainty what the value of f is.
+
+Eg:
+
+```bash
+Input: k = 1, n = 2
+Output: 2
+Explanation: 
+Drop the egg from floor 1. If it breaks, we know that f = 0.
+Otherwise, drop the egg from floor 2. If it breaks, we know that f = 1.
+If it does not break, then we know f = 2.
+Hence, we need at minimum 2 moves to determine with certainty what the value of f is.
+
+Input: k = 2, n = 6
+Output: 3
+
+Input: k = 3, n = 14
+Output: 4
+```
+
+Solution1: Dynamic Programming 2D
+
+```py
+def superEggDrop(k: int, n: int) -> int:
+    # Dynamic Programming
+    # dp[m][k] = maximum number of floors that can be checked with k eggs in m moves
+    # we want to find the minimum m that dp[m][k] > n
+    # Consider the `m`th move, we throw in `x` floor
+    # 1. egg broken: `f` < x
+    #    so we should determine 0 ~ `x-1` with `m-1` moves and `k-1` eggs
+    # 2. egg save: `f` > x
+    #    so we should determine `x+1` ~ n with `m-1` moves and `k` eggs
+    # So dp[m][k] = dp[m-1][k-1] + dp[m-1][k] + 1   # +1 means we have xth floor determined
+    # dp[0][k] = 0, dp[m][0] = 0
+    # Time: O(k*m), m -> logN. Space: O(k*N)
+
+    dp = [[0] * (k + 1) for _ in range(n + 1)]
+    m = 0
+    while dp[m][k] < n:
+        m += 1
+        for i in range(1, k + 1):
+            dp[m][i] = dp[m-1][i-1] + dp[m-1][i] + 1
+    
+    return m
+```
+
+Solution: Dynamic Programming 1D
+
+```py
+def superEggDrop(k: int, n: int) -> int:
+    # Based on the equation above, we notice that only dp[m-1] is used, so we can optimize
+    # Time: O(k*logN). Space: O(k)
+    dp = [0] * (k + 1)
+    m = 0
+    while dp[k] < n:
+        m += 1
+        # for i in range(1, k + 1):    # wrong! dp[i-1] has been updated
+        for i in range(k, 0, -1):
+            dp[i] = dp[i-1] + dp[i] + 1
+    return m
+```
 
 ### Find Subarray With Bitwise OR Closest to K
 
